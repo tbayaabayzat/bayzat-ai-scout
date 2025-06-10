@@ -28,6 +28,30 @@ export function useCompaniesData() {
       console.log('Selected filter:', selectedFilter)
       
       try {
+        // First, let's try a simple query without any filters to see if we get data
+        console.log('Testing simple query without filters...')
+        const { data: testData, error: testError } = await supabase
+          .from('companies2')
+          .select('id, company_name')
+          .limit(5)
+        
+        console.log('Simple test query result:', testData)
+        console.log('Simple test query error:', testError)
+        
+        // Now let's check the auth status
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        console.log('Current user:', user)
+        console.log('Auth error:', authError)
+        
+        // Let's also try to get a count with a simple count query
+        const { count: directCount, error: countError } = await supabase
+          .from('companies2')
+          .select('*', { count: 'exact', head: true })
+        
+        console.log('Direct count result:', directCount)
+        console.log('Direct count error:', countError)
+        
+        // Now try the original query
         let query = supabase
           .from('companies2')
           .select('*')
@@ -52,11 +76,11 @@ export function useCompaniesData() {
           console.log('No specific filter applied - showing all companies')
         }
 
-        console.log('Executing query...')
+        console.log('Executing main query...')
         const { data, error } = await query.limit(100)
         
         if (error) {
-          console.error('Query error details:', {
+          console.error('Main query error details:', {
             message: error.message,
             details: error.details,
             hint: error.hint,
@@ -65,7 +89,7 @@ export function useCompaniesData() {
           throw error
         }
         
-        console.log('Query successful!')
+        console.log('Main query successful!')
         console.log('Raw data received:', data)
         console.log('Number of records:', data?.length || 0)
         
@@ -82,26 +106,14 @@ export function useCompaniesData() {
             const aiAnalysis = data[0].ai_analysis as any
             console.log('- Automation level exists:', !!aiAnalysis?.automation_level)
             console.log('- Automation level structure:', aiAnalysis?.automation_level)
-            console.log('- Systems inventory exists:', !!aiAnalysis?.systems_inventory)
-            console.log('- Systems inventory structure:', aiAnalysis?.systems_inventory)
+            console.log('- Systems inventory exists:', !!aiAnalysis?.systems)
+            console.log('- Systems inventory structure:', aiAnalysis?.systems)
           }
           
           // Check relationship field
           console.log('- Bayzat relationship:', data[0]?.bayzat_relationship)
         } else {
-          console.log('No data returned from query')
-          console.log('Checking if table exists and has data...')
-          
-          // Let's try a simple count query to see if there's any data at all
-          const { count, error: countError } = await supabase
-            .from('companies2')
-            .select('*', { count: 'exact', head: true })
-          
-          if (countError) {
-            console.error('Count query error:', countError)
-          } else {
-            console.log('Total records in companies2 table:', count)
-          }
+          console.log('No data returned from main query')
         }
         
         return data || []
