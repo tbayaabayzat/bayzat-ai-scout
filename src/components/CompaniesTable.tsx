@@ -1,4 +1,3 @@
-
 import { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -97,24 +96,13 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
         const analysis = row.original.ai_analysis
         console.log('Automation analysis for', row.original.company_name, ':', analysis)
         
-        // Try multiple possible paths for the automation score with proper type checking
+        // Based on the schema, the automation score is in automation_level.overall
         let score = 0
-        if (analysis && typeof analysis === 'object') {
-          const aiAnalysis = analysis as any
-          if (aiAnalysis.automation_level?.overall) {
-            score = aiAnalysis.automation_level.overall
-            console.log('Found automation score in automation_level.overall:', score)
-          } else if (aiAnalysis.automation_score_overall) {
-            score = aiAnalysis.automation_score_overall
-            console.log('Found automation score in automation_score_overall:', score)
-          } else if (aiAnalysis.overall_automation_score) {
-            score = aiAnalysis.overall_automation_score
-            console.log('Found automation score in overall_automation_score:', score)
-          } else {
-            console.log('No automation score found for', row.original.company_name)
-          }
+        if (analysis?.automation_level?.overall) {
+          score = analysis.automation_level.overall
+          console.log('Found automation score in automation_level.overall:', score)
         } else {
-          console.log('No ai_analysis or invalid format for', row.original.company_name)
+          console.log('No automation score found for', row.original.company_name)
         }
         
         return <AutomationScorePopover score={score} analysis={analysis} />
@@ -124,9 +112,10 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
       id: "systems",
       header: "Systems",
       cell: ({ row }) => {
+        // Based on the schema, systems are in the systems object
         let systems = null
-        if (row.original.ai_analysis && typeof row.original.ai_analysis === 'object') {
-          systems = (row.original.ai_analysis as any).systems_inventory
+        if (row.original.ai_analysis?.systems) {
+          systems = row.original.ai_analysis.systems
         }
         console.log('Systems for', row.original.company_name, ':', systems)
         return <SystemsDisplay systems={systems} />

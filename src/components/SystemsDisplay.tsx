@@ -17,16 +17,50 @@ export function SystemsDisplay({ systems }: SystemsDisplayProps) {
 
   if (!systems) return <span className="text-muted-foreground text-sm">No systems data</span>
 
-  // Prioritize ERP, HRIS, Accounting
-  if (systems.has_erp) prioritySystems.push("ERP")
-  if (systems.has_hris) prioritySystems.push("HRIS")
-  if (systems.accounting_software) prioritySystems.push(systems.accounting_software)
+  console.log('SystemsDisplay - systems structure:', systems)
+
+  // Based on the schema, access systems properly
+  if (systems.ERP?.name && systems.ERP.name !== 'None') {
+    prioritySystems.push(systems.ERP.name)
+  }
+  
+  if (systems.HRIS?.name && systems.HRIS.name !== 'None') {
+    prioritySystems.push(systems.HRIS.name)
+  }
+  
+  if (systems.Accounting?.name && systems.Accounting.name !== 'None') {
+    prioritySystems.push(systems.Accounting.name)
+  }
 
   // Add other systems
-  if (systems.has_crm) otherSystems.push("CRM")
-  if (systems.payroll_software) otherSystems.push(systems.payroll_software)
-  if (systems.project_management_tools) otherSystems.push(...systems.project_management_tools)
-  if (systems.communication_tools) otherSystems.push(...systems.communication_tools)
+  if (systems.Payroll?.name && systems.Payroll.name !== 'None') {
+    otherSystems.push(systems.Payroll.name)
+  }
+  
+  if (systems.AP_Automation?.name && systems.AP_Automation.name !== 'None') {
+    otherSystems.push(systems.AP_Automation.name)
+  }
+  
+  if (systems.Expense_Management?.name && systems.Expense_Management.name !== 'None') {
+    otherSystems.push(systems.Expense_Management.name)
+  }
+  
+  if (systems.Document_Management?.name && systems.Document_Management.name !== 'None') {
+    otherSystems.push(systems.Document_Management.name)
+  }
+  
+  if (systems.Time_Attendance_Hardware?.name && systems.Time_Attendance_Hardware.name !== 'None') {
+    otherSystems.push(systems.Time_Attendance_Hardware.name)
+  }
+
+  // Add other software
+  if (systems.Other_Software && Array.isArray(systems.Other_Software)) {
+    systems.Other_Software.forEach((software: any) => {
+      if (software.name) {
+        otherSystems.push(software.name)
+      }
+    })
+  }
 
   const hasMoreSystems = otherSystems.length > 0
 
