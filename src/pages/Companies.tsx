@@ -44,7 +44,7 @@ export default function Companies() {
     return company.ai_analysis?.automation_score_overall || 0
   }
 
-  const getAutomationLevel = (score: number) => {
+  const getAutomationLevel = (score: number): { label: string; color: "default" | "destructive" | "outline" | "secondary" } => {
     if (score >= 4) return { label: "High", color: "default" }
     if (score >= 2) return { label: "Medium", color: "secondary" }
     return { label: "Low", color: "destructive" }

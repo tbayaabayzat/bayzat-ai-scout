@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
@@ -41,7 +40,7 @@ export default function Employees() {
     }
   })
 
-  const getSeniorityLevel = (headline: string, experience: number) => {
+  const getSeniorityLevel = (headline: string, experience: number): { label: string; color: "default" | "destructive" | "outline" | "secondary" } => {
     const title = headline?.toLowerCase() || ""
     const years = experience || 0
     
@@ -57,7 +56,7 @@ export default function Employees() {
     return { label: "Individual", color: "outline" }
   }
 
-  const getNetworkStrength = (connections: number) => {
+  const getNetworkStrength = (connections: number): { label: string; color: "default" | "destructive" | "outline" | "secondary" } => {
     if (connections >= 1000) return { label: "High", color: "default" }
     if (connections >= 500) return { label: "Medium", color: "secondary" }
     return { label: "Low", color: "outline" }
