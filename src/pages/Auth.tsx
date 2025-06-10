@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
-import { Building2 } from "lucide-react"
+import { BayzatLogo } from "@/components/BayzatLogo"
 
 export default function Auth() {
   const [email, setEmail] = useState("")
@@ -23,8 +23,8 @@ export default function Auth() {
     e.preventDefault()
     if (!email || !password) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
+        title: "Missing information",
+        description: "Please enter both email and password",
         variant: "destructive"
       })
       return
@@ -35,14 +35,14 @@ export default function Auth() {
     
     if (error) {
       toast({
-        title: "Sign in failed",
+        title: "Unable to sign in",
         description: error.message,
         variant: "destructive"
       })
     } else {
       toast({
-        title: "Welcome back!",
-        description: "You have been signed in successfully."
+        title: "Welcome back",
+        description: "You've been signed in successfully"
       })
       navigate("/dashboard")
     }
@@ -53,8 +53,8 @@ export default function Auth() {
     e.preventDefault()
     if (!email || !password || !fullName) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
+        title: "Missing information",
+        description: "Please fill in all required fields",
         variant: "destructive"
       })
       return
@@ -72,132 +72,160 @@ export default function Auth() {
         })
       } else {
         toast({
-          title: "Sign up failed",
+          title: "Unable to create account",
           description: error.message,
           variant: "destructive"
         })
       }
     } else {
       toast({
-        title: "Account created!",
-        description: "Check your email to confirm your account."
+        title: "Account created",
+        description: "Please check your email to verify your account"
       })
     }
     setLoading(false)
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="flex justify-center">
-            <Building2 className="h-12 w-12 text-primary" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8">
+        {/* Header with Logo */}
+        <div className="text-center space-y-6">
+          <BayzatLogo className="mx-auto" width={140} height={48} />
+          <div className="space-y-2">
+            <h1 className="text-display text-foreground">Welcome back</h1>
+            <p className="text-caption">
+              Sign in to access your sales intelligence platform
+            </p>
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            Bayzat Sales Hub
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Access your sales research platform
-          </p>
         </div>
 
+        {/* Auth Forms */}
         <Tabs defaultValue="signin" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-lg">
+            <TabsTrigger 
+              value="signin" 
+              className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition-all"
+            >
+              Sign in
+            </TabsTrigger>
+            <TabsTrigger 
+              value="signup" 
+              className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition-all"
+            >
+              Create account
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="signin">
-            <Card>
-              <CardHeader>
-                <CardTitle>Sign In</CardTitle>
-                <CardDescription>
-                  Enter your credentials to access the platform
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSignIn} className="space-y-4">
+          <TabsContent value="signin" className="mt-6">
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardContent className="p-0">
+                <form onSubmit={handleSignIn} className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
+                    <Label htmlFor="signin-email" className="text-sm font-medium text-foreground">
+                      Email address
+                    </Label>
                     <Input
                       id="signin-email"
                       type="email"
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      className="h-12 border-border bg-background focus:ring-primary focus:border-primary"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
+                    <Label htmlFor="signin-password" className="text-sm font-medium text-foreground">
+                      Password
+                    </Label>
                     <Input
                       id="signin-password"
                       type="password"
                       placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      className="h-12 border-border bg-background focus:ring-primary focus:border-primary"
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Signing in..." : "Sign In"}
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg transition-colors" 
+                    disabled={loading}
+                  >
+                    {loading ? "Signing in..." : "Sign in"}
                   </Button>
                 </form>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="signup">
-            <Card>
-              <CardHeader>
-                <CardTitle>Create Account</CardTitle>
-                <CardDescription>
-                  Join the Bayzat sales research platform
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSignUp} className="space-y-4">
+          <TabsContent value="signup" className="mt-6">
+            <Card className="border-0 shadow-none bg-transparent">
+              <CardContent className="p-0">
+                <form onSubmit={handleSignUp} className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name</Label>
+                    <Label htmlFor="signup-name" className="text-sm font-medium text-foreground">
+                      Full name
+                    </Label>
                     <Input
                       id="signup-name"
                       type="text"
                       placeholder="Enter your full name"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
+                      className="h-12 border-border bg-background focus:ring-primary focus:border-primary"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email" className="text-sm font-medium text-foreground">
+                      Email address
+                    </Label>
                     <Input
                       id="signup-email"
                       type="email"
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      className="h-12 border-border bg-background focus:ring-primary focus:border-primary"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-password" className="text-sm font-medium text-foreground">
+                      Password
+                    </Label>
                     <Input
                       id="signup-password"
                       type="password"
-                      placeholder="Create a password"
+                      placeholder="Create a secure password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      className="h-12 border-border bg-background focus:ring-primary focus:border-primary"
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Creating account..." : "Create Account"}
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg transition-colors" 
+                    disabled={loading}
+                  >
+                    {loading ? "Creating account..." : "Create account"}
                   </Button>
                 </form>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Footer */}
+        <div className="text-center">
+          <p className="text-caption">
+            By continuing, you agree to Bayzat's terms of service and privacy policy
+          </p>
+        </div>
       </div>
     </div>
   )
