@@ -70,8 +70,22 @@ export function useCompaniesData() {
         console.log('Number of records:', data?.length || 0)
         
         if (data && data.length > 0) {
-          console.log('Sample record:', data[0])
-          console.log('Sample ai_analysis structure:', data[0]?.ai_analysis)
+          console.log('Sample record structure:')
+          console.log('- Full record:', data[0])
+          console.log('- Company name:', data[0]?.company_name)
+          console.log('- AI analysis exists:', !!data[0]?.ai_analysis)
+          console.log('- AI analysis structure:', data[0]?.ai_analysis)
+          
+          // Check for automation data specifically
+          if (data[0]?.ai_analysis) {
+            console.log('- Automation level exists:', !!data[0]?.ai_analysis?.automation_level)
+            console.log('- Automation level structure:', data[0]?.ai_analysis?.automation_level)
+            console.log('- Systems inventory exists:', !!data[0]?.ai_analysis?.systems_inventory)
+            console.log('- Systems inventory structure:', data[0]?.ai_analysis?.systems_inventory)
+          }
+          
+          // Check relationship field
+          console.log('- Bayzat relationship:', data[0]?.bayzat_relationship)
         } else {
           console.log('No data returned from query')
         }

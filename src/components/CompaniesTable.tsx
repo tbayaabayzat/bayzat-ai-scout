@@ -84,15 +84,33 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
       accessorKey: "bayzat_relationship",
       header: "Status",
       enableColumnFilter: true,
-      cell: ({ row }) => getRelationshipBadge(row.getValue("bayzat_relationship"))
+      cell: ({ row }) => {
+        const relationship = row.getValue("bayzat_relationship") as string
+        console.log('Relationship value for', row.original.company_name, ':', relationship)
+        return getRelationshipBadge(relationship)
+      }
     },
     {
       id: "automation",
       header: "Automation",
       cell: ({ row }) => {
         const analysis = row.original.ai_analysis
-        // Updated to use the correct nested structure
-        const score = analysis?.automation_level?.overall || 0
+        console.log('Automation analysis for', row.original.company_name, ':', analysis)
+        
+        // Try multiple possible paths for the automation score
+        let score = 0
+        if (analysis?.automation_level?.overall) {
+          score = analysis.automation_level.overall
+          console.log('Found automation score in automation_level.overall:', score)
+        } else if (analysis?.automation_score_overall) {
+          score = analysis.automation_score_overall
+          console.log('Found automation score in automation_score_overall:', score)
+        } else if (analysis?.overall_automation_score) {
+          score = analysis.overall_automation_score
+          console.log('Found automation score in overall_automation_score:', score)
+        } else {
+          console.log('No automation score found for', row.original.company_name)
+        }
         
         return <AutomationScorePopover score={score} analysis={analysis} />
       }
@@ -102,6 +120,7 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
       header: "Systems",
       cell: ({ row }) => {
         const systems = row.original.ai_analysis?.systems_inventory
+        console.log('Systems for', row.original.company_name, ':', systems)
         return <SystemsDisplay systems={systems} />
       }
     },
@@ -145,6 +164,7 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
 
   // Handle undefined companies data
   const safeCompanies = companies || []
+  console.log('CompaniesTable rendering with', safeCompanies.length, 'companies')
 
   return (
     <div>
@@ -152,7 +172,7 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
         <div className="text-sm text-muted-foreground">
           Showing {safeCompanies.length} companies
         </div>
-        {safeCompanies.length === 0 && (
+        {safeCompanies.length === 0 && !isLoading && (
           <div className="text-sm text-orange-600">
             No data found. Check console for debugging info.
           </div>

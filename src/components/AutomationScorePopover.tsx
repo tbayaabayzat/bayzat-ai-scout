@@ -27,8 +27,13 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
     return "Low"
   }
 
-  // Access the correct nested structure for automation scores
+  // Debug logging for automation data structure
+  console.log('AutomationScorePopover - analysis:', analysis)
+  console.log('AutomationScorePopover - score:', score)
+
+  // Access the correct nested structure for automation scores with fallbacks
   const automationLevel = analysis?.automation_level || {}
+  console.log('AutomationScorePopover - automationLevel:', automationLevel)
 
   return (
     <Popover>
@@ -72,6 +77,13 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
                   <Progress value={automationLevel.it * 20} className="h-2" />
                 </div>
               )}
+              
+              {/* Show a message if no automation data is available */}
+              {!automationLevel?.finance && !automationLevel?.hr && !automationLevel?.it && (
+                <div className="text-sm text-muted-foreground">
+                  No detailed automation scores available
+                </div>
+              )}
             </div>
           </div>
           
@@ -79,6 +91,15 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
             <div>
               <h5 className="font-medium text-sm mb-2">Rationale</h5>
               <p className="text-sm text-muted-foreground">{automationLevel.automation_rationale}</p>
+            </div>
+          )}
+          
+          {/* Debug info in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="text-xs text-gray-500 border-t pt-2">
+              <div>Debug: Score={score}</div>
+              <div>Has automation_level: {!!automationLevel}</div>
+              <div>Keys: {Object.keys(automationLevel).join(', ')}</div>
             </div>
           )}
         </div>
