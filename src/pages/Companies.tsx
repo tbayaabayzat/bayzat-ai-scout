@@ -19,7 +19,7 @@ export default function Companies() {
         .limit(20)
 
       if (searchTerm) {
-        query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+        query = query.or(`company_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
       }
 
       const { data, error } = await query
@@ -69,7 +69,7 @@ export default function Companies() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-2">
                     <Building2 className="h-5 w-5 text-primary" />
-                    <CardTitle className="text-lg">{company.name}</CardTitle>
+                    <CardTitle className="text-lg">{company.company_name}</CardTitle>
                   </div>
                   {company.industry && (
                     <Badge variant="secondary" className="text-xs">
@@ -83,10 +83,10 @@ export default function Companies() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {company.location && (
+                  {company.headquarter && (
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                       <MapPin className="h-4 w-4" />
-                      <span>{company.location}</span>
+                      <span>{typeof company.headquarter === 'string' ? company.headquarter : JSON.stringify(company.headquarter)}</span>
                     </div>
                   )}
                   {company.employee_count && (
@@ -95,15 +95,15 @@ export default function Companies() {
                       <span>{company.employee_count.toLocaleString()} employees</span>
                     </div>
                   )}
-                  {company.website && (
+                  {company.website_url && (
                     <div className="text-sm">
                       <a 
-                        href={company.website} 
+                        href={company.website_url} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-primary hover:underline"
                       >
-                        {company.website}
+                        {company.website_url}
                       </a>
                     </div>
                   )}
