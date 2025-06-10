@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
@@ -32,43 +31,80 @@ export default function Companies() {
   const { data: companies, isLoading, error } = useQuery({
     queryKey: ['companies', searchTerm, selectedFilter],
     queryFn: async () => {
-      console.log('Fetching companies with search:', searchTerm, 'filter:', selectedFilter)
+      console.log('=== Starting companies fetch ===')
+      console.log('Search term:', searchTerm)
+      console.log('Selected filter:', selectedFilter)
       
-      let query = supabase
-        .from('companies2')
-        .select('*')
-        .limit(100) // Reduced limit for initial testing
+      try {
+        // First, let's try a simple count query to see if the table exists and has data
+        const { count, error: countError } = await supabase
+          .from('companies2')
+          .select('*', { count: 'exact', head: true })
+        
+        console.log('Table row count:', count)
+        if (countError) {
+          console.error('Count query error:', countError)
+        }
 
-      if (searchTerm) {
-        query = query.or(`company_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
-      }
+        let query = supabase
+          .from('companies2')
+          .select('*')
+          .limit(50) // Start with smaller limit for debugging
 
-      // Apply AI-powered filters
-      if (selectedFilter === "Legacy Systems") {
-        query = query.lt('founded_year', 2015)
-      } else if (selectedFilter === "High Manual Work") {
-        query = query.contains('ai_analysis', { automation_score_overall: { range: [0, 3] } })
-      } else if (selectedFilter === "Missing HRIS") {
-        query = query.contains('ai_analysis', { systems_inventory: { has_hris: false } })
-      } else if (selectedFilter === "Customers Only") {
-        query = query.eq('bayzat_relationship', 'customer')
-      } else if (selectedFilter === "Prospects Only") {
-        query = query.eq('bayzat_relationship', 'prospect')
-      }
+        if (searchTerm) {
+          query = query.or(`company_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
+        }
 
-      const { data, error } = await query
-      if (error) {
-        console.error('Supabase error:', error)
-        throw error
+        // Apply AI-powered filters
+        if (selectedFilter === "Legacy Systems") {
+          query = query.lt('founded_year', 2015)
+        } else if (selectedFilter === "High Manual Work") {
+          query = query.contains('ai_analysis', { automation_score_overall: { range: [0, 3] } })
+        } else if (selectedFilter === "Missing HRIS") {
+          query = query.contains('ai_analysis', { systems_inventory: { has_hris: false } })
+        } else if (selectedFilter === "Customers Only") {
+          query = query.eq('bayzat_relationship', 'customer')
+        } else if (selectedFilter === "Prospects Only") {
+          query = query.eq('bayzat_relationship', 'prospect')
+        }
+
+        console.log('Executing query...')
+        const { data, error } = await query
+        
+        if (error) {
+          console.error('Query error details:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
+          })
+          throw error
+        }
+        
+        console.log('Query successful!')
+        console.log('Raw data received:', data)
+        console.log('Number of records:', data?.length || 0)
+        
+        if (data && data.length > 0) {
+          console.log('Sample record:', data[0])
+        } else {
+          console.log('No data returned from query')
+        }
+        
+        return data || []
+      } catch (err) {
+        console.error('Fetch error:', err)
+        throw err
       }
-      
-      console.log('Fetched companies:', data?.length || 0, 'records')
-      return data || []
     }
   })
 
   // Debug logging
-  console.log('Companies query state:', { isLoading, error, dataCount: companies?.length })
+  console.log('=== Component render state ===')
+  console.log('Loading:', isLoading)
+  console.log('Error:', error)
+  console.log('Companies data:', companies)
+  console.log('Companies length:', companies?.length)
 
   const getRelationshipBadge = (relationship: string) => {
     switch (relationship) {
@@ -213,18 +249,27 @@ export default function Companies() {
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="ml-2">Loading companies...</span>
         </div>
       ) : error ? (
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <p className="text-red-500 mb-2">Error loading companies</p>
             <p className="text-sm text-muted-foreground">{error.message}</p>
+            <p className="text-xs text-muted-foreground mt-2">Check browser console for details</p>
           </div>
         </div>
       ) : (
         <div>
-          <div className="mb-4 text-sm text-muted-foreground">
-            Showing {companies?.length || 0} companies
+          <div className="mb-4 flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Showing {companies?.length || 0} companies
+            </div>
+            {companies?.length === 0 && (
+              <div className="text-sm text-orange-600">
+                No data found. Check console for debugging info.
+              </div>
+            )}
           </div>
           <DataTable 
             columns={columns} 
