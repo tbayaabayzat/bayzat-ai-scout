@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -24,43 +24,41 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <DashboardLayout><Dashboard /></DashboardLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/companies" element={
-              <ProtectedRoute>
-                <DashboardLayout><Companies /></DashboardLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/employees" element={
-              <ProtectedRoute>
-                <DashboardLayout><Employees /></DashboardLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/research" element={
-              <ProtectedRoute>
-                <DashboardLayout><Research /></DashboardLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/analytics" element={
-              <ProtectedRoute>
-                <DashboardLayout><div className="p-8">Analytics Coming Soon</div></DashboardLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/settings" element={
-              <ProtectedRoute>
-                <DashboardLayout><div className="p-8">Settings Coming Soon</div></DashboardLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <DashboardLayout><Dashboard /></DashboardLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/companies" element={
+            <ProtectedRoute>
+              <DashboardLayout><Companies /></DashboardLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/employees" element={
+            <ProtectedRoute>
+              <DashboardLayout><Employees /></DashboardLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/research" element={
+            <ProtectedRoute>
+              <DashboardLayout><Research /></DashboardLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/analytics" element={
+            <ProtectedRoute>
+              <DashboardLayout><div className="p-8">Analytics Coming Soon</div></DashboardLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <DashboardLayout><div className="p-8">Settings Coming Soon</div></DashboardLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
