@@ -1,10 +1,7 @@
 
 import { useState } from "react"
-import { TrendingUp, Users, Building2, Zap, AlertTriangle, ChevronDown, ChevronRight } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { TrendingUp, Users, Building2, Zap, AlertTriangle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
 interface InsightCard {
   icon: React.ReactNode
@@ -21,8 +18,6 @@ interface AIInsightsProps {
 }
 
 export function AIInsights({ insights = [], title = "AI Insights" }: AIInsightsProps) {
-  const [isOpen, setIsOpen] = useState(true)
-
   const defaultInsights: InsightCard[] = [
     {
       icon: <Building2 className="h-4 w-4" />,
@@ -73,7 +68,7 @@ export function AIInsights({ insights = [], title = "AI Insights" }: AIInsightsP
 
   return (
     <div className="border-t border-sidebar-border/50 pt-4">
-      <div className="relative">
+      <div className="relative mb-4">
         <div 
           className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"
           style={{
@@ -82,50 +77,43 @@ export function AIInsights({ insights = [], title = "AI Insights" }: AIInsightsP
         />
       </div>
       
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between p-3 h-auto">
-            <div className="flex items-start space-x-3">
-              <div className="flex-shrink-0 p-2 bg-primary/10 rounded-md">
-                <Zap className="h-4 w-4 text-primary" />
-              </div>
-              <div className="text-left">
-                <div className="font-medium text-sm">{title}</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Real-time market intelligence
-                </div>
-              </div>
+      <div className="px-3">
+        <div className="flex items-start space-x-3 mb-4">
+          <div className="flex-shrink-0 p-2 bg-primary/10 rounded-md">
+            <Zap className="h-4 w-4 text-primary" />
+          </div>
+          <div className="text-left">
+            <div className="font-medium text-sm">{title}</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              Real-time market intelligence
             </div>
-            {isOpen ? (
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            ) : (
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            )}
-          </Button>
-        </CollapsibleTrigger>
+          </div>
+        </div>
         
-        <CollapsibleContent className="px-3 pb-2">
-          <div className="space-y-3 mt-3">
-            {displayInsights.map((insight, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex items-center justify-center p-2 bg-accent/50 rounded-md">
+        <div className="space-y-4">
+          {displayInsights.map((insight, index) => (
+            <div key={index} className="text-left">
+              <div className="flex items-center space-x-2 mb-2">
+                <div className="flex-shrink-0 p-1 bg-accent/50 rounded">
                   {insight.icon}
                 </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center space-x-2 mb-1">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-2">
                     {insight.value && (
                       <Badge variant={insight.color} className="text-xs">{insight.value}</Badge>
                     )}
                     {getTrendIcon(insight.trend)}
                   </div>
-                  <p className="text-xs font-medium">{insight.title}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{insight.description}</p>
                 </div>
               </div>
-            ))}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+              <div className="ml-0">
+                <p className="text-xs font-medium">{insight.title}</p>
+                <p className="text-xs text-muted-foreground mt-1">{insight.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

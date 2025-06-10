@@ -10,8 +10,10 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { UserMenu } from "@/components/UserMenu"
+import { BayzatLogo } from "@/components/BayzatLogo"
 import { useNavigate, useLocation } from "react-router-dom"
 import { AIInsights } from "@/components/AIInsights"
 
@@ -44,10 +46,11 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="p-4">
+      <SidebarHeader className="p-6 pb-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Building2 className="h-6 w-6 text-primary" />
+          <div className="flex items-center gap-3">
+            <SidebarTrigger className="h-6 w-6" />
+            <BayzatLogo width={100} height={32} />
           </div>
           <UserMenu />
         </div>
