@@ -3,87 +3,35 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { BayzatLogo } from "@/components/BayzatLogo"
 import { UseCaseSlider } from "@/components/UseCaseSlider"
+import { supabase } from "@/integrations/supabase/client"
 
 export default function Auth() {
-  const [isSignUp, setIsSignUp] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [fullName, setFullName] = useState("")
   const [loading, setLoading] = useState(false)
-  const { signIn, signUp } = useAuth()
   const navigate = useNavigate()
   const { toast } = useToast()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleGoogleSignIn = async () => {
+    setLoading(true)
     
-    if (isSignUp) {
-      if (!email || !password || !fullName) {
-        toast({
-          title: "Missing information",
-          description: "Please fill in all required fields",
-          variant: "destructive"
-        })
-        return
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`
       }
-
-      setLoading(true)
-      const { error } = await signUp(email, password, fullName)
-      
-      if (error) {
-        if (error.message.includes("already registered")) {
-          toast({
-            title: "Account exists",
-            description: "An account with this email already exists. Please sign in instead.",
-            variant: "destructive"
-          })
-        } else {
-          toast({
-            title: "Unable to create account",
-            description: error.message,
-            variant: "destructive"
-          })
-        }
-      } else {
-        toast({
-          title: "Account created",
-          description: "Please check your email to verify your account"
-        })
-      }
-      setLoading(false)
-    } else {
-      if (!email || !password) {
-        toast({
-          title: "Missing information",
-          description: "Please enter both email and password",
-          variant: "destructive"
-        })
-        return
-      }
-
-      setLoading(true)
-      const { error } = await signIn(email, password)
-      
-      if (error) {
-        toast({
-          title: "Unable to sign in",
-          description: error.message,
-          variant: "destructive"
-        })
-      } else {
-        toast({
-          title: "Welcome back",
-          description: "You've been signed in successfully"
-        })
-        navigate("/dashboard")
-      }
-      setLoading(false)
+    })
+    
+    if (error) {
+      toast({
+        title: "Unable to sign in",
+        description: error.message,
+        variant: "destructive"
+      })
     }
+    
+    setLoading(false)
   }
 
   return (
@@ -112,87 +60,19 @@ export default function Auth() {
 
             {/* Auth Form */}
             <div className="space-y-8">
-              {/* Toggle */}
-              <div className="flex items-center justify-center text-base text-muted-foreground font-light">
-                {isSignUp ? "Already have an account?" : "New to Bayzat?"}{" "}
-                <button
-                  type="button"
-                  onClick={() => setIsSignUp(!isSignUp)}
-                  className="ml-2 text-primary hover:text-primary/80 font-medium transition-colors"
-                >
-                  {isSignUp ? "Sign in" : "Create account"}
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-5">
-                {isSignUp && (
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="sr-only">
-                      Full name
-                    </Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="Enter your full name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="h-14 text-base bg-background border-border/50 focus:border-primary/30 rounded-xl font-light placeholder:text-muted-foreground/60"
-                      required
-                    />
-                  </div>
-                )}
-                
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="sr-only">
-                    Email
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your personal or work email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="h-14 text-base bg-background border-border/50 focus:border-primary/30 rounded-xl font-light placeholder:text-muted-foreground/60"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="sr-only">
-                    Password
-                  </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder={isSignUp ? "Create a secure password" : "Enter your password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-14 text-base bg-background border-border/50 focus:border-primary/30 rounded-xl font-light placeholder:text-muted-foreground/60"
-                    required
-                  />
-                </div>
-
+              <div className="space-y-5">
                 <Button 
-                  type="submit" 
+                  onClick={handleGoogleSignIn}
                   className="w-full h-14 bg-bayzat-purple hover:bg-bayzat-purple/90 text-white font-medium text-base rounded-xl transition-all duration-200 shadow-sm hover:shadow-md" 
                   disabled={loading}
                 >
-                  {loading 
-                    ? (isSignUp ? "Creating account..." : "Signing in...") 
-                    : (isSignUp ? "Continue with email" : "Continue with email")
-                  }
+                  {loading ? "Signing in..." : "Continue with Google"}
                 </Button>
-              </form>
-            </div>
+              </div>
 
-            {/* Footer */}
-            <div className="text-sm text-muted-foreground/70 leading-relaxed font-light max-w-xs mx-auto">
-              By continuing, you agree to Bayzat's{" "}
-              <button className="underline hover:text-foreground transition-colors">Consumer Terms</button>{" "}
-              and{" "}
-              <button className="underline hover:text-foreground transition-colors">Usage Policy</button>,{" "}
-              and acknowledge our{" "}
-              <button className="underline hover:text-foreground transition-colors">Privacy Policy</button>.
+              <p className="text-sm text-muted-foreground/70 leading-relaxed font-light max-w-xs mx-auto">
+                Access is restricted to authorized Bayzat team members only.
+              </p>
             </div>
           </div>
         </div>
