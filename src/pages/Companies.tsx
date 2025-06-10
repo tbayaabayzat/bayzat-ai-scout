@@ -35,7 +35,7 @@ export default function Companies() {
       let query = supabase
         .from('companies2')
         .select('*')
-        .limit(50)
+        .limit(500) // Increased limit to populate more data
 
       if (searchTerm) {
         query = query.or(`company_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
