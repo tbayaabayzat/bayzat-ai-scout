@@ -26,7 +26,9 @@ export function UserMenu() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarFallback>{getInitials(user.email || "U")}</AvatarFallback>
+            <AvatarFallback style={{ backgroundColor: '#CD2873' }} className="text-white font-medium">
+              {getInitials(user.email || "U")}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

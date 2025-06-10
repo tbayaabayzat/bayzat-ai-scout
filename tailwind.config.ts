@@ -22,6 +22,7 @@ export default {
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
+				'input-enhanced': 'hsl(var(--input-enhanced))',
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
@@ -68,7 +69,8 @@ export default {
 					purple: 'hsl(var(--bayzat-purple))',
 					'dark-purple': 'hsl(var(--bayzat-dark-purple))',
 					charcoal: 'hsl(var(--bayzat-charcoal))',
-					'light-gray': 'hsl(var(--bayzat-light-gray))'
+					'light-gray': 'hsl(var(--bayzat-light-gray))',
+					pink: 'hsl(var(--bayzat-pink))'
 				}
 			},
 			borderRadius: {
