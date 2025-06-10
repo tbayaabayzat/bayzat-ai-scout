@@ -31,8 +31,11 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
   console.log('AutomationScorePopover - analysis:', analysis)
   console.log('AutomationScorePopover - score:', score)
 
-  // Access the correct nested structure for automation scores with fallbacks
-  const automationLevel = analysis?.automation_level || {}
+  // Access the correct nested structure for automation scores with fallbacks and proper type checking
+  let automationLevel = {}
+  if (analysis && typeof analysis === 'object' && analysis.automation_level) {
+    automationLevel = analysis.automation_level
+  }
   console.log('AutomationScorePopover - automationLevel:', automationLevel)
 
   return (
@@ -50,36 +53,37 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
           <div>
             <h4 className="font-medium mb-2">Automation Analysis</h4>
             <div className="space-y-3">
-              {automationLevel?.finance && (
+              {automationLevel && typeof automationLevel === 'object' && (automationLevel as any).finance && (
                 <div>
                   <div className="flex justify-between text-sm mb-1">
                     <span>Finance</span>
-                    <span>{automationLevel.finance.toFixed(1)}</span>
+                    <span>{(automationLevel as any).finance.toFixed(1)}</span>
                   </div>
-                  <Progress value={automationLevel.finance * 20} className="h-2" />
+                  <Progress value={(automationLevel as any).finance * 20} className="h-2" />
                 </div>
               )}
-              {automationLevel?.hr && (
+              {automationLevel && typeof automationLevel === 'object' && (automationLevel as any).hr && (
                 <div>
                   <div className="flex justify-between text-sm mb-1">
                     <span>HR</span>
-                    <span>{automationLevel.hr.toFixed(1)}</span>
+                    <span>{(automationLevel as any).hr.toFixed(1)}</span>
                   </div>
-                  <Progress value={automationLevel.hr * 20} className="h-2" />
+                  <Progress value={(automationLevel as any).hr * 20} className="h-2" />
                 </div>
               )}
-              {automationLevel?.it && (
+              {automationLevel && typeof automationLevel === 'object' && (automationLevel as any).it && (
                 <div>
                   <div className="flex justify-between text-sm mb-1">
                     <span>IT</span>
-                    <span>{automationLevel.it.toFixed(1)}</span>
+                    <span>{(automationLevel as any).it.toFixed(1)}</span>
                   </div>
-                  <Progress value={automationLevel.it * 20} className="h-2" />
+                  <Progress value={(automationLevel as any).it * 20} className="h-2" />
                 </div>
               )}
               
               {/* Show a message if no automation data is available */}
-              {!automationLevel?.finance && !automationLevel?.hr && !automationLevel?.it && (
+              {(!automationLevel || typeof automationLevel !== 'object' || 
+                (!(automationLevel as any).finance && !(automationLevel as any).hr && !(automationLevel as any).it)) && (
                 <div className="text-sm text-muted-foreground">
                   No detailed automation scores available
                 </div>
@@ -87,10 +91,10 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
             </div>
           </div>
           
-          {automationLevel?.automation_rationale && (
+          {automationLevel && typeof automationLevel === 'object' && (automationLevel as any).automation_rationale && (
             <div>
               <h5 className="font-medium text-sm mb-2">Rationale</h5>
-              <p className="text-sm text-muted-foreground">{automationLevel.automation_rationale}</p>
+              <p className="text-sm text-muted-foreground">{(automationLevel as any).automation_rationale}</p>
             </div>
           )}
           
@@ -99,7 +103,7 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
             <div className="text-xs text-gray-500 border-t pt-2">
               <div>Debug: Score={score}</div>
               <div>Has automation_level: {!!automationLevel}</div>
-              <div>Keys: {Object.keys(automationLevel).join(', ')}</div>
+              <div>Keys: {automationLevel && typeof automationLevel === 'object' ? Object.keys(automationLevel).join(', ') : 'none'}</div>
             </div>
           )}
         </div>

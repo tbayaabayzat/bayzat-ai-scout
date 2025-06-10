@@ -74,20 +74,34 @@ export function useCompaniesData() {
           console.log('- Full record:', data[0])
           console.log('- Company name:', data[0]?.company_name)
           console.log('- AI analysis exists:', !!data[0]?.ai_analysis)
+          console.log('- AI analysis type:', typeof data[0]?.ai_analysis)
           console.log('- AI analysis structure:', data[0]?.ai_analysis)
           
-          // Check for automation data specifically
-          if (data[0]?.ai_analysis) {
-            console.log('- Automation level exists:', !!data[0]?.ai_analysis?.automation_level)
-            console.log('- Automation level structure:', data[0]?.ai_analysis?.automation_level)
-            console.log('- Systems inventory exists:', !!data[0]?.ai_analysis?.systems_inventory)
-            console.log('- Systems inventory structure:', data[0]?.ai_analysis?.systems_inventory)
+          // Check for automation data specifically with proper type checking
+          if (data[0]?.ai_analysis && typeof data[0].ai_analysis === 'object') {
+            const aiAnalysis = data[0].ai_analysis as any
+            console.log('- Automation level exists:', !!aiAnalysis?.automation_level)
+            console.log('- Automation level structure:', aiAnalysis?.automation_level)
+            console.log('- Systems inventory exists:', !!aiAnalysis?.systems_inventory)
+            console.log('- Systems inventory structure:', aiAnalysis?.systems_inventory)
           }
           
           // Check relationship field
           console.log('- Bayzat relationship:', data[0]?.bayzat_relationship)
         } else {
           console.log('No data returned from query')
+          console.log('Checking if table exists and has data...')
+          
+          // Let's try a simple count query to see if there's any data at all
+          const { count, error: countError } = await supabase
+            .from('companies2')
+            .select('*', { count: 'exact', head: true })
+          
+          if (countError) {
+            console.error('Count query error:', countError)
+          } else {
+            console.log('Total records in companies2 table:', count)
+          }
         }
         
         return data || []
