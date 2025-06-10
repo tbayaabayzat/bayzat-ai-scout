@@ -111,16 +111,19 @@ export default {
 			},
 			fontFamily: {
 				sans: [
-					'ui-sans-serif',
-					'system-ui',
+					'Inter',
 					'-apple-system',
 					'BlinkMacSystemFont',
 					'"Segoe UI"',
 					'Roboto',
 					'"Helvetica Neue"',
 					'Arial',
-					'"Noto Sans"',
 					'sans-serif'
+				],
+				serif: [
+					'Crimson Text',
+					'Times New Roman',
+					'serif'
 				]
 			},
 			spacing: {
