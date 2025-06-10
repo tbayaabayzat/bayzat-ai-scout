@@ -29,13 +29,15 @@ export default function Companies() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedFilter, setSelectedFilter] = useState("")
 
-  const { data: companies, isLoading } = useQuery({
+  const { data: companies, isLoading, error } = useQuery({
     queryKey: ['companies', searchTerm, selectedFilter],
     queryFn: async () => {
+      console.log('Fetching companies with search:', searchTerm, 'filter:', selectedFilter)
+      
       let query = supabase
         .from('companies2')
         .select('*')
-        .limit(500) // Increased limit to populate more data
+        .limit(100) // Reduced limit for initial testing
 
       if (searchTerm) {
         query = query.or(`company_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
@@ -55,10 +57,18 @@ export default function Companies() {
       }
 
       const { data, error } = await query
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        throw error
+      }
+      
+      console.log('Fetched companies:', data?.length || 0, 'records')
       return data || []
     }
   })
+
+  // Debug logging
+  console.log('Companies query state:', { isLoading, error, dataCount: companies?.length })
 
   const getRelationshipBadge = (relationship: string) => {
     switch (relationship) {
@@ -174,6 +184,10 @@ export default function Companies() {
     "Prospects Only"
   ]
 
+  if (error) {
+    console.error('Query error:', error)
+  }
+
   return (
     <div className="flex-1 space-y-6 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -200,13 +214,25 @@ export default function Companies() {
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
+      ) : error ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <p className="text-red-500 mb-2">Error loading companies</p>
+            <p className="text-sm text-muted-foreground">{error.message}</p>
+          </div>
+        </div>
       ) : (
-        <DataTable 
-          columns={columns} 
-          data={companies || []} 
-          searchColumn="company_name"
-          searchPlaceholder="Search companies..."
-        />
+        <div>
+          <div className="mb-4 text-sm text-muted-foreground">
+            Showing {companies?.length || 0} companies
+          </div>
+          <DataTable 
+            columns={columns} 
+            data={companies || []} 
+            searchColumn="company_name"
+            searchPlaceholder="Search companies..."
+          />
+        </div>
       )}
     </div>
   )
