@@ -12,6 +12,7 @@ import {
   SidebarFooter,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { UserMenu } from "@/components/UserMenu"
 import { BayzatLogo } from "@/components/BayzatLogo"
 import { useNavigate, useLocation } from "react-router-dom"
 import { AIInsights } from "@/components/AIInsights"
@@ -79,7 +80,8 @@ export function AppSidebar() {
           <AIInsights />
         </div>
       </SidebarContent>
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-4 space-y-3">
+        <UserMenu />
         <div className="text-xs text-muted-foreground">
           Bayzat Internal Tool v1.0
         </div>
