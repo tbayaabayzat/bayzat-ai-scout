@@ -51,7 +51,7 @@ export default function Auth() {
               <h1 className="text-[2.75rem] md:text-5xl lg:text-6xl font-light tracking-[-0.02em] text-foreground leading-[0.95] font-serif">
                 Your sales,
                 <br />
-                amplified
+                supercharged
               </h1>
               <p className="text-xl text-muted-foreground font-light leading-relaxed max-w-sm mx-auto">
                 Intelligence-first platform that helps you sell with confidence.
@@ -64,7 +64,7 @@ export default function Auth() {
                 <button 
                   onClick={handleGoogleSignIn}
                   disabled={loading}
-                  className="w-full h-12 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-medium text-sm rounded-lg transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                  className="w-full h-12 bg-white hover:bg-gray-50 border border-bayzat-purple text-gray-700 font-medium text-sm rounded-lg transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                 >
                   <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
                     <g fill="none" fillRule="evenodd">
