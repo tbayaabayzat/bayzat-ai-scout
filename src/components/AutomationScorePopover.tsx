@@ -27,6 +27,9 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
     return "Low"
   }
 
+  // Access the correct nested structure for automation scores
+  const automationLevel = analysis?.automation_level || {}
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -42,40 +45,40 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
           <div>
             <h4 className="font-medium mb-2">Automation Analysis</h4>
             <div className="space-y-3">
-              {analysis?.automation_score_finance && (
+              {automationLevel?.finance && (
                 <div>
                   <div className="flex justify-between text-sm mb-1">
                     <span>Finance</span>
-                    <span>{analysis.automation_score_finance.toFixed(1)}</span>
+                    <span>{automationLevel.finance.toFixed(1)}</span>
                   </div>
-                  <Progress value={analysis.automation_score_finance * 20} className="h-2" />
+                  <Progress value={automationLevel.finance * 20} className="h-2" />
                 </div>
               )}
-              {analysis?.automation_score_hr && (
+              {automationLevel?.hr && (
                 <div>
                   <div className="flex justify-between text-sm mb-1">
                     <span>HR</span>
-                    <span>{analysis.automation_score_hr.toFixed(1)}</span>
+                    <span>{automationLevel.hr.toFixed(1)}</span>
                   </div>
-                  <Progress value={analysis.automation_score_hr * 20} className="h-2" />
+                  <Progress value={automationLevel.hr * 20} className="h-2" />
                 </div>
               )}
-              {analysis?.automation_score_it && (
+              {automationLevel?.it && (
                 <div>
                   <div className="flex justify-between text-sm mb-1">
                     <span>IT</span>
-                    <span>{analysis.automation_score_it.toFixed(1)}</span>
+                    <span>{automationLevel.it.toFixed(1)}</span>
                   </div>
-                  <Progress value={analysis.automation_score_it * 20} className="h-2" />
+                  <Progress value={automationLevel.it * 20} className="h-2" />
                 </div>
               )}
             </div>
           </div>
           
-          {analysis?.automation_rationale && (
+          {automationLevel?.automation_rationale && (
             <div>
               <h5 className="font-medium text-sm mb-2">Rationale</h5>
-              <p className="text-sm text-muted-foreground">{analysis.automation_rationale}</p>
+              <p className="text-sm text-muted-foreground">{automationLevel.automation_rationale}</p>
             </div>
           )}
         </div>

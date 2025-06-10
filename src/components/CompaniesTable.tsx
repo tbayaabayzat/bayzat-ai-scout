@@ -91,7 +91,8 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
       header: "Automation",
       cell: ({ row }) => {
         const analysis = row.original.ai_analysis
-        const score = analysis?.automation_score_overall || 0
+        // Updated to use the correct nested structure
+        const score = analysis?.automation_level?.overall || 0
         
         return <AutomationScorePopover score={score} analysis={analysis} />
       }
@@ -142,13 +143,16 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
     )
   }
 
+  // Handle undefined companies data
+  const safeCompanies = companies || []
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div className="text-sm text-muted-foreground">
-          Showing {companies?.length || 0} companies
+          Showing {safeCompanies.length} companies
         </div>
-        {companies?.length === 0 && (
+        {safeCompanies.length === 0 && (
           <div className="text-sm text-orange-600">
             No data found. Check console for debugging info.
           </div>
@@ -156,7 +160,7 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
       </div>
       <DataTable 
         columns={columns} 
-        data={companies || []} 
+        data={safeCompanies} 
         searchColumn="company_name"
         searchPlaceholder="Search companies..."
       />

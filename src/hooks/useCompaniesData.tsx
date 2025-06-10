@@ -71,6 +71,7 @@ export function useCompaniesData() {
         
         if (data && data.length > 0) {
           console.log('Sample record:', data[0])
+          console.log('Sample ai_analysis structure:', data[0]?.ai_analysis)
         } else {
           console.log('No data returned from query')
         }
@@ -83,12 +84,14 @@ export function useCompaniesData() {
     }
   })
 
-  // Debug logging
+  // Debug logging with better undefined handling
   console.log('=== Component render state ===')
   console.log('Loading:', isLoading)
   console.log('Error:', error)
   console.log('Companies data:', companies)
   console.log('Companies length:', companies?.length)
+  console.log('Companies is undefined:', companies === undefined)
+  console.log('Companies is null:', companies === null)
 
   return {
     companies,
