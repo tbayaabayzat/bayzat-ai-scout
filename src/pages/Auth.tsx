@@ -4,9 +4,15 @@ import { useAuth } from "@/hooks/useAuth"
 import { useToast } from "@/hooks/use-toast"
 import { BayzatLogo } from "@/components/BayzatLogo"
 import { supabase } from "@/integrations/supabase/client"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 
 export default function Auth() {
   const [loading, setLoading] = useState(false)
+  const [isSignUp, setIsSignUp] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const { toast } = useToast()
 
   const handleGoogleSignIn = async () => {
@@ -25,6 +31,49 @@ export default function Auth() {
         description: error.message,
         variant: "destructive"
       })
+    }
+    
+    setLoading(false)
+  }
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    if (isSignUp) {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`
+        }
+      })
+      
+      if (error) {
+        toast({
+          title: "Unable to sign up",
+          description: error.message,
+          variant: "destructive"
+        })
+      } else {
+        toast({
+          title: "Success!",
+          description: "Check your email for the confirmation link"
+        })
+      }
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+      
+      if (error) {
+        toast({
+          title: "Unable to sign in",
+          description: error.message,
+          variant: "destructive"
+        })
+      }
     }
     
     setLoading(false)
@@ -52,6 +101,63 @@ export default function Auth() {
 
           {/* Auth Form */}
           <div className="space-y-6">
+            {/* Email/Password Form */}
+            <form onSubmit={handleEmailAuth} className="space-y-4 text-left">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+              <Button 
+                type="submit"
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? "Loading..." : (isSignUp ? "Sign Up" : "Sign In")}
+              </Button>
+            </form>
+
+            {/* Toggle between Sign In and Sign Up */}
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-sm text-muted-foreground hover:text-foreground underline"
+              >
+                {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
+            {/* Google Sign In */}
             <button 
               onClick={handleGoogleSignIn}
               disabled={loading}
