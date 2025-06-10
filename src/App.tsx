@@ -47,16 +47,6 @@ const App = () => (
               <DashboardLayout><Research /></DashboardLayout>
             </ProtectedRoute>
           } />
-          <Route path="/analytics" element={
-            <ProtectedRoute>
-              <DashboardLayout><div className="p-8">Analytics Coming Soon</div></DashboardLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/settings" element={
-            <ProtectedRoute>
-              <DashboardLayout><div className="p-8">Settings Coming Soon</div></DashboardLayout>
-            </ProtectedRoute>
-          } />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
