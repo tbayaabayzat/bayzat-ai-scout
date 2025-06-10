@@ -43,7 +43,7 @@ export default function Auth() {
           {/* Hero Text */}
           <div className="space-y-3">
             <h1 className="text-display text-foreground">
-              Sales Intelligence
+              Sales intelligence, supercharged
             </h1>
             <p className="text-body text-muted-foreground max-w-xs mx-auto">
               Intelligence-first platform for confident selling
