@@ -46,13 +46,15 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="p-6 pb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <SidebarHeader className="p-6 pb-8">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
             <SidebarTrigger className="h-6 w-6" />
-            <BayzatLogo width={100} height={32} />
+            <UserMenu />
           </div>
-          <UserMenu />
+          <div className="flex items-center justify-center">
+            <BayzatLogo width={140} height={36} />
+          </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
