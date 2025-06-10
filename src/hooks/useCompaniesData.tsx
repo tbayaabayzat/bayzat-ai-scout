@@ -32,21 +32,27 @@ export function useCompaniesData() {
           .from('companies2')
           .select('*')
 
-        // Apply simple search filter if provided
+        // Apply search filter only if search term is provided
         if (searchTerm && searchTerm.trim()) {
+          console.log('Applying search filter for:', searchTerm)
           query = query.or(`company_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
         }
 
-        // Apply simple filters (removing complex JSONB queries that might be causing issues)
-        if (selectedFilter === "Customers Only") {
-          query = query.eq('bayzat_relationship', 'customer')
-        } else if (selectedFilter === "Prospects Only") {
-          query = query.eq('bayzat_relationship', 'prospect')
-        } else if (selectedFilter === "Legacy Systems") {
-          query = query.lt('founded_year', 2015)
+        // Apply specific filters only if a filter is actually selected
+        if (selectedFilter && selectedFilter.trim()) {
+          console.log('Applying specific filter:', selectedFilter)
+          if (selectedFilter === "Customers Only") {
+            query = query.eq('bayzat_relationship', 'customer')
+          } else if (selectedFilter === "Prospects Only") {
+            query = query.eq('bayzat_relationship', 'prospect')
+          } else if (selectedFilter === "Legacy Systems") {
+            query = query.lt('founded_year', 2015)
+          }
+        } else {
+          console.log('No specific filter applied - showing all companies')
         }
 
-        console.log('Executing simplified query...')
+        console.log('Executing query...')
         const { data, error } = await query.limit(100)
         
         if (error) {
