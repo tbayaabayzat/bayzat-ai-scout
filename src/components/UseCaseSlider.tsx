@@ -48,19 +48,19 @@ export function UseCaseSlider() {
       <div className="max-w-lg w-full">
         {/* Slide Content */}
         <div className="text-center space-y-8 animate-fade-in">
-          <div className="aspect-[4/3] bg-background rounded-2xl shadow-lg border border-border/20 flex items-center justify-center">
+          <div className="aspect-[4/3] bg-gray-800/50 rounded-2xl shadow-lg border border-gray-700/50 flex items-center justify-center">
             <img 
               src={useCases[currentSlide].image}
               alt={useCases[currentSlide].title}
-              className="w-32 h-32 object-contain opacity-40"
+              className="w-32 h-32 object-contain opacity-60"
             />
           </div>
           
           <div className="space-y-4">
-            <h3 className="text-2xl font-medium text-foreground">
+            <h3 className="text-2xl font-medium text-white">
               {useCases[currentSlide].title}
             </h3>
-            <p className="text-lg text-muted-foreground font-light leading-relaxed">
+            <p className="text-lg text-gray-400 font-light leading-relaxed">
               {useCases[currentSlide].description}
             </p>
           </div>
@@ -72,7 +72,7 @@ export function UseCaseSlider() {
             variant="ghost"
             size="icon"
             onClick={prevSlide}
-            className="h-10 w-10 rounded-full hover:bg-muted/50"
+            className="h-10 w-10 rounded-full hover:bg-gray-800/50 text-gray-400 hover:text-white"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -86,7 +86,7 @@ export function UseCaseSlider() {
                 className={`w-2 h-2 rounded-full transition-all duration-200 ${
                   index === currentSlide 
                     ? "bg-bayzat-purple" 
-                    : "bg-muted-foreground/30"
+                    : "bg-gray-600"
                 }`}
               />
             ))}
@@ -96,7 +96,7 @@ export function UseCaseSlider() {
             variant="ghost"
             size="icon"
             onClick={nextSlide}
-            className="h-10 w-10 rounded-full hover:bg-muted/50"
+            className="h-10 w-10 rounded-full hover:bg-gray-800/50 text-gray-400 hover:text-white"
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
