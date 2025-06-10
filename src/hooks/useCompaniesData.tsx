@@ -28,46 +28,6 @@ export function useCompaniesData() {
       console.log('Selected filter:', selectedFilter)
       
       try {
-        // Check if RLS is enabled by trying different approaches
-        console.log('Testing if RLS is blocking access...')
-        
-        // Try with RLS bypass (this will fail if RLS is enabled and blocking)
-        const { data: rlsTest, error: rlsError } = await supabase
-          .from('companies2')
-          .select('id')
-          .limit(1)
-        
-        console.log('RLS test result:', rlsTest)
-        console.log('RLS test error:', rlsError)
-        
-        // Check table information
-        const { data: tableInfo, error: tableError } = await supabase
-          .rpc('get_table_info', { table_name: 'companies2' })
-          .single()
-        
-        console.log('Table info result:', tableInfo)
-        console.log('Table info error:', tableError)
-        
-        // Try a different user context or approach
-        const { data: withoutFilters, error: noFilterError } = await supabase
-          .from('companies2')
-          .select('*')
-          .limit(10)
-        
-        console.log('Query without any filters:', withoutFilters)
-        console.log('No filter error:', noFilterError)
-        
-        // If we still get no data, there's likely an RLS issue
-        if (!withoutFilters || withoutFilters.length === 0) {
-          console.log('❌ No data accessible - likely RLS policy issue')
-          console.log('The table has 370 records but this user cannot access them')
-          console.log('Check if RLS policies are set up for authenticated users')
-          
-          // For now, let's return empty array but log the issue
-          return []
-        }
-
-        // If we got here, we have data - apply filters
         let query = supabase
           .from('companies2')
           .select('*')
