@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
@@ -36,40 +37,26 @@ export default function Companies() {
       console.log('Selected filter:', selectedFilter)
       
       try {
-        // First, let's try a simple count query to see if the table exists and has data
-        const { count, error: countError } = await supabase
-          .from('companies2')
-          .select('*', { count: 'exact', head: true })
-        
-        console.log('Table row count:', count)
-        if (countError) {
-          console.error('Count query error:', countError)
-        }
-
         let query = supabase
           .from('companies2')
           .select('*')
-          .limit(50) // Start with smaller limit for debugging
 
-        if (searchTerm) {
+        // Apply simple search filter if provided
+        if (searchTerm && searchTerm.trim()) {
           query = query.or(`company_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
         }
 
-        // Apply AI-powered filters
-        if (selectedFilter === "Legacy Systems") {
-          query = query.lt('founded_year', 2015)
-        } else if (selectedFilter === "High Manual Work") {
-          query = query.contains('ai_analysis', { automation_score_overall: { range: [0, 3] } })
-        } else if (selectedFilter === "Missing HRIS") {
-          query = query.contains('ai_analysis', { systems_inventory: { has_hris: false } })
-        } else if (selectedFilter === "Customers Only") {
+        // Apply simple filters (removing complex JSONB queries that might be causing issues)
+        if (selectedFilter === "Customers Only") {
           query = query.eq('bayzat_relationship', 'customer')
         } else if (selectedFilter === "Prospects Only") {
           query = query.eq('bayzat_relationship', 'prospect')
+        } else if (selectedFilter === "Legacy Systems") {
+          query = query.lt('founded_year', 2015)
         }
 
-        console.log('Executing query...')
-        const { data, error } = await query
+        console.log('Executing simplified query...')
+        const { data, error } = await query.limit(100)
         
         if (error) {
           console.error('Query error details:', {
@@ -212,10 +199,6 @@ export default function Companies() {
 
   const aiFilters = [
     "Legacy Systems",
-    "High Manual Work", 
-    "Missing HRIS",
-    "Growth Companies",
-    "Modern Tech Stack",
     "Customers Only",
     "Prospects Only"
   ]
