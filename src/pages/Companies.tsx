@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Building2, MapPin, Users, Zap, Mail, TrendingUp, AlertTriangle } from "lucide-react"
+import { Building2, MapPin, Users, Zap, Mail, TrendingUp, AlertTriangle, Crown } from "lucide-react"
 import { SmartSearch } from "@/components/SmartSearch"
 import { AIInsights } from "@/components/AIInsights"
 
@@ -32,6 +32,10 @@ export default function Companies() {
         query = query.contains('ai_analysis', { automation_score_overall: { range: [0, 3] } })
       } else if (selectedFilter === "Missing HRIS") {
         query = query.contains('ai_analysis', { systems_inventory: { has_hris: false } })
+      } else if (selectedFilter === "Customers Only") {
+        query = query.eq('bayzat_relationship', 'customer')
+      } else if (selectedFilter === "Prospects Only") {
+        query = query.eq('bayzat_relationship', 'prospect')
       }
 
       const { data, error } = await query
@@ -62,18 +66,37 @@ export default function Companies() {
     return activeSystems.slice(0, 3) // Show max 3 systems
   }
 
+  const getRelationshipBadge = (relationship: string) => {
+    switch (relationship) {
+      case 'customer':
+        return <Badge variant="default" className="bg-green-500 text-white"><Crown className="h-3 w-3 mr-1" />Customer</Badge>
+      case 'partner':
+        return <Badge variant="secondary"><Users className="h-3 w-3 mr-1" />Partner</Badge>
+      case 'prospect':
+      default:
+        return <Badge variant="outline">Prospect</Badge>
+    }
+  }
+
   const aiFilters = [
     "Legacy Systems",
     "High Manual Work", 
     "Missing HRIS",
     "Growth Companies",
-    "Modern Tech Stack"
+    "Modern Tech Stack",
+    "Customers Only",
+    "Prospects Only"
   ]
 
   return (
     <div className="flex-1 space-y-6 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Companies</h2>
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Company Intelligence</h2>
+          <p className="text-muted-foreground">
+            Discover and analyze companies with AI-powered insights
+          </p>
+        </div>
         <Button className="bg-primary hover:bg-primary/90">
           <Mail className="h-4 w-4 mr-2" />
           Draft Outreach
@@ -123,7 +146,8 @@ export default function Companies() {
                             {company.company_name}
                           </CardTitle>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 flex-wrap">
+                          {getRelationshipBadge(company.bayzat_relationship)}
                           {company.industry && (
                             <Badge variant="outline" className="text-xs">
                               {company.industry}

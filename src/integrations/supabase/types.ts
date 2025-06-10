@@ -14,6 +14,7 @@ export type Database = {
           affiliated_organizations_by_employees: Json | null
           affiliated_organizations_by_showcases: Json | null
           ai_analysis: Json | null
+          bayzat_relationship: string | null
           call_to_action: Json | null
           company_id: number | null
           company_name: string
@@ -48,6 +49,7 @@ export type Database = {
           affiliated_organizations_by_employees?: Json | null
           affiliated_organizations_by_showcases?: Json | null
           ai_analysis?: Json | null
+          bayzat_relationship?: string | null
           call_to_action?: Json | null
           company_id?: number | null
           company_name: string
@@ -82,6 +84,7 @@ export type Database = {
           affiliated_organizations_by_employees?: Json | null
           affiliated_organizations_by_showcases?: Json | null
           ai_analysis?: Json | null
+          bayzat_relationship?: string | null
           call_to_action?: Json | null
           company_id?: number | null
           company_name?: string

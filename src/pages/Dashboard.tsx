@@ -1,16 +1,45 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Building2, Users, TrendingUp, Search } from "lucide-react"
+import { Building2, Users, TrendingUp, Search, MessageCircle, Target } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
+import { ProspectChat } from "@/components/ProspectChat"
+import { CompanyRequestForm } from "@/components/CompanyRequestForm"
+import { ProspectInsights } from "@/components/ProspectInsights"
+import { Button } from "@/components/ui/button"
+import { useNavigate } from "react-router-dom"
 
 export default function Dashboard() {
-  const { data: companyCount } = useQuery({
-    queryKey: ['company-count'],
+  const navigate = useNavigate()
+
+  const { data: totalCompanies } = useQuery({
+    queryKey: ['total-companies'],
     queryFn: async () => {
       const { count } = await supabase
         .from('companies2')
         .select('*', { count: 'exact', head: true })
+      return count || 0
+    }
+  })
+
+  const { data: customerCount } = useQuery({
+    queryKey: ['customer-count'],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('companies2')
+        .select('*', { count: 'exact', head: true })
+        .eq('bayzat_relationship', 'customer')
+      return count || 0
+    }
+  })
+
+  const { data: prospectCount } = useQuery({
+    queryKey: ['prospect-count'],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('companies2')
+        .select('*', { count: 'exact', head: true })
+        .eq('bayzat_relationship', 'prospect')
       return count || 0
     }
   })
@@ -28,38 +57,38 @@ export default function Dashboard() {
   const stats = [
     {
       title: "Total Companies",
-      value: companyCount?.toLocaleString() || "Loading...",
-      description: "Companies in database",
+      value: totalCompanies?.toLocaleString() || "Loading...",
+      description: "In intelligence database",
       icon: Building2,
     },
     {
-      title: "Employee Profiles",
-      value: employeeCount?.toLocaleString() || "Loading...",
-      description: "LinkedIn profiles analyzed",
+      title: "Active Prospects",
+      value: prospectCount?.toLocaleString() || "Loading...",
+      description: "Potential customers",
+      icon: Target,
+    },
+    {
+      title: "Current Customers", 
+      value: customerCount?.toLocaleString() || "Loading...",
+      description: "Bayzat clients",
       icon: Users,
     },
     {
-      title: "Research Tools",
-      value: "5",
-      description: "AI-powered features",
-      icon: Search,
-    },
-    {
-      title: "Success Rate",
-      value: "92%",
-      description: "Prospect engagement",
-      icon: TrendingUp,
+      title: "Decision Makers",
+      value: employeeCount?.toLocaleString() || "Loading...",
+      description: "Key contacts profiled",
+      icon: MessageCircle,
     },
   ]
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Sales Dashboard</h2>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-muted-foreground">
-            Welcome to Bayzat Sales Hub
-          </span>
+    <div className="flex-1 space-y-6 p-8 pt-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Prospect Intelligence Hub</h2>
+          <p className="text-muted-foreground">
+            AI-powered prospect discovery and relationship intelligence
+          </p>
         </div>
       </div>
       
@@ -82,68 +111,66 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Common tasks for sales research and prospecting
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="flex items-center space-x-4 rounded-md border p-4 hover:bg-accent transition-colors cursor-pointer">
-                <Building2 className="h-6 w-6" />
-                <div className="space-y-1">
-                  <p className="text-sm font-medium leading-none">
-                    Search Companies
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Find and research target companies
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4 rounded-md border p-4 hover:bg-accent transition-colors cursor-pointer">
-                <Users className="h-6 w-6" />
-                <div className="space-y-1">
-                  <p className="text-sm font-medium leading-none">
-                    Find Prospects
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Discover key decision makers
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <ProspectChat />
+        </div>
         
-        <Card className="col-span-3">
+        <div className="space-y-6">
+          <CompanyRequestForm />
+          <ProspectInsights />
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/companies')}>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" />
+              Explore Companies
+            </CardTitle>
             <CardDescription>
-              Latest research and prospecting activities
+              Search and analyze companies with AI-powered insights
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <div className="ml-4 space-y-1">
-                  <p className="text-sm font-medium leading-none">New profiles added</p>
-                  <p className="text-sm text-muted-foreground">
-                    25 LinkedIn profiles analyzed today
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <div className="ml-4 space-y-1">
-                  <p className="text-sm font-medium leading-none">Company research</p>
-                  <p className="text-sm text-muted-foreground">
-                    15 new companies added to database
-                  </p>
-                </div>
-              </div>
-            </div>
+            <Button variant="outline" className="w-full">
+              Browse Company Database
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/employees')}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Decision Makers
+            </CardTitle>
+            <CardDescription>
+              Find and connect with key stakeholders at target companies
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="w-full">
+              Explore Profiles
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/research')}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Search className="h-5 w-5" />
+              Market Research
+            </CardTitle>
+            <CardDescription>
+              Deep-dive analysis and competitive intelligence tools
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="w-full">
+              Start Research
+            </Button>
           </CardContent>
         </Card>
       </div>
