@@ -12,15 +12,39 @@ export function CompanyOverview({ company, aiAnalysis }: CompanyOverviewProps) {
   console.log('CompanyOverview - company:', company)
   console.log('CompanyOverview - aiAnalysis:', aiAnalysis)
 
+  // Parse specialties if they exist
+  let specialties = []
+  if (company.specialties) {
+    try {
+      if (typeof company.specialties === 'string') {
+        specialties = JSON.parse(company.specialties)
+      } else if (Array.isArray(company.specialties)) {
+        specialties = company.specialties
+      }
+    } catch (error) {
+      console.log('Error parsing specialties:', error)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <QuickActionsBar company={company} />
       <CompanyInfoGrid company={company} />
 
       {company.description && (
-        <div className="space-y-2">
+        <div className="space-y-3">
           <h4 className="font-medium">About</h4>
           <p className="text-sm text-muted-foreground leading-relaxed">{company.description}</p>
+          
+          {specialties.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-2">
+              {specialties.map((specialty: string, index: number) => (
+                <Badge key={index} variant="secondary" className="text-xs">
+                  {specialty}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
