@@ -4877,6 +4877,29 @@ export type Database = {
           },
         ]
       }
+      company_employment_view_660cc2d8_aa00_4f32_89d3_39b0b63104ac: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_employment_view_66aae79c_7d34_4f13_afa0_422726af50f6: {
         Row: {
           company: string | null
