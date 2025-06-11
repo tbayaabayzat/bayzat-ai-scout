@@ -23,7 +23,12 @@ export const getDepartmentOrder = (department: string): number => {
   return index !== -1 ? index : 999
 }
 
-export const sortDepartments = (departments: Array<{ department: string; score: number }>) => {
+export const sortDepartments = (departments: Array<{ 
+  department: string; 
+  activities: any[]; 
+  evidence: any[]; 
+  score: number 
+}>) => {
   return departments.sort((a, b) => {
     const orderA = getDepartmentOrder(a.department)
     const orderB = getDepartmentOrder(b.department)
