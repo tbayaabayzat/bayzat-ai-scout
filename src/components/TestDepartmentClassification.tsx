@@ -7,10 +7,25 @@ import { Badge } from "@/components/ui/badge"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 
+// Type definitions for the RPC responses
+interface TestClassificationResult {
+  job_title: string
+  classified_department: string
+  response_raw: any
+  success: boolean
+  error_message?: string
+}
+
+interface BatchClassificationResult {
+  processed_count: number
+  success_count: number
+  error_count: number
+}
+
 export function TestDepartmentClassification() {
   const [jobTitle, setJobTitle] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [testResult, setTestResult] = useState<any>(null)
+  const [testResult, setTestResult] = useState<TestClassificationResult | null>(null)
 
   const testClassification = async () => {
     if (!jobTitle.trim()) {
@@ -20,9 +35,9 @@ export function TestDepartmentClassification() {
 
     setIsLoading(true)
     try {
-      const { data, error } = await supabase.rpc('test_department_classification' as never, {
+      const { data, error } = await supabase.rpc('test_department_classification', {
         test_job_title: jobTitle
-      } as never)
+      }) as { data: TestClassificationResult[] | null, error: any }
 
       if (error) {
         console.error('Test error:', error)
@@ -47,9 +62,9 @@ export function TestDepartmentClassification() {
   const runBatchClassification = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase.rpc('reclassify_employee_departments' as never, {
+      const { data, error } = await supabase.rpc('reclassify_employee_departments', {
         batch_size: 5
-      } as never)
+      }) as { data: BatchClassificationResult[] | null, error: any }
 
       if (error) {
         console.error('Batch classification error:', error)
