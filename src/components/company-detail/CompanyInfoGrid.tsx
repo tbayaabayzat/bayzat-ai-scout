@@ -1,5 +1,5 @@
 
-import { Users, Calendar, MapPin, Building } from "lucide-react"
+import { Users, Calendar, MapPin } from "lucide-react"
 
 interface CompanyInfoGridProps {
   company: any
@@ -7,7 +7,7 @@ interface CompanyInfoGridProps {
 
 export function CompanyInfoGrid({ company }: CompanyInfoGridProps) {
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 gap-4">
       {company.employee_count && (
         <div className="space-y-1">
           <div className="text-sm font-medium flex items-center gap-2">
@@ -27,19 +27,9 @@ export function CompanyInfoGrid({ company }: CompanyInfoGridProps) {
           <div className="text-2xl font-semibold">{company.founded_year}</div>
         </div>
       )}
-
-      {company.industry && (
-        <div className="space-y-1">
-          <div className="text-sm font-medium flex items-center gap-2">
-            <Building className="h-4 w-4" />
-            Industry
-          </div>
-          <div className="text-sm text-muted-foreground">{company.industry}</div>
-        </div>
-      )}
       
       {company.headquarter && (
-        <div className="space-y-1 col-span-3">
+        <div className="space-y-1 col-span-2">
           <div className="text-sm font-medium flex items-center gap-2">
             <MapPin className="h-4 w-4" />
             Headquarters
