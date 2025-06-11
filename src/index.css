@@ -45,12 +45,12 @@
     --bayzat-dark-purple: 262 83% 45%;
     --bayzat-charcoal: 240 6% 25%;
     --bayzat-light-gray: 240 4.8% 95.9%;
-    --bayzat-pink: 350 85% 50%;  /* Cherry red color for high automation scores */
+    --bayzat-pink: 340 79% 48%;
 
-    /* Automation score colors - futuristic purple to cherry gradient */
+    /* Automation score colors - futuristic purple to pink gradient */
     --automation-low: 262 83% 45%;     /* Dark purple for 1-2 */
     --automation-medium: 262 100% 64%; /* Brand purple for 3 */
-    --automation-high: 350 85% 50%;    /* Cherry red for 4-5 */
+    --automation-high: 340 79% 48%;    /* Pink for 4-5 */
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -99,12 +99,12 @@
     --bayzat-dark-purple: 262 83% 45%;
     --bayzat-charcoal: 0 0% 85%;
     --bayzat-light-gray: 0 0% 8%;
-    --bayzat-pink: 350 85% 50%;  /* Cherry red color for high automation scores */
+    --bayzat-pink: 340 79% 48%;
 
     /* Automation score colors - same for dark theme */
     --automation-low: 262 83% 45%;     /* Dark purple for 1-2 */
     --automation-medium: 262 100% 64%; /* Brand purple for 3 */
-    --automation-high: 350 85% 50%;    /* Cherry red for 4-5 */
+    --automation-high: 340 79% 48%;    /* Pink for 4-5 */
 
     --sidebar-background: 0 0% 6%;
     --sidebar-foreground: 0 0% 85%;
@@ -182,18 +182,5 @@
 
   .margin-mobile {
     @apply m-4 md:m-6 lg:m-8;
-  }
-
-  /* Custom progress bar colors for automation scores */
-  .progress-automation-low > div {
-    background-color: hsl(var(--automation-low));
-  }
-
-  .progress-automation-medium > div {
-    background-color: hsl(var(--automation-medium));
-  }
-
-  .progress-automation-high > div {
-    background-color: hsl(var(--automation-high));
   }
 }

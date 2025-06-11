@@ -61,11 +61,8 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
               <CardContent className="pt-0">
                 <div className="space-y-2">
                   <Badge 
-                    className={hasSystem 
-                      ? "bg-bayzat-purple text-white hover:bg-bayzat-purple/90 text-xs border-0" 
-                      : "text-xs"
-                    }
                     variant={hasSystem ? "default" : "outline"}
+                    className="text-xs"
                   >
                     {system?.name || 'None'}
                   </Badge>
@@ -97,9 +94,7 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
                       <SystemIcon className="h-4 w-4 text-muted-foreground" />
                       <div className="flex-1">
                         <div className="text-sm font-medium">{getSystemLabel(systemType)}</div>
-                        <Badge 
-                          className="bg-bayzat-purple text-white hover:bg-bayzat-purple/90 text-xs mt-1 border-0"
-                        >
+                        <Badge variant="outline" className="text-xs mt-1">
                           {system.name}
                         </Badge>
                       </div>
@@ -118,10 +113,7 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
           <h5 className="font-medium text-sm text-muted-foreground">Additional Software</h5>
           <div className="flex flex-wrap gap-2">
             {systems.Other_Software.map((software: any, index: number) => (
-              <Badge 
-                key={index} 
-                className="bg-secondary text-secondary-foreground hover:bg-secondary/80 text-xs"
-              >
+              <Badge key={index} variant="secondary" className="text-xs">
                 {typeof software === 'string' ? software : software?.name || `Software ${index + 1}`}
               </Badge>
             ))}
