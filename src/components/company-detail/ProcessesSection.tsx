@@ -7,6 +7,8 @@ interface ProcessesSectionProps {
 }
 
 export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
+  console.log('ProcessesSection - aiAnalysis:', aiAnalysis)
+
   return (
     <div className="space-y-6">
       {aiAnalysis?.processes_mentioned && Array.isArray(aiAnalysis.processes_mentioned) && aiAnalysis.processes_mentioned.length > 0 && (
@@ -16,22 +18,29 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
             Processes Mentioned
           </h4>
           <div className="space-y-2">
-            {aiAnalysis.processes_mentioned.map((process: any, index: number) => (
-              <div key={index} className="flex items-start gap-2 p-3 border rounded-lg">
-                <Settings className="h-4 w-4 mt-0.5 text-blue-500" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{typeof process === 'string' ? process : process.process || 'Process'}</p>
-                  {process.description && (
-                    <p className="text-xs text-muted-foreground mt-1">{process.description}</p>
-                  )}
-                  {process.evidence && (
-                    <Badge variant="outline" className="mt-2 text-xs">
-                      Evidence available
-                    </Badge>
-                  )}
+            {aiAnalysis.processes_mentioned.map((process: any, index: number) => {
+              console.log('Process:', process, 'Type:', typeof process)
+              
+              // Ensure we're working with the right data structure
+              const processName = typeof process === 'string' ? process : (process?.process || 'Process')
+              
+              return (
+                <div key={index} className="flex items-start gap-2 p-3 border rounded-lg">
+                  <Settings className="h-4 w-4 mt-0.5 text-blue-500" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{processName}</p>
+                    {process?.description && typeof process.description === 'string' && (
+                      <p className="text-xs text-muted-foreground mt-1">{process.description}</p>
+                    )}
+                    {process?.evidence && (
+                      <Badge variant="outline" className="mt-2 text-xs">
+                        Evidence available
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}
@@ -43,22 +52,29 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
             Manual Work Indicators
           </h4>
           <div className="space-y-2">
-            {aiAnalysis.manual_work_indicators.map((indicator: any, index: number) => (
-              <div key={index} className="flex items-start gap-2 p-3 border border-orange-200 rounded-lg bg-orange-50">
-                <XCircle className="h-4 w-4 mt-0.5 text-orange-500" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{typeof indicator === 'string' ? indicator : indicator.indicator || 'Manual work indicator'}</p>
-                  {indicator.description && (
-                    <p className="text-xs text-muted-foreground mt-1">{indicator.description}</p>
-                  )}
-                  {indicator.evidence && (
-                    <Badge variant="outline" className="mt-2 text-xs">
-                      Evidence available
-                    </Badge>
-                  )}
+            {aiAnalysis.manual_work_indicators.map((indicator: any, index: number) => {
+              console.log('Manual work indicator:', indicator, 'Type:', typeof indicator)
+              
+              // Ensure we're working with the right data structure
+              const indicatorText = typeof indicator === 'string' ? indicator : (indicator?.indicator || 'Manual work indicator')
+              
+              return (
+                <div key={index} className="flex items-start gap-2 p-3 border border-orange-200 rounded-lg bg-orange-50">
+                  <XCircle className="h-4 w-4 mt-0.5 text-orange-500" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{indicatorText}</p>
+                    {indicator?.description && typeof indicator.description === 'string' && (
+                      <p className="text-xs text-muted-foreground mt-1">{indicator.description}</p>
+                    )}
+                    {indicator?.evidence && (
+                      <Badge variant="outline" className="mt-2 text-xs">
+                        Evidence available
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}

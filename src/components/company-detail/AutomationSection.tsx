@@ -7,6 +7,8 @@ interface AutomationSectionProps {
 }
 
 export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
+  console.log('AutomationSection - aiAnalysis:', aiAnalysis)
+
   const getAutomationScoreColor = (score: number) => {
     if (score >= 4) return "bg-green-500"
     if (score >= 3) return "bg-yellow-500"
@@ -42,25 +44,30 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
           <div className="space-y-3">
             {Object.entries(aiAnalysis.automation_level)
               .filter(([key]) => key !== 'overall')
-              .map(([department, score]: [string, any]) => (
-                <div key={department} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium capitalize">
-                      {department.replace('_', ' ')}
-                    </span>
-                    <span className="text-sm text-muted-foreground">{score}/5</span>
+              .map(([department, score]: [string, any]) => {
+                console.log('Department:', department, 'Score:', score)
+                // Ensure score is a number and not an object
+                const numericScore = typeof score === 'number' ? score : 0
+                return (
+                  <div key={department} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium capitalize">
+                        {department.replace('_', ' ')}
+                      </span>
+                      <span className="text-sm text-muted-foreground">{numericScore}/5</span>
+                    </div>
+                    <Progress 
+                      value={numericScore * 20} 
+                      className="h-2"
+                    />
                   </div>
-                  <Progress 
-                    value={score * 20} 
-                    className="h-2"
-                  />
-                </div>
-              ))}
+                )
+              })}
           </div>
         </div>
       )}
 
-      {aiAnalysis?.automation_rationale && (
+      {aiAnalysis?.automation_rationale && typeof aiAnalysis.automation_rationale === 'string' && (
         <div className="space-y-2">
           <h4 className="font-medium">Analysis Rationale</h4>
           <div className="p-3 bg-muted/50 rounded-lg">

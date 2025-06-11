@@ -11,6 +11,9 @@ interface CompanyOverviewProps {
 }
 
 export function CompanyOverview({ company, aiAnalysis }: CompanyOverviewProps) {
+  console.log('CompanyOverview - company:', company)
+  console.log('CompanyOverview - aiAnalysis:', aiAnalysis)
+
   return (
     <div className="space-y-6">
       <QuickActionsBar company={company} />
@@ -32,19 +35,26 @@ export function CompanyOverview({ company, aiAnalysis }: CompanyOverviewProps) {
         <div className="space-y-2">
           <h4 className="font-medium">Notable Facts</h4>
           <div className="space-y-2">
-            {aiAnalysis.other_notable_facts.map((fact: any, index: number) => (
-              <div key={index} className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
-                <Info className="h-4 w-4 mt-0.5 text-blue-500" />
-                <div className="flex-1">
-                  <p className="text-sm">{typeof fact === 'string' ? fact : fact.fact || 'Notable fact'}</p>
-                  {fact.evidence && (
-                    <Badge variant="outline" className="mt-1 text-xs">
-                      Evidence available
-                    </Badge>
-                  )}
+            {aiAnalysis.other_notable_facts.map((fact: any, index: number) => {
+              console.log('Notable fact:', fact, 'Type:', typeof fact)
+              
+              // Ensure we're working with the right data structure
+              const factText = typeof fact === 'string' ? fact : (fact?.fact || 'Notable fact')
+              
+              return (
+                <div key={index} className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
+                  <Info className="h-4 w-4 mt-0.5 text-blue-500" />
+                  <div className="flex-1">
+                    <p className="text-sm">{factText}</p>
+                    {fact?.evidence && (
+                      <Badge variant="outline" className="mt-1 text-xs">
+                        Evidence available
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}
