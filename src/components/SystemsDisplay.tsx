@@ -19,20 +19,16 @@ export function SystemsDisplay({ systems }: SystemsDisplayProps) {
 
   console.log('SystemsDisplay - systems structure:', systems)
 
-  // Based on the schema, access systems properly
-  if (systems.ERP?.name && systems.ERP.name !== 'None') {
-    prioritySystems.push(systems.ERP.name)
-  }
-  
-  if (systems.HRIS?.name && systems.HRIS.name !== 'None') {
-    prioritySystems.push(systems.HRIS.name)
-  }
-  
-  if (systems.Accounting?.name && systems.Accounting.name !== 'None') {
-    prioritySystems.push(systems.Accounting.name)
-  }
+  // Always show ERP, HRIS, and Accounting - even if "None"
+  const erpName = systems.ERP?.name || 'None'
+  const hrisName = systems.HRIS?.name || 'None'
+  const accountingName = systems.Accounting?.name || 'None'
 
-  // Add other systems
+  prioritySystems.push({ name: erpName, isNone: erpName === 'None' })
+  prioritySystems.push({ name: hrisName, isNone: hrisName === 'None' })
+  prioritySystems.push({ name: accountingName, isNone: accountingName === 'None' })
+
+  // Add other systems only if they have actual values (not "None")
   if (systems.Payroll?.name && systems.Payroll.name !== 'None') {
     otherSystems.push(systems.Payroll.name)
   }
@@ -67,8 +63,12 @@ export function SystemsDisplay({ systems }: SystemsDisplayProps) {
   return (
     <div className="flex flex-wrap gap-1 items-center">
       {prioritySystems.map((system, index) => (
-        <Badge key={index} variant="secondary" className="text-xs">
-          {system}
+        <Badge 
+          key={index} 
+          variant={system.isNone ? "outline" : "secondary"} 
+          className={`text-xs ${system.isNone ? 'text-muted-foreground' : ''}`}
+        >
+          {system.name}
         </Badge>
       ))}
       
@@ -93,10 +93,6 @@ export function SystemsDisplay({ systems }: SystemsDisplayProps) {
             </div>
           </HoverCardContent>
         </HoverCard>
-      )}
-      
-      {prioritySystems.length === 0 && !hasMoreSystems && (
-        <span className="text-muted-foreground text-sm">No systems detected</span>
       )}
     </div>
   )
