@@ -53,7 +53,7 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
           return (
             <Card key={systemType} className={`${hasSystem ? 'border-primary/20' : 'border-muted'}`}>
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-sm">
+                <CardTitle className="flex items-center gap-2 text-sm text-foreground">
                   <SystemIcon className={`h-4 w-4 ${hasSystem ? 'text-primary' : 'text-muted-foreground'}`} />
                   {getSystemLabel(systemType)}
                 </CardTitle>
@@ -93,7 +93,7 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
                     <div className="flex items-center gap-3">
                       <SystemIcon className="h-4 w-4 text-muted-foreground" />
                       <div className="flex-1">
-                        <div className="text-sm font-medium">{getSystemLabel(systemType)}</div>
+                        <div className="text-sm font-medium text-foreground">{getSystemLabel(systemType)}</div>
                         <Badge variant="outline" className="text-xs mt-1">
                           {system.name}
                         </Badge>

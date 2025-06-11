@@ -50,7 +50,7 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
           <div className="p-6 border rounded-lg bg-card">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <h4 className="text-lg font-semibold">Overall Automation Score</h4>
+                <h4 className="text-lg font-semibold text-foreground">Overall Automation Score</h4>
                 {aiAnalysis?.automation_level?.evidence && aiAnalysis.automation_level.evidence.length > 0 && (
                   <TooltipProvider>
                     <Tooltip>
@@ -82,13 +82,13 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
           {/* Department Breakdown - Vertical Bars */}
           {departmentScores.length > 0 && (
             <div className="space-y-4">
-              <h4 className="text-lg font-semibold">Department Breakdown</h4>
+              <h4 className="text-lg font-semibold text-foreground">Department Breakdown</h4>
               <div className="space-y-4">
                 {departmentScores.map(({ department, score }) => (
                   <div key={department} className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{department}</span>
+                        <span className="text-sm font-medium text-foreground">{department}</span>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger>
@@ -124,7 +124,7 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
           {/* Analysis Rationale */}
           {automationRationale && typeof automationRationale === 'string' && (
             <div className="space-y-3">
-              <h4 className="text-lg font-semibold">Analysis Rationale</h4>
+              <h4 className="text-lg font-semibold text-foreground">Analysis Rationale</h4>
               <div className="p-4 bg-muted/30 rounded-lg border">
                 <p className="text-sm text-foreground leading-relaxed">
                   {automationRationale}
@@ -137,7 +137,7 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
 
       {/* Systems Inventory Section */}
       <div className="space-y-4 border-t pt-8">
-        <h3 className="text-xl font-semibold">Systems Inventory</h3>
+        <h3 className="text-xl font-semibold text-foreground">Systems Inventory</h3>
         <SystemsInventory systems={aiAnalysis?.systems} />
       </div>
     </div>
