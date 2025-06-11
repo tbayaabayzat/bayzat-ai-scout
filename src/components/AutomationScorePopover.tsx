@@ -60,7 +60,7 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
             <h4 className="font-medium mb-3">Automation Analysis</h4>
             
             {/* Overall Score */}
-            <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+            <div className="mb-3 p-3 bg-muted/50 rounded-lg">
               <div className="flex justify-between items-center text-sm mb-2">
                 <span className="font-medium">Overall Score</span>
                 <span className="font-semibold">{score.toFixed(1)}</span>
@@ -69,9 +69,6 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
                 value={score * 20} 
                 className={`h-3 ${getProgressColor(score)}`} 
               />
-              <div className="text-xs text-muted-foreground mt-1">
-                {getScoreLabel(score)} automation potential
-              </div>
             </div>
 
             {/* Department Breakdown */}
@@ -144,14 +141,16 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
             </div>
           )}
           
-          {/* Debug info in development */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="text-xs text-gray-500 border-t pt-2">
-              <div>Debug: Score={score}</div>
-              <div>Has automation_level: {!!automationLevel}</div>
-              <div>Automation keys: {automationLevel ? Object.keys(automationLevel).join(', ') : 'none'}</div>
+          {/* Score Legend */}
+          <div className="text-xs text-muted-foreground border-t pt-3">
+            <div className="space-y-1">
+              <div className="flex justify-between"><span>1</span><span>Excel-only, paper, manual processes</span></div>
+              <div className="flex justify-between"><span>2</span><span>Basic standalone tools or legacy point solutions</span></div>
+              <div className="flex justify-between"><span>3</span><span>ERP, Mix of multiple systems and manual processes</span></div>
+              <div className="flex justify-between"><span>4</span><span>Integrated business systems</span></div>
+              <div className="flex justify-between"><span>5</span><span>AI/ML, advanced automation</span></div>
             </div>
-          )}
+          </div>
         </div>
       </PopoverContent>
     </Popover>
