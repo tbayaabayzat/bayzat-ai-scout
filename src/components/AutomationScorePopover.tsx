@@ -16,15 +16,15 @@ interface AutomationScorePopoverProps {
 
 export function AutomationScorePopover({ score, analysis }: AutomationScorePopoverProps) {
   const getScoreColor = (score: number) => {
-    if (score >= 4) return "bg-gradient-to-r from-automation-high-start to-automation-high-end text-white"
-    if (score >= 3) return "bg-gradient-to-r from-automation-medium-start to-automation-medium-end text-white"
-    return "bg-gradient-to-r from-automation-low-start to-automation-low-end text-white"
+    if (score >= 4) return "bg-bayzat-pink text-white"
+    if (score >= 3) return "bg-bayzat-purple text-white"
+    return "bg-bayzat-dark-purple text-white"
   }
 
   const getProgressColor = (score: number) => {
-    if (score >= 4) return "[&>div]:bg-gradient-to-r [&>div]:from-automation-high-start [&>div]:to-automation-high-end"
-    if (score >= 3) return "[&>div]:bg-gradient-to-r [&>div]:from-automation-medium-start [&>div]:to-automation-medium-end"
-    return "[&>div]:bg-gradient-to-r [&>div]:from-automation-low-start [&>div]:to-automation-low-end"
+    if (score >= 4) return "[&>div]:bg-bayzat-pink"
+    if (score >= 3) return "[&>div]:bg-bayzat-purple"
+    return "[&>div]:bg-bayzat-dark-purple"
   }
 
   const getScoreLabel = (score: number) => {
