@@ -59,14 +59,18 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex gap-3 mb-10 border-b pb-3">
+        <div className="flex gap-1 mb-10 border-b pb-3">
           {sections.map((section) => (
             <Button
               key={section.id}
-              variant={activeSection === section.id ? "default" : "ghost"}
+              variant="ghost"
               size="sm"
               onClick={() => setActiveSection(section.id)}
-              className="flex items-center gap-2 px-5 py-3"
+              className={`relative flex items-center gap-2 px-5 py-3 text-muted-foreground hover:text-foreground transition-colors ${
+                activeSection === section.id 
+                  ? 'text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:content-[""]' 
+                  : ''
+              }`}
             >
               <section.icon className="h-4 w-4" />
               {section.label}
