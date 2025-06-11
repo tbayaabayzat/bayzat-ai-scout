@@ -16,15 +16,15 @@ interface AutomationScorePopoverProps {
 
 export function AutomationScorePopover({ score, analysis }: AutomationScorePopoverProps) {
   const getScoreColor = (score: number) => {
-    if (score >= 4) return "bg-automation-high text-white"
-    if (score >= 3) return "bg-automation-medium text-white"
-    return "bg-automation-low text-white"
+    if (score >= 4) return "bg-gradient-to-r from-automation-high-start to-automation-high-end text-white"
+    if (score >= 3) return "bg-gradient-to-r from-automation-medium-start to-automation-medium-end text-white"
+    return "bg-gradient-to-r from-automation-low-start to-automation-low-end text-white"
   }
 
   const getProgressColor = (score: number) => {
-    if (score >= 4) return "[&>div]:bg-automation-high"
-    if (score >= 3) return "[&>div]:bg-automation-medium"
-    return "[&>div]:bg-automation-low"
+    if (score >= 4) return "[&>div]:bg-gradient-to-r [&>div]:from-automation-high-start [&>div]:to-automation-high-end"
+    if (score >= 3) return "[&>div]:bg-gradient-to-r [&>div]:from-automation-medium-start [&>div]:to-automation-medium-end"
+    return "[&>div]:bg-gradient-to-r [&>div]:from-automation-low-start [&>div]:to-automation-low-end"
   }
 
   const getScoreLabel = (score: number) => {
@@ -143,12 +143,12 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
           
           {/* Score Legend */}
           <div className="text-xs text-muted-foreground border-t pt-3">
-            <div className="space-y-1">
-              <div className="flex justify-between"><span>1</span><span>Excel-only, paper, manual processes</span></div>
-              <div className="flex justify-between"><span>2</span><span>Basic standalone tools or legacy point solutions</span></div>
-              <div className="flex justify-between"><span>3</span><span>ERP, Mix of multiple systems and manual processes</span></div>
-              <div className="flex justify-between"><span>4</span><span>Integrated business systems</span></div>
-              <div className="flex justify-between"><span>5</span><span>AI/ML, advanced automation</span></div>
+            <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+              <span className="text-left">1</span><span className="text-left">Excel-only, paper, manual processes</span>
+              <span className="text-left">2</span><span className="text-left">Point solutions and legacy systems</span>
+              <span className="text-left">3</span><span className="text-left">ERP + other systems and manual</span>
+              <span className="text-left">4</span><span className="text-left">Integrated business systems</span>
+              <span className="text-left">5</span><span className="text-left">AI/ML, advanced automation</span>
             </div>
           </div>
         </div>
