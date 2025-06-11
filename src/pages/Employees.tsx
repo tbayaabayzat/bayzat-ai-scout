@@ -113,6 +113,7 @@ export default function Employees() {
                 <TableHead>Company</TableHead>
                 <TableHead>Location</TableHead>
                 <TableHead>Experience</TableHead>
+                <TableHead>Department</TableHead>
                 <TableHead>Seniority</TableHead>
                 <TableHead>Network</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -164,6 +165,11 @@ export default function Employees() {
                           <span className="text-sm">{employee.years_of_experience} years</span>
                         </div>
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs">
+                        {employee.department || 'Other'}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant={seniority.color} className="text-xs">

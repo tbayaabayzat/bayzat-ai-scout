@@ -6,9 +6,6 @@ import { Employee, EmployeeWithDepartment } from "@/types/employee"
 import { Department } from "@/utils/employeeDepartmentUtils"
 
 export function useCompanyEmployees(companyId: string) {
-  const [employeesWithDepartments, setEmployeesWithDepartments] = useState<EmployeeWithDepartment[]>([])
-  const [isClassifying, setIsClassifying] = useState(false)
-
   const { data: employees, isLoading, error } = useQuery({
     queryKey: ['company-employees', companyId],
     queryFn: async () => {
@@ -26,54 +23,21 @@ export function useCompanyEmployees(companyId: string) {
       }
 
       console.log(`Found ${data?.length || 0} employees`)
-      return data as Employee[]
+      
+      // Map employees to include department from database
+      const employeesWithDepartments = data?.map(employee => ({
+        ...employee,
+        department: (employee.department || 'Other') as Department
+      })) as EmployeeWithDepartment[]
+
+      return employeesWithDepartments || []
     },
     enabled: !!companyId
   })
 
-  const classifyEmployeeDepartment = async (jobTitle: string): Promise<Department> => {
-    try {
-      const { data, error } = await supabase.functions.invoke('classify-employee-department', {
-        body: { jobTitle }
-      })
-
-      if (error) throw error
-      return data.department as Department
-    } catch (error) {
-      console.error('Error classifying department:', error)
-      return 'Other'
-    }
-  }
-
-  useEffect(() => {
-    if (!employees?.length) return
-
-    const classifyEmployees = async () => {
-      setIsClassifying(true)
-      
-      const employeesWithDepts = await Promise.all(
-        employees.map(async (employee) => {
-          const department = employee.headline 
-            ? await classifyEmployeeDepartment(employee.headline)
-            : 'Other'
-          
-          return {
-            ...employee,
-            department
-          } as EmployeeWithDepartment
-        })
-      )
-
-      setEmployeesWithDepartments(employeesWithDepts)
-      setIsClassifying(false)
-    }
-
-    classifyEmployees()
-  }, [employees])
-
   return {
-    employees: employeesWithDepartments,
-    isLoading: isLoading || isClassifying,
+    employees: employees || [],
+    isLoading,
     error
   }
 }
