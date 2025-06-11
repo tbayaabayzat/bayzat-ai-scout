@@ -29,11 +29,19 @@ export function useCompanyEmployees(companyId: string | number | null | undefine
 
       console.log(`Found ${data?.length || 0} employees for company ID ${companyId}`)
       
-      // Map employees to include department from database
-      const employeesWithDepartments = data?.map(employee => ({
-        ...employee,
-        department: (employee.department || 'Other') as Department
-      })) as EmployeeWithDepartment[]
+      // Map employees to include department from database, handling the new department names
+      const employeesWithDepartments = data?.map(employee => {
+        let department = employee.department || 'Other'
+        
+        // Map old department names to new ones if needed
+        if (department === 'Human Resources') department = 'HR'
+        if (department === 'Finance & Accounting') department = 'Finance'
+        
+        return {
+          ...employee,
+          department: department as Department
+        }
+      }) as EmployeeWithDepartment[]
 
       return employeesWithDepartments || []
     },

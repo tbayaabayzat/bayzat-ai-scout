@@ -1,17 +1,34 @@
 
 import { TestDepartmentClassification } from "@/components/TestDepartmentClassification"
+import { TestBatchClassification } from "@/components/TestBatchClassification"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-export default function TestClassification() {
+const TestClassification = () => {
   return (
-    <div className="flex-1 space-y-6 p-8 pt-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Department Classification Test</h2>
+    <div className="container mx-auto py-6">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">Department Classification Testing</h1>
         <p className="text-muted-foreground">
-          Test and debug the employee department classification system
+          Test the employee department classification system and run batch updates
         </p>
       </div>
       
-      <TestDepartmentClassification />
+      <Tabs defaultValue="individual" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="individual">Individual Testing</TabsTrigger>
+          <TabsTrigger value="batch">Batch Processing</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="individual" className="space-y-4">
+          <TestDepartmentClassification />
+        </TabsContent>
+        
+        <TabsContent value="batch" className="space-y-4">
+          <TestBatchClassification />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
+
+export default TestClassification
