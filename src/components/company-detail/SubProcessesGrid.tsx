@@ -33,7 +33,7 @@ export function SubProcessesGrid({ subProcesses }: SubProcessesGridProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {processItems.map((item) => {
             const processData = subProcesses[item.key]
             const isMentioned = processData?.mentioned === true
@@ -49,20 +49,21 @@ export function SubProcessesGrid({ subProcesses }: SubProcessesGridProps) {
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{item.icon}</span>
-                    <span className="text-sm font-medium">{item.label}</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-lg flex-shrink-0">{item.icon}</span>
+                    <span className="text-sm font-medium truncate">{item.label}</span>
                   </div>
                   {isMentioned ? (
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
                   ) : (
-                    <XCircle className="h-4 w-4 text-muted-foreground" />
+                    <XCircle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                   )}
                 </div>
                 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <Badge 
                     variant={isMentioned ? "default" : "secondary"}
+                    className="text-xs"
                   >
                     {isMentioned ? "Mentioned" : "Not Mentioned"}
                   </Badge>

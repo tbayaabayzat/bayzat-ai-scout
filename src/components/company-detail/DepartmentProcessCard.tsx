@@ -1,15 +1,16 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { ChevronDown, Building2, DollarSign, Users, Zap, TrendingUp, HeadphonesIcon } from "lucide-react"
 import { EvidenceIndicator } from "./EvidenceIndicator"
-import { useState } from "react"
+import { formatDepartmentName } from "@/utils/departmentUtils"
 
 interface DepartmentProcessCardProps {
   department: string
   activities: any[]
   evidence: any[]
+  isOpen: boolean
+  onToggle: () => void
 }
 
 const getDepartmentIcon = (department: string) => {
@@ -26,24 +27,18 @@ const getDepartmentIcon = (department: string) => {
   return icons[department.toLowerCase()] || Building2
 }
 
-const formatDepartmentName = (dept: string) => {
-  const cleaned = dept.replace(/_/g, ' ').toLowerCase()
-  
-  // Special cases for HR and IT
-  if (cleaned === 'hr' || cleaned === 'human resources') return 'HR'
-  if (cleaned === 'it' || cleaned === 'information technology') return 'IT'
-  
-  // Capitalize first letter for other departments
-  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
-}
-
-export function DepartmentProcessCard({ department, activities, evidence }: DepartmentProcessCardProps) {
-  const [isOpen, setIsOpen] = useState(false)
+export function DepartmentProcessCard({ 
+  department, 
+  activities, 
+  evidence, 
+  isOpen, 
+  onToggle 
+}: DepartmentProcessCardProps) {
   const Icon = getDepartmentIcon(department)
 
   return (
     <Card className="border">
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Collapsible open={isOpen} onOpenChange={onToggle}>
         <CollapsibleTrigger asChild>
           <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
             <CardTitle className="flex items-center justify-between">

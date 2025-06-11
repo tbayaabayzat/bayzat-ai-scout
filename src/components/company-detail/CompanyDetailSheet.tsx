@@ -12,6 +12,7 @@ import { Building2, Zap, Settings } from "lucide-react"
 import { CompanyOverview } from "./CompanyOverview"
 import { AutomationSection } from "./AutomationSection"
 import { ProcessesSection } from "./ProcessesSection"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface CompanyDetailSheetProps {
   company: any
@@ -21,6 +22,7 @@ interface CompanyDetailSheetProps {
 
 export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetailSheetProps) {
   const [activeSection, setActiveSection] = useState("overview")
+  const isMobile = useIsMobile()
 
   const aiAnalysis = company.ai_analysis
 
@@ -34,9 +36,13 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent 
         side="right" 
-        className="!w-[1400px] !sm:w-[1600px] !max-w-[70vw] !min-w-[800px] overflow-y-auto p-8"
+        className={`overflow-y-auto ${
+          isMobile 
+            ? 'w-full max-w-full p-4' 
+            : '!w-[1400px] !sm:w-[1600px] !max-w-[70vw] !min-w-[800px] p-8'
+        }`}
       >
-        <SheetHeader className="border-b pb-8 mb-10">
+        <SheetHeader className={`border-b mb-6 ${isMobile ? 'pb-4' : 'pb-8 mb-10'}`}>
           <SheetTitle className="flex items-center gap-3">
             {company.logo_url ? (
               <img 
@@ -51,7 +57,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
             ) : null}
             <Building2 className={`h-8 w-8 ${company.logo_url ? 'hidden' : ''}`} />
             <div>
-              <div className="text-xl font-semibold">{company.company_name}</div>
+              <div className={`font-semibold ${isMobile ? 'text-lg' : 'text-xl'}`}>{company.company_name}</div>
             </div>
           </SheetTitle>
           <SheetDescription>
@@ -59,14 +65,16 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex gap-1 mb-10 border-b pb-3">
+        <div className={`flex gap-1 border-b ${isMobile ? 'mb-6 pb-2' : 'mb-10 pb-3'}`}>
           {sections.map((section) => (
             <Button
               key={section.id}
               variant="ghost"
-              size="sm"
+              size={isMobile ? "sm" : "sm"}
               onClick={() => setActiveSection(section.id)}
-              className={`relative flex items-center gap-2 px-5 py-3 text-muted-foreground hover:text-foreground transition-colors ${
+              className={`relative flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors ${
+                isMobile ? 'px-3 py-2 text-xs' : 'px-5 py-3'
+              } ${
                 activeSection === section.id 
                   ? 'text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:content-[""]' 
                   : ''
@@ -78,7 +86,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
           ))}
         </div>
 
-        <div className="px-3">
+        <div className={isMobile ? '' : 'px-3'}>
           {activeSection === "overview" && (
             <CompanyOverview company={company} aiAnalysis={aiAnalysis} />
           )}
