@@ -102,7 +102,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
           )}
 
           {activeSection === "employees" && (
-            <EmployeesSection companyId={company.id} />
+            <EmployeesSection companyId={company.company_id} />
           )}
         </div>
       </SheetContent>
