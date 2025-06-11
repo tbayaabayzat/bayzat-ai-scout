@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge"
 import { QuickActionsBar } from "./QuickActionsBar"
 import { CompanyInfoGrid } from "./CompanyInfoGrid"
@@ -14,12 +13,12 @@ export function CompanyOverview({ company, aiAnalysis }: CompanyOverviewProps) {
 
   // Parse specialties if they exist
   let specialties = []
-  if (company.specialties) {
+  if (company.specialities) {
     try {
-      if (typeof company.specialties === 'string') {
+      if (typeof company.specialities === 'string') {
         specialties = JSON.parse(company.specialties)
-      } else if (Array.isArray(company.specialties)) {
-        specialties = company.specialties
+      } else if (Array.isArray(company.specialities)) {
+        specialties = company.specialities
       }
     } catch (error) {
       console.log('Error parsing specialties:', error)
