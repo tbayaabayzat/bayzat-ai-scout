@@ -62,7 +62,7 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
                 <div className="space-y-2">
                   <Badge 
                     variant={hasSystem ? "default" : "outline"}
-                    className="text-xs"
+                    className={`text-xs ${hasSystem ? 'bg-bayzat-purple text-white' : ''}`}
                   >
                     {system?.name || 'None'}
                   </Badge>
@@ -94,7 +94,7 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
                       <SystemIcon className="h-4 w-4 text-muted-foreground" />
                       <div className="flex-1">
                         <div className="text-sm font-medium text-foreground">{getSystemLabel(systemType)}</div>
-                        <Badge variant="outline" className="text-xs mt-1">
+                        <Badge variant="default" className="text-xs mt-1 bg-bayzat-purple text-white">
                           {system.name}
                         </Badge>
                       </div>

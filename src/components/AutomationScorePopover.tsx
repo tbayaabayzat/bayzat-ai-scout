@@ -21,10 +21,10 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
     return "bg-bayzat-dark-purple text-white"
   }
 
-  const getProgressColor = (score: number) => {
-    if (score >= 4) return "[&>div]:bg-bayzat-pink"
-    if (score >= 3) return "[&>div]:bg-bayzat-purple"
-    return "[&>div]:bg-bayzat-dark-purple"
+  const getProgressClass = (score: number) => {
+    if (score >= 4) return "automation-progress-high"
+    if (score >= 3) return "automation-progress-medium"
+    return "automation-progress-low"
   }
 
   const getScoreLabel = (score: number) => {
@@ -67,7 +67,7 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
               </div>
               <Progress 
                 value={score * 20} 
-                className={`h-3 ${getProgressColor(score)}`} 
+                className={`h-3 ${getProgressClass(score)}`} 
               />
             </div>
 
@@ -83,7 +83,7 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
                   </div>
                   <Progress 
                     value={automationLevel.finance * 20} 
-                    className={`h-2 ${getProgressColor(automationLevel.finance)}`} 
+                    className={`h-2 ${getProgressClass(automationLevel.finance)}`} 
                   />
                 </div>
               )}
@@ -95,7 +95,7 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
                   </div>
                   <Progress 
                     value={automationLevel.hr * 20} 
-                    className={`h-2 ${getProgressColor(automationLevel.hr)}`} 
+                    className={`h-2 ${getProgressClass(automationLevel.hr)}`} 
                   />
                 </div>
               )}
@@ -107,7 +107,7 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
                   </div>
                   <Progress 
                     value={automationLevel.it * 20} 
-                    className={`h-2 ${getProgressColor(automationLevel.it)}`} 
+                    className={`h-2 ${getProgressClass(automationLevel.it)}`} 
                   />
                 </div>
               )}
@@ -119,7 +119,7 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
                   </div>
                   <Progress 
                     value={automationLevel.operations * 20} 
-                    className={`h-2 ${getProgressColor(automationLevel.operations)}`} 
+                    className={`h-2 ${getProgressClass(automationLevel.operations)}`} 
                   />
                 </div>
               )}

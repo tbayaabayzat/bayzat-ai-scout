@@ -47,7 +47,7 @@
     --bayzat-dark-purple: 267 69% 48%;
     --bayzat-charcoal: 228 12% 21%;
     --bayzat-light-gray: 210 20% 94%;
-    --bayzat-pink: 342 100% 88%;
+    --bayzat-pink: 345 100% 70%;
 
     /* Automation score colors */
     --automation-low: 0 100% 67%;
@@ -67,7 +67,7 @@
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 75%;
+    --muted-foreground: 0 0% 63.9%;
     --accent: 0 0% 14.9%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
@@ -130,4 +130,17 @@
 * {
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--muted-foreground) / 0.3) hsl(var(--muted) / 0.3);
+}
+
+/* Custom progress bar styling for automation scores */
+.automation-progress-low [data-radix-progress-indicator] {
+  background-color: hsl(var(--automation-low));
+}
+
+.automation-progress-medium [data-radix-progress-indicator] {
+  background-color: hsl(var(--automation-medium));
+}
+
+.automation-progress-high [data-radix-progress-indicator] {
+  background-color: hsl(var(--bayzat-pink));
 }

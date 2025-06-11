@@ -19,6 +19,12 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
     return "bg-bayzat-dark-purple"
   }
 
+  const getAutomationProgressClass = (score: number) => {
+    if (score >= 4) return "automation-progress-high"
+    if (score >= 3) return "automation-progress-medium"
+    return "automation-progress-low"
+  }
+
   const getAutomationLabel = (score: number) => {
     if (score >= 4) return "High"
     if (score >= 3) return "Medium"
@@ -72,7 +78,7 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
             </div>
             <Progress 
               value={aiAnalysis.automation_level.overall * 20} 
-              className="h-4"
+              className={`h-4 ${getAutomationProgressClass(aiAnalysis.automation_level.overall)}`}
             />
           </div>
         )}
