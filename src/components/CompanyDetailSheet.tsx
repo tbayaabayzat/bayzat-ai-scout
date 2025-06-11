@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import {
   Sheet,
@@ -16,7 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Building2, ExternalLink, Users, Calendar, MapPin, Zap, Process, AlertTriangle, CheckCircle2, XCircle, Info } from "lucide-react"
+import { Building2, ExternalLink, Users, Calendar, MapPin, Zap, Settings, AlertTriangle, CheckCircle2, XCircle, Info } from "lucide-react"
 import { SystemsDisplay } from "@/components/SystemsDisplay"
 
 interface CompanyDetailSheetProps {
@@ -80,7 +79,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
   const sections = [
     { id: "overview", label: "Overview", icon: Building2 },
     { id: "automation", label: "Automation", icon: Zap },
-    { id: "processes", label: "Processes", icon: Process },
+    { id: "processes", label: "Processes", icon: Settings },
   ]
 
   return (
@@ -302,7 +301,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
                 <div className="space-y-2">
                   {aiAnalysis.processes_mentioned.map((process: any, index: number) => (
                     <div key={index} className="flex items-start gap-2 p-3 border rounded-lg">
-                      <Process className="h-4 w-4 mt-0.5 text-blue-500" />
+                      <Settings className="h-4 w-4 mt-0.5 text-blue-500" />
                       <div className="flex-1">
                         <p className="text-sm font-medium">{process.process || process}</p>
                         {process.description && (
@@ -356,7 +355,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
             {(!aiAnalysis?.processes_mentioned || aiAnalysis.processes_mentioned.length === 0) && 
              (!aiAnalysis?.manual_work_indicators || aiAnalysis.manual_work_indicators.length === 0) && (
               <div className="text-center py-8 text-muted-foreground">
-                <Process className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <Settings className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p>No process information available</p>
               </div>
             )}
