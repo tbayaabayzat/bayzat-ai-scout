@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -8,7 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Building2, ExternalLink } from "lucide-react"
-import { CompanyDetailSheet } from "@/components/CompanyDetailSheet"
+import { CompanyDetailSheet } from "@/components/company-detail/CompanyDetailSheet"
 
 interface CompanyDescriptionCellProps {
   company: any
