@@ -83,8 +83,8 @@ export function AIInsights({ insights = [], title = "AI Insights" }: AIInsightsP
             <Zap className="h-4 w-4 text-primary" />
           </div>
           <div className="text-left">
-            <div className="font-medium text-sm">{title}</div>
-            <div className="text-xs text-muted-foreground mt-1">
+            <div className="font-medium text-sm text-white">{title}</div>
+            <div className="text-xs text-white mt-1">
               Real-time market intelligence
             </div>
           </div>
@@ -107,8 +107,8 @@ export function AIInsights({ insights = [], title = "AI Insights" }: AIInsightsP
                 </div>
               </div>
               <div className="ml-0">
-                <p className="text-xs font-medium">{insight.title}</p>
-                <p className="text-xs text-muted-foreground mt-1">{insight.description}</p>
+                <p className="text-xs font-medium text-white">{insight.title}</p>
+                <p className="text-xs text-white mt-1">{insight.description}</p>
               </div>
             </div>
           ))}
