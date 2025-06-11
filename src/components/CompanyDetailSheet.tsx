@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import {
   Sheet,
@@ -66,7 +67,13 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
                   </Button>
                 </div>
               )}
-              {evidence.text && (
+              {evidence.fullname && (
+                <p className="text-xs font-medium">{evidence.fullname}</p>
+              )}
+              {typeof evidence === 'string' && (
+                <p className="text-xs text-muted-foreground">{evidence}</p>
+              )}
+              {evidence.text && typeof evidence.text === 'string' && (
                 <p className="text-xs text-muted-foreground">{evidence.text}</p>
               )}
             </div>
@@ -213,7 +220,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
                     <div key={index} className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
                       <Info className="h-4 w-4 mt-0.5 text-blue-500" />
                       <div className="flex-1">
-                        <p className="text-sm">{fact.fact || fact}</p>
+                        <p className="text-sm">{typeof fact === 'string' ? fact : fact.fact || 'Notable fact'}</p>
                         {fact.evidence && (
                           <EvidenceTooltip evidence={fact.evidence}>
                             <Badge variant="outline" className="mt-1 text-xs cursor-help">
@@ -303,7 +310,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
                     <div key={index} className="flex items-start gap-2 p-3 border rounded-lg">
                       <Settings className="h-4 w-4 mt-0.5 text-blue-500" />
                       <div className="flex-1">
-                        <p className="text-sm font-medium">{process.process || process}</p>
+                        <p className="text-sm font-medium">{typeof process === 'string' ? process : process.process || 'Process'}</p>
                         {process.description && (
                           <p className="text-xs text-muted-foreground mt-1">{process.description}</p>
                         )}
@@ -333,7 +340,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
                     <div key={index} className="flex items-start gap-2 p-3 border border-orange-200 rounded-lg bg-orange-50">
                       <XCircle className="h-4 w-4 mt-0.5 text-orange-500" />
                       <div className="flex-1">
-                        <p className="text-sm font-medium">{indicator.indicator || indicator}</p>
+                        <p className="text-sm font-medium">{typeof indicator === 'string' ? indicator : indicator.indicator || 'Manual work indicator'}</p>
                         {indicator.description && (
                           <p className="text-xs text-muted-foreground mt-1">{indicator.description}</p>
                         )}
