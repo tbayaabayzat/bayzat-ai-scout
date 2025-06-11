@@ -30,8 +30,12 @@ export function TestDepartmentClassification() {
         return
       }
 
-      setTestResult(data[0])
-      toast.success("Classification test completed")
+      if (data && data.length > 0) {
+        setTestResult(data[0])
+        toast.success("Classification test completed")
+      } else {
+        toast.error("No data returned from classification test")
+      }
     } catch (err) {
       console.error('Test error:', err)
       toast.error("Failed to run classification test")
@@ -53,8 +57,12 @@ export function TestDepartmentClassification() {
         return
       }
 
-      const result = data[0]
-      toast.success(`Batch complete: ${result.processed_count} processed, ${result.success_count} successful, ${result.error_count} errors`)
+      if (data && data.length > 0) {
+        const result = data[0]
+        toast.success(`Batch complete: ${result.processed_count} processed, ${result.success_count} successful, ${result.error_count} errors`)
+      } else {
+        toast.error("No data returned from batch classification")
+      }
     } catch (err) {
       console.error('Batch classification error:', err)
       toast.error("Failed to run batch classification")
