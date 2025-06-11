@@ -39,13 +39,15 @@ export function EvidenceTooltip({ evidence, children }: EvidenceTooltipProps) {
               </div>
             )}
             {evidence.fullname && (
-              <p className="text-xs font-medium">{evidence.fullname}</p>
+              <p className="text-xs font-medium">{String(evidence.fullname)}</p>
             )}
             {typeof evidence === 'string' && (
               <p className="text-xs text-muted-foreground">{evidence}</p>
             )}
-            {evidence.text && typeof evidence.text === 'string' && (
-              <p className="text-xs text-muted-foreground">{evidence.text}</p>
+            {evidence.text && (
+              <p className="text-xs text-muted-foreground">
+                {typeof evidence.text === 'string' ? evidence.text : JSON.stringify(evidence.text)}
+              </p>
             )}
           </div>
         </TooltipContent>
