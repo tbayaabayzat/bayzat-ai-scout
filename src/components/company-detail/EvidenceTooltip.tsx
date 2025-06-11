@@ -44,9 +44,14 @@ export function EvidenceTooltip({ evidence, children }: EvidenceTooltipProps) {
             {typeof evidence === 'string' && (
               <p className="text-xs text-muted-foreground">{evidence}</p>
             )}
-            {evidence.text && (
+            {typeof evidence === 'object' && evidence.text && (
               <p className="text-xs text-muted-foreground">
                 {typeof evidence.text === 'string' ? evidence.text : JSON.stringify(evidence.text)}
+              </p>
+            )}
+            {typeof evidence === 'object' && !evidence.text && !evidence.fullname && !evidence.profile_url && (
+              <p className="text-xs text-muted-foreground">
+                {JSON.stringify(evidence)}
               </p>
             )}
           </div>
