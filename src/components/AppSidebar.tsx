@@ -67,7 +67,7 @@ export function AppSidebar() {
                   >
                     <div className="flex items-center gap-2 cursor-pointer">
                       <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      <span className="text-white">{item.title}</span>
                     </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -82,7 +82,7 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="p-4 space-y-3">
         <UserMenu />
-        <div className="text-xs text-muted-foreground">
+        <div className="text-xs text-white">
           Bayzat Internal Tool v1.0
         </div>
       </SidebarFooter>
