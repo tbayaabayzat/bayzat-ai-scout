@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import {
   Sheet,
@@ -7,10 +8,11 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
-import { Building2, Zap, Wrench } from "lucide-react"
+import { Building2, Zap, Wrench, Users } from "lucide-react"
 import { CompanyOverview } from "./CompanyOverview"
 import { AutomationSection } from "./AutomationSection"
 import { ProcessesSection } from "./ProcessesSection"
+import { EmployeesSection } from "./EmployeesSection"
 import { useIsMobile } from "@/hooks/use-mobile"
 
 interface CompanyDetailSheetProps {
@@ -29,6 +31,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
     { id: "overview", label: "Overview", icon: Building2 },
     { id: "automation", label: "Automation", icon: Zap },
     { id: "processes", label: "Processes", icon: Wrench },
+    { id: "employees", label: "Employees", icon: Users },
   ]
 
   return (
@@ -96,6 +99,10 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
 
           {activeSection === "processes" && (
             <ProcessesSection aiAnalysis={aiAnalysis} />
+          )}
+
+          {activeSection === "employees" && (
+            <EmployeesSection companyId={company.id} />
           )}
         </div>
       </SheetContent>
