@@ -19,6 +19,7 @@ interface CompanyEmployee {
   headline: string
   department: string
   current_company_name: string
+  updated_at: string
 }
 
 export function TestBatchClassification() {
@@ -31,9 +32,10 @@ export function TestBatchClassification() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('employee_profiles')
-        .select('id, full_name, headline, department, current_company_name')
+        .select('id, full_name, headline, department, current_company_name, updated_at')
         .ilike('current_company_name', '%arabian%ethicals%')
         .limit(20)
+        .order('updated_at', { ascending: false })
 
       if (error) {
         console.error('Error fetching Arabian Ethicals employees:', error)
@@ -41,6 +43,33 @@ export function TestBatchClassification() {
       }
 
       return data as CompanyEmployee[]
+    }
+  })
+
+  // Query to get department distribution
+  const { data: departmentStats, refetch: refetchStats } = useQuery({
+    queryKey: ['department-stats'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('employee_profiles')
+        .select('department')
+        .not('department', 'is', null)
+
+      if (error) {
+        console.error('Error fetching department stats:', error)
+        throw error
+      }
+
+      // Count departments
+      const counts: Record<string, number> = {}
+      data.forEach(emp => {
+        const dept = emp.department || 'Other'
+        counts[dept] = (counts[dept] || 0) + 1
+      })
+
+      return Object.entries(counts)
+        .map(([department, count]) => ({ department, count }))
+        .sort((a, b) => b.count - a.count)
     }
   })
 
@@ -62,9 +91,10 @@ export function TestBatchClassification() {
         setLastResult(result)
         toast.success(`Batch complete: ${result.processed_count} processed, ${result.success_count} successful, ${result.error_count} errors`)
         
-        // Refetch Arabian Ethicals employees to see updates
+        // Refetch data to see updates
         setTimeout(() => {
           refetchEmployees()
+          refetchStats()
         }, 2000)
       } else {
         toast.warning("No employees found to process")
@@ -77,15 +107,55 @@ export function TestBatchClassification() {
     }
   }
 
+  const testSingleClassification = async () => {
+    setIsRunning(true)
+    try {
+      // Update a test employee to trigger the classification
+      const { data: testEmployee } = await supabase
+        .from('employee_profiles')
+        .select('id, headline')
+        .not('headline', 'is', null)
+        .limit(1)
+        .single()
+
+      if (testEmployee) {
+        const { error } = await supabase
+          .from('employee_profiles')
+          .update({ 
+            headline: `${testEmployee.headline} - Updated ${new Date().toISOString().slice(11, 19)}`
+          })
+          .eq('id', testEmployee.id)
+
+        if (error) {
+          toast.error(`Failed to update test employee: ${error.message}`)
+        } else {
+          toast.success("Test update completed - check if department was classified")
+          setTimeout(() => {
+            refetchEmployees()
+            refetchStats()
+          }, 3000)
+        }
+      }
+    } catch (err) {
+      console.error('Test classification error:', err)
+      toast.error("Failed to run test classification")
+    } finally {
+      setIsRunning(false)
+    }
+  }
+
   return (
     <div className="space-y-6 p-6">
       <Card>
         <CardHeader>
-          <CardTitle>Batch Employee Department Classification</CardTitle>
+          <CardTitle>Employee Department Classification Testing</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-            <Button onClick={() => runBatchClassification(5)} disabled={isRunning} variant="default">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+            <Button onClick={testSingleClassification} disabled={isRunning} variant="default">
+              {isRunning ? "Running..." : "Test Single Update"}
+            </Button>
+            <Button onClick={() => runBatchClassification(5)} disabled={isRunning} variant="outline">
               {isRunning ? "Running..." : "Process 5 Employees"}
             </Button>
             <Button onClick={() => runBatchClassification(10)} disabled={isRunning} variant="outline">
@@ -115,6 +185,29 @@ export function TestBatchClassification() {
         </CardContent>
       </Card>
 
+      {/* Department Statistics */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Department Classification Statistics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {departmentStats && departmentStats.length > 0 ? (
+            <div className="grid gap-2">
+              {departmentStats.map(({ department, count }) => (
+                <div key={department} className="flex items-center justify-between p-2 border rounded">
+                  <Badge variant={department === 'Other' ? 'outline' : 'default'}>
+                    {department}
+                  </Badge>
+                  <span className="font-medium">{count} employees</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground">Loading department statistics...</p>
+          )}
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>Arabian Ethicals Employees Test</CardTitle>
@@ -140,6 +233,9 @@ export function TestBatchClassification() {
                         <div className="font-medium">{employee.full_name}</div>
                         <div className="text-sm text-muted-foreground">{employee.headline}</div>
                         <div className="text-xs text-muted-foreground">{employee.current_company_name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          Updated: {new Date(employee.updated_at).toLocaleString()}
+                        </div>
                       </div>
                       <Badge variant={employee.department === 'Other' ? 'outline' : 'default'}>
                         {employee.department || 'Unclassified'}

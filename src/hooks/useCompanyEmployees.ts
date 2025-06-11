@@ -6,7 +6,7 @@ import { Employee, EmployeeWithDepartment } from "@/types/employee"
 import { Department } from "@/utils/employeeDepartmentUtils"
 
 export function useCompanyEmployees(companyId: string | number | null | undefined) {
-  const { data: employees, isLoading, error } = useQuery({
+  const { data: employees, isLoading, error, refetch } = useQuery({
     queryKey: ['company-employees', companyId],
     queryFn: async () => {
       if (!companyId) {
@@ -29,28 +29,46 @@ export function useCompanyEmployees(companyId: string | number | null | undefine
 
       console.log(`Found ${data?.length || 0} employees for company ID ${companyId}`)
       
-      // Map employees to include department from database, handling the new department names
+      // Map employees to include department from database, handling the updated department names
       const employeesWithDepartments = data?.map(employee => {
         let department = employee.department || 'Other'
         
-        // Map old department names to new ones if needed
-        if (department === 'Human Resources') department = 'HR'
-        if (department === 'Finance & Accounting') department = 'Finance'
+        // Map database department names to our frontend department types
+        const departmentMapping: Record<string, Department> = {
+          'Engineering': 'Engineering',
+          'IT': 'IT', 
+          'Sales': 'Sales',
+          'Marketing': 'Marketing',
+          'Human Resources': 'HR',
+          'HR': 'HR',
+          'Finance & Accounting': 'Finance',
+          'Finance': 'Finance',
+          'Procurement': 'Procurement',
+          'Operations': 'Operations',
+          'Customer Success': 'Customer Success',
+          'Product Management': 'Product Management',
+          'Executive': 'Executive',
+          'Other': 'Other'
+        }
+        
+        const mappedDepartment = departmentMapping[department] || 'Other'
         
         return {
           ...employee,
-          department: department as Department
+          department: mappedDepartment as Department
         }
       }) as EmployeeWithDepartment[]
 
       return employeesWithDepartments || []
     },
-    enabled: !!companyId
+    enabled: !!companyId,
+    refetchInterval: 30000, // Refetch every 30 seconds to pick up new classifications
   })
 
   return {
     employees: employees || [],
     isLoading,
-    error
+    error,
+    refetch
   }
 }
