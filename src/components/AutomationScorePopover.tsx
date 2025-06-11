@@ -60,7 +60,7 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
             <h4 className="font-medium mb-3">Automation Analysis</h4>
             
             {/* Overall Score */}
-            <div className="mb-3 p-3 bg-muted/50 rounded-lg">
+            <div className="mb-4 p-3 bg-muted/50 rounded-lg">
               <div className="flex justify-between items-center text-sm mb-2">
                 <span className="font-medium">Overall Score</span>
                 <span className="font-semibold">{score.toFixed(1)}</span>
