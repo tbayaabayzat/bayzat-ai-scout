@@ -1,6 +1,7 @@
+
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Server, Users, Calculator, CreditCard, FileText, Clock, Package } from "lucide-react"
+import { Server, Users, Calculator, CreditCard, FileText, Clock, Package, Receipt } from "lucide-react"
 
 interface SystemsInventoryProps {
   systems: any
@@ -25,6 +26,8 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
       case 'Payroll': return CreditCard
       case 'AP_Automation': return FileText
       case 'Time_Attendance_Hardware': return Clock
+      case 'Document_Management': return FileText
+      case 'Expense_Management': return Receipt
       default: return Package
     }
   }
@@ -33,7 +36,7 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
     return systemType.replace(/_/g, ' ')
   }
 
-  const mainSystems = ['ERP', 'HRIS', 'Accounting', 'Payroll', 'AP_Automation']
+  const mainSystems = ['ERP', 'HRIS', 'Accounting', 'Payroll', 'AP_Automation', 'Document_Management', 'Expense_Management', 'Time_Attendance_Hardware']
   const otherSystemTypes = Object.keys(systems).filter(key => 
     !mainSystems.includes(key) && key !== 'Other_Software' && systems[key]?.name && systems[key].name !== 'None'
   )
@@ -41,7 +44,7 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
   return (
     <div className="space-y-6">
       {/* Main Systems Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {mainSystems.map((systemType) => {
           const system = systems[systemType]
           const SystemIcon = getSystemIcon(systemType)
