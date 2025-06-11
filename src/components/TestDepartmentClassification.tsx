@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 
@@ -22,10 +23,87 @@ interface BatchClassificationResult {
   error_count: number
 }
 
+interface DirectWebhookResult {
+  success: boolean
+  department?: string
+  response_raw: any
+  error_message?: string
+  status?: number
+}
+
 export function TestDepartmentClassification() {
   const [jobTitle, setJobTitle] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [testResult, setTestResult] = useState<TestClassificationResult | null>(null)
+  const [directWebhookResult, setDirectWebhookResult] = useState<DirectWebhookResult | null>(null)
+
+  const testDirectWebhook = async () => {
+    if (!jobTitle.trim()) {
+      toast.error("Please enter a job title")
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const requestBody = {
+        headline: jobTitle,
+        current_title: jobTitle,
+        years_of_experience: null,
+        about: null
+      }
+
+      console.log('Making direct webhook request with:', requestBody)
+
+      const response = await fetch('https://automation.bayzat.com/webhook/7732390f-d53f-4adf-8310-668c9c692371', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      })
+
+      console.log('Webhook response status:', response.status)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('Webhook error response:', errorText)
+        setDirectWebhookResult({
+          success: false,
+          error_message: `HTTP ${response.status}: ${errorText}`,
+          response_raw: { error: errorText, status: response.status },
+          status: response.status
+        })
+        toast.error(`Direct webhook failed: HTTP ${response.status}`)
+        return
+      }
+
+      const responseData = await response.json()
+      console.log('Webhook success response:', responseData)
+
+      const department = responseData?.department || 'Other'
+      
+      setDirectWebhookResult({
+        success: true,
+        department,
+        response_raw: responseData,
+        status: response.status
+      })
+      
+      toast.success(`Direct webhook success: ${department}`)
+
+    } catch (err) {
+      console.error('Direct webhook error:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+      setDirectWebhookResult({
+        success: false,
+        error_message: errorMessage,
+        response_raw: { error: errorMessage }
+      })
+      toast.error(`Direct webhook failed: ${errorMessage}`)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const testClassification = async () => {
     if (!jobTitle.trim()) {
@@ -100,13 +178,48 @@ export function TestDepartmentClassification() {
               onChange={(e) => setJobTitle(e.target.value)}
               className="flex-1"
             />
-            <Button onClick={testClassification} disabled={isLoading}>
-              {isLoading ? "Testing..." : "Test"}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <Button onClick={testDirectWebhook} disabled={isLoading} variant="default">
+              {isLoading ? "Testing..." : "Test Webhook Directly"}
+            </Button>
+            <Button onClick={testClassification} disabled={isLoading} variant="outline">
+              {isLoading ? "Testing..." : "Test via Database Function"}
             </Button>
           </div>
 
+          {directWebhookResult && (
+            <div className="space-y-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <h3 className="font-semibold text-blue-900">Direct Webhook Result</h3>
+              <div><strong>Job Title:</strong> {jobTitle}</div>
+              <div className="flex items-center gap-2">
+                <strong>Department:</strong>
+                <Badge variant={directWebhookResult.success ? "default" : "destructive"}>
+                  {directWebhookResult.department || 'Error'}
+                </Badge>
+              </div>
+              <div><strong>Success:</strong> {directWebhookResult.success ? "✅" : "❌"}</div>
+              {directWebhookResult.status && (
+                <div><strong>HTTP Status:</strong> {directWebhookResult.status}</div>
+              )}
+              {directWebhookResult.error_message && (
+                <div className="text-red-600">
+                  <strong>Error:</strong> {directWebhookResult.error_message}
+                </div>
+              )}
+              <details className="text-xs">
+                <summary className="cursor-pointer font-medium">Raw Response</summary>
+                <pre className="mt-2 p-2 bg-white rounded text-xs overflow-auto">
+                  {JSON.stringify(directWebhookResult.response_raw, null, 2)}
+                </pre>
+              </details>
+            </div>
+          )}
+
           {testResult && (
             <div className="space-y-3 p-4 bg-muted rounded-lg">
+              <h3 className="font-semibold">Database Function Result</h3>
               <div><strong>Job Title:</strong> {testResult.job_title}</div>
               <div className="flex items-center gap-2">
                 <strong>Department:</strong>
@@ -128,6 +241,8 @@ export function TestDepartmentClassification() {
               </details>
             </div>
           )}
+
+          <Separator />
 
           <div className="border-t pt-4">
             <Button 
