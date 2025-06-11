@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Info } from "lucide-react"
 import { SystemsInventory } from "./SystemsInventory"
+import { formatDepartmentName, sortDepartments } from "@/utils/departmentUtils"
 
 interface AutomationSectionProps {
   aiAnalysis: any
@@ -24,14 +25,16 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
     return "Low"
   }
 
-  // Filter out non-department fields from automation_level
+  // Filter out non-department fields from automation_level and format/sort departments
   const departmentScores = aiAnalysis?.automation_level ? 
-    Object.entries(aiAnalysis.automation_level)
-      .filter(([key]) => !['overall', 'evidence', 'automation_rationale'].includes(key))
-      .map(([department, score]: [string, any]) => ({
-        department: department.replace('_', ' '),
-        score: typeof score === 'number' ? score : 0
-      })) : []
+    sortDepartments(
+      Object.entries(aiAnalysis.automation_level)
+        .filter(([key]) => !['overall', 'evidence', 'automation_rationale'].includes(key))
+        .map(([department, score]: [string, any]) => ({
+          department: formatDepartmentName(department),
+          score: typeof score === 'number' ? score : 0
+        }))
+    ) : []
 
   // Get automation rationale from the correct path
   const automationRationale = aiAnalysis?.automation_level?.automation_rationale
@@ -85,7 +88,7 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
                   <div key={department} className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium capitalize">{department}</span>
+                        <span className="text-sm font-medium">{department}</span>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger>
