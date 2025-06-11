@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import {
   Sheet,
@@ -57,7 +58,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
             </div>
           </SheetTitle>
           <SheetDescription>
-            Comprehensive company analysis and details
+            {company.tagline || "Comprehensive company analysis and details"}
           </SheetDescription>
         </SheetHeader>
 

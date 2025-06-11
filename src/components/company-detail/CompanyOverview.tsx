@@ -18,9 +18,19 @@ export function CompanyOverview({ company, aiAnalysis }: CompanyOverviewProps) {
       <CompanyInfoGrid company={company} />
 
       {company.description && (
-        <div className="space-y-2">
+        <div className="space-y-3">
           <h4 className="font-medium">About</h4>
           <p className="text-sm text-muted-foreground leading-relaxed">{company.description}</p>
+          
+          {company.specialities && Array.isArray(company.specialities) && company.specialities.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {company.specialities.map((specialty: string, index: number) => (
+                <Badge key={index} variant="secondary" className="text-xs">
+                  {specialty}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
