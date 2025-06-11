@@ -24,12 +24,12 @@ interface CompanyDescriptionCellProps {
 export function CompanyDescriptionCell({ company }: CompanyDescriptionCellProps) {
   const [open, setOpen] = useState(false)
 
-  const truncatedDescription = company.description?.length > 100 
-    ? company.description.substring(0, 100) + "..."
+  const truncatedDescription = company.description?.length > 120 
+    ? company.description.substring(0, 120) + "..."
     : company.description
 
   return (
-    <div className="flex items-center space-x-3">
+    <div className="flex items-center space-x-3 w-60">
       {/* Company Logo */}
       <div className="flex-shrink-0">
         {company.logo_url ? (
@@ -98,7 +98,7 @@ export function CompanyDescriptionCell({ company }: CompanyDescriptionCellProps)
         {company.description && (
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="link" className="h-auto p-0 text-left justify-start text-xs text-muted-foreground mt-1">
+              <Button variant="link" className="h-auto p-0 text-left justify-start text-xs text-muted-foreground mt-1 whitespace-normal leading-4 line-clamp-2">
                 {truncatedDescription}
               </Button>
             </SheetTrigger>
