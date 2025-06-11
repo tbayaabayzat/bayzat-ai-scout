@@ -47,6 +47,11 @@
     --bayzat-light-gray: 240 4.8% 95.9%;
     --bayzat-pink: 340 79% 48%;
 
+    /* Automation score colors - futuristic purple to pink gradient */
+    --automation-low: 262 83% 45%;     /* Dark purple for 1-2 */
+    --automation-medium: 262 100% 64%; /* Brand purple for 3 */
+    --automation-high: 340 79% 48%;    /* Pink for 4-5 */
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -95,6 +100,11 @@
     --bayzat-charcoal: 0 0% 85%;
     --bayzat-light-gray: 0 0% 8%;
     --bayzat-pink: 340 79% 48%;
+
+    /* Automation score colors - same for dark theme */
+    --automation-low: 262 83% 45%;     /* Dark purple for 1-2 */
+    --automation-medium: 262 100% 64%; /* Brand purple for 3 */
+    --automation-high: 340 79% 48%;    /* Pink for 4-5 */
 
     --sidebar-background: 0 0% 6%;
     --sidebar-foreground: 0 0% 85%;

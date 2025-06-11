@@ -1,6 +1,6 @@
+
 import { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { MapPin, Users, Crown } from "lucide-react"
 import { DataTable } from "@/components/ui/data-table"
 import { CompanyDescriptionCell } from "@/components/CompanyDescriptionCell"
@@ -120,20 +120,6 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
         console.log('Systems for', row.original.company_name, ':', systems)
         return <SystemsDisplay systems={systems} />
       }
-    },
-    {
-      id: "actions",
-      header: "",
-      cell: ({ row }) => (
-        <div className="flex space-x-2 justify-end">
-          <Button size="sm" variant="outline" className="text-xs">
-            Analyze
-          </Button>
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90">
-            Contact
-          </Button>
-        </div>
-      )
     }
   ]
 

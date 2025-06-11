@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -71,6 +70,12 @@ export default {
 					charcoal: 'hsl(var(--bayzat-charcoal))',
 					'light-gray': 'hsl(var(--bayzat-light-gray))',
 					pink: 'hsl(var(--bayzat-pink))'
+				},
+				// Automation score colors
+				automation: {
+					low: 'hsl(var(--automation-low))',
+					medium: 'hsl(var(--automation-medium))',
+					high: 'hsl(var(--automation-high))'
 				}
 			},
 			borderRadius: {

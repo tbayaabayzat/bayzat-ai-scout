@@ -16,14 +16,20 @@ interface AutomationScorePopoverProps {
 
 export function AutomationScorePopover({ score, analysis }: AutomationScorePopoverProps) {
   const getScoreColor = (score: number) => {
-    if (score >= 4) return "bg-green-500"
-    if (score >= 2) return "bg-yellow-500"
-    return "bg-red-500"
+    if (score >= 4) return "bg-automation-high text-white"
+    if (score >= 3) return "bg-automation-medium text-white"
+    return "bg-automation-low text-white"
+  }
+
+  const getProgressColor = (score: number) => {
+    if (score >= 4) return "[&>div]:bg-automation-high"
+    if (score >= 3) return "[&>div]:bg-automation-medium"
+    return "[&>div]:bg-automation-low"
   }
 
   const getScoreLabel = (score: number) => {
     if (score >= 4) return "High"
-    if (score >= 2) return "Medium"
+    if (score >= 3) return "Medium"
     return "Low"
   }
 
@@ -42,7 +48,7 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="sm" className="h-auto p-1">
-          <Badge variant="outline" className="gap-1">
+          <Badge variant="outline" className={`gap-1 border-0 ${getScoreColor(score)} hover:opacity-90 transition-opacity`}>
             {getScoreLabel(score)} ({score.toFixed(1)})
             <Info className="h-3 w-3" />
           </Badge>
@@ -59,7 +65,10 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
                     <span>Finance</span>
                     <span>{automationLevel.finance}</span>
                   </div>
-                  <Progress value={automationLevel.finance * 20} className="h-2" />
+                  <Progress 
+                    value={automationLevel.finance * 20} 
+                    className={`h-2 ${getProgressColor(automationLevel.finance)}`} 
+                  />
                 </div>
               )}
               {automationLevel?.hr && (
@@ -68,7 +77,10 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
                     <span>HR</span>
                     <span>{automationLevel.hr}</span>
                   </div>
-                  <Progress value={automationLevel.hr * 20} className="h-2" />
+                  <Progress 
+                    value={automationLevel.hr * 20} 
+                    className={`h-2 ${getProgressColor(automationLevel.hr)}`} 
+                  />
                 </div>
               )}
               {automationLevel?.it && (
@@ -77,7 +89,10 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
                     <span>IT</span>
                     <span>{automationLevel.it}</span>
                   </div>
-                  <Progress value={automationLevel.it * 20} className="h-2" />
+                  <Progress 
+                    value={automationLevel.it * 20} 
+                    className={`h-2 ${getProgressColor(automationLevel.it)}`} 
+                  />
                 </div>
               )}
               {automationLevel?.operations && (
@@ -86,7 +101,10 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
                     <span>Operations</span>
                     <span>{automationLevel.operations}</span>
                   </div>
-                  <Progress value={automationLevel.operations * 20} className="h-2" />
+                  <Progress 
+                    value={automationLevel.operations * 20} 
+                    className={`h-2 ${getProgressColor(automationLevel.operations)}`} 
+                  />
                 </div>
               )}
               
