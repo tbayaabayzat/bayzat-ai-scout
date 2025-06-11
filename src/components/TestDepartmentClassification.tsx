@@ -20,7 +20,7 @@ export function TestDepartmentClassification() {
 
     setIsLoading(true)
     try {
-      const { data, error } = await supabase.rpc('test_department_classification', {
+      const { data, error } = await supabase.rpc('test_department_classification' as any, {
         test_job_title: jobTitle
       })
 
@@ -43,7 +43,7 @@ export function TestDepartmentClassification() {
   const runBatchClassification = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase.rpc('reclassify_employee_departments', {
+      const { data, error } = await supabase.rpc('reclassify_employee_departments' as any, {
         batch_size: 5
       })
 
