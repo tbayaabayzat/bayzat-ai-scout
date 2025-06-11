@@ -1312,6 +1312,29 @@ export type Database = {
           },
         ]
       }
+      company_employment_view_0c993c13_54b2_4c9d_b867_25ed4b3e27e3: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_employment_view_0d42f97a_0a7c_4f4e_839c_8ccccc159f69: {
         Row: {
           company: string | null
@@ -1773,6 +1796,29 @@ export type Database = {
         ]
       }
       company_employment_view_158de18e_a483_4500_9ec6_d7020726d61d: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_employment_view_16466983_bd9b_4d7f_855c_289023ea2be6: {
         Row: {
           company: string | null
           company_id: string | null
@@ -3980,6 +4026,29 @@ export type Database = {
           },
         ]
       }
+      company_employment_view_523ebf74_5e33_4700_8eaa_6708897cc001: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_employment_view_5318422c_fed8_4b6d_82a7_f98d80627324: {
         Row: {
           company: string | null
@@ -4464,6 +4533,29 @@ export type Database = {
         ]
       }
       company_employment_view_611dfd84_0d50_4a55_840c_7c2e195801e8: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_employment_view_612bc4d0_4320_4e45_9c40_e05c1ebb086f: {
         Row: {
           company: string | null
           company_id: string | null
@@ -5200,6 +5292,29 @@ export type Database = {
         ]
       }
       company_employment_view_778abfec_c8b5_4639_9e4d_6b8e1762ecf9: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_employment_view_784da14b_d9f4_4ca8_abfa_990eaf72beb3: {
         Row: {
           company: string | null
           company_id: string | null
@@ -6487,6 +6602,29 @@ export type Database = {
           },
         ]
       }
+      company_employment_view_a2259666_b3b9_430a_bbf7_a124bac69fa6: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_employment_view_a2bac3c0_2681_4a98_a024_0e4f72f73934: {
         Row: {
           company: string | null
@@ -7200,6 +7338,29 @@ export type Database = {
           },
         ]
       }
+      company_employment_view_b3fa6eab_4334_4ed9_a614_f5858601c746: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_employment_view_b661c973_8332_4b9a_a877_15231fc7cbf2: {
         Row: {
           company: string | null
@@ -7339,6 +7500,29 @@ export type Database = {
         ]
       }
       company_employment_view_b9b56e6a_bc2d_40ea_b4d4_2a80e121c81a: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_employment_view_bb004721_c607_421f_a2f9_f1f0d1d75d05: {
         Row: {
           company: string | null
           company_id: string | null
@@ -7845,6 +8029,29 @@ export type Database = {
         ]
       }
       company_employment_view_c7f84de9_39d9_4c61_9272_9980eb912b44: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_employment_view_c8015729_6383_4989_926a_372c04f3b0d1: {
         Row: {
           company: string | null
           company_id: string | null
@@ -8580,6 +8787,29 @@ export type Database = {
           },
         ]
       }
+      company_employment_view_ddb943a6_d2fe_4873_81b3_0ce35cdbc785: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_employment_view_ddc7fe8f_1980_4602_b05f_071ee5d96a8a: {
         Row: {
           company: string | null
@@ -8604,6 +8834,29 @@ export type Database = {
         ]
       }
       company_employment_view_e0d4d06d_4c55_4bb6_860a_31ec4f9cb341: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_employment_view_e10cc5ff_1573_43c1_990b_9a824b0e313e: {
         Row: {
           company: string | null
           company_id: string | null
@@ -8719,6 +8972,29 @@ export type Database = {
         ]
       }
       company_employment_view_e9911916_f691_4a21_bdca_6f7651451b4b: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_employment_view_e9ee35e0_0f37_40d0_9a09_d59b0192c0f0: {
         Row: {
           company: string | null
           company_id: string | null
