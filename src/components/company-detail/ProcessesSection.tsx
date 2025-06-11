@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertTriangle, Building2 } from "lucide-react"
 import { DepartmentProcessCard } from "./DepartmentProcessCard"
 import { SubProcessesGrid } from "./SubProcessesGrid"
-import { EvidenceIndicator } from "./EvidenceIndicator"
 import { useRowExpansion } from "@/hooks/useRowExpansion"
 import { sortDepartments } from "@/utils/departmentUtils"
 
@@ -17,7 +16,7 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
   const processesData = aiAnalysis?.processes_mentioned || {}
   const manualWorkIndicators = aiAnalysis?.manual_work_indicators || []
 
-  // Extract and sort department data
+  // Extract and sort department data with proper structure
   const departments = sortDepartments(
     Object.entries(processesData)
       .filter(([key]) => !['evidence', 'sub_processes'].includes(key))
@@ -45,12 +44,12 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {departments.map(({ department, activities, evidence }, index) => (
+            {departments.map((dept, index) => (
               <DepartmentProcessCard
-                key={department}
-                department={department}
-                activities={activities}
-                evidence={evidence}
+                key={dept.department}
+                department={dept.department}
+                activities={dept.activities}
+                evidence={[]} // Temporarily disabled
                 isOpen={isItemExpanded(index)}
                 onToggle={() => toggleRow(index)}
               />
@@ -79,7 +78,6 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
             <div className="space-y-4">
               {manualWorkIndicators.map((indicator: any, index: number) => {
                 const indicatorText = typeof indicator === 'string' ? indicator : (indicator?.indicator || 'Manual work indicator')
-                const evidence = indicator?.evidence || []
 
                 return (
                   <div key={index} className="group">
@@ -92,11 +90,10 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
                         )}
                       </div>
                       
-                      {evidence.length > 0 && (
-                        <div className="flex-shrink-0">
-                          <EvidenceIndicator evidence={evidence} label="Evidence" size="sm" />
-                        </div>
-                      )}
+                      {/* Evidence temporarily disabled */}
+                      <div className="flex-shrink-0">
+                        <div className="h-6 w-6 rounded bg-muted opacity-50" />
+                      </div>
                     </div>
                   </div>
                 )

@@ -2,7 +2,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle2, XCircle, Users } from "lucide-react"
-import { EvidenceIndicator } from "./EvidenceIndicator"
 
 interface SubProcessesGridProps {
   subProcesses: any
@@ -37,7 +36,6 @@ export function SubProcessesGrid({ subProcesses }: SubProcessesGridProps) {
           {processItems.map((item) => {
             const processData = subProcesses[item.key]
             const isMentioned = processData?.mentioned === true
-            const evidence = processData?.evidence || []
 
             return (
               <div
@@ -68,9 +66,8 @@ export function SubProcessesGrid({ subProcesses }: SubProcessesGridProps) {
                     {isMentioned ? "Mentioned" : "Not Mentioned"}
                   </Badge>
                   
-                  {evidence.length > 0 && (
-                    <EvidenceIndicator evidence={evidence} label="Evidence" size="sm" />
-                  )}
+                  {/* Evidence temporarily disabled */}
+                  <div className="h-5 w-5 rounded bg-muted opacity-50" />
                 </div>
               </div>
             )
