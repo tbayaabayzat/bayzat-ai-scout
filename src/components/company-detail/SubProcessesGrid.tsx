@@ -28,7 +28,7 @@ export function SubProcessesGrid({ subProcesses }: SubProcessesGridProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Users className="h-5 w-5 text-blue-500" />
+          <Users className="h-5 w-5 text-muted-foreground" />
           HR Sub-Processes Analysis
         </CardTitle>
       </CardHeader>
@@ -44,8 +44,8 @@ export function SubProcessesGrid({ subProcesses }: SubProcessesGridProps) {
                 key={item.key}
                 className={`p-4 border rounded-lg transition-colors ${
                   isMentioned 
-                    ? 'border-green-200 bg-green-50' 
-                    : 'border-gray-200 bg-gray-50'
+                    ? 'border-primary/20 bg-primary/5' 
+                    : 'border bg-muted/30'
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
@@ -54,16 +54,15 @@ export function SubProcessesGrid({ subProcesses }: SubProcessesGridProps) {
                     <span className="text-sm font-medium">{item.label}</span>
                   </div>
                   {isMentioned ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
                   ) : (
-                    <XCircle className="h-4 w-4 text-gray-400" />
+                    <XCircle className="h-4 w-4 text-muted-foreground" />
                   )}
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <Badge 
                     variant={isMentioned ? "default" : "secondary"}
-                    className={isMentioned ? "bg-green-600" : ""}
                   >
                     {isMentioned ? "Mentioned" : "Not Mentioned"}
                   </Badge>

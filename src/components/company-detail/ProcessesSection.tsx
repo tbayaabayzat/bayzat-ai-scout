@@ -1,7 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { AlertTriangle, Settings, Building2 } from "lucide-react"
+import { AlertTriangle, Building2 } from "lucide-react"
 import { DepartmentProcessCard } from "./DepartmentProcessCard"
 import { SubProcessesGrid } from "./SubProcessesGrid"
 import { EvidenceIndicator } from "./EvidenceIndicator"
@@ -33,7 +32,7 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
       {departments.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-4">
-            <Building2 className="h-5 w-5 text-blue-500" />
+            <Building2 className="h-5 w-5 text-muted-foreground" />
             <h3 className="text-xl font-semibold">Departmental Processes</h3>
           </div>
           
@@ -59,40 +58,41 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
 
       {/* Manual Work Indicators */}
       {manualWorkIndicators.length > 0 && (
-        <Card className="border-orange-200">
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              <AlertTriangle className="h-5 w-5 text-muted-foreground" />
               Manual Work Indicators
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {manualWorkIndicators.map((indicator: any, index: number) => {
-                const indicatorText = typeof indicator === 'string' ? indicator : (indicator?.indicator || 'Manual work indicator')
-                const evidence = indicator?.evidence || []
+            <div className="bg-muted/30 rounded-lg p-4">
+              <div className="space-y-3">
+                {manualWorkIndicators.map((indicator: any, index: number) => {
+                  const indicatorText = typeof indicator === 'string' ? indicator : (indicator?.indicator || 'Manual work indicator')
+                  const evidence = indicator?.evidence || []
 
-                return (
-                  <Card key={index} className="border-orange-200 bg-orange-50">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-orange-800">{indicatorText}</p>
-                          {indicator?.description && typeof indicator.description === 'string' && (
-                            <p className="text-xs text-orange-600 mt-1">{indicator.description}</p>
-                          )}
+                  return (
+                    <div key={index} className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full mt-2 flex-shrink-0" />
+                          <p className="text-sm">{indicatorText}</p>
                         </div>
-                        
-                        {evidence.length > 0 && (
-                          <div className="ml-3">
-                            <EvidenceIndicator evidence={evidence} label="Evidence" size="sm" />
-                          </div>
+                        {indicator?.description && typeof indicator.description === 'string' && (
+                          <p className="text-xs text-muted-foreground mt-1 ml-4">{indicator.description}</p>
                         )}
                       </div>
-                    </CardContent>
-                  </Card>
-                )
-              })}
+                      
+                      {evidence.length > 0 && (
+                        <div className="flex-shrink-0">
+                          <EvidenceIndicator evidence={evidence} label="Evidence" size="sm" />
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -101,7 +101,7 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
       {/* Empty State */}
       {departments.length === 0 && !subProcesses && manualWorkIndicators.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
-          <Settings className="h-12 w-12 mx-auto mb-4 opacity-50" />
+          <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <h3 className="text-lg font-medium mb-2">No Process Information Available</h3>
           <p className="text-sm">No process data has been analyzed for this company yet.</p>
         </div>

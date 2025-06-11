@@ -2,7 +2,7 @@
 // Department formatting and ordering utilities
 
 export const formatDepartmentName = (department: string): string => {
-  const cleaned = department.replace('_', ' ').toLowerCase()
+  const cleaned = department.replace(/_/g, ' ').toLowerCase()
   
   // Special cases for HR and IT
   if (cleaned === 'hr' || cleaned === 'human resources') return 'HR'
