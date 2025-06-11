@@ -10,6 +10,7 @@ import {
   HeartHandshake, 
   Package, 
   Crown,
+  ShoppingCart,
   MoreHorizontal 
 } from "lucide-react"
 
@@ -18,8 +19,9 @@ export type Department =
   | 'IT'
   | 'Sales'
   | 'Marketing'
-  | 'Human Resources'
-  | 'Finance & Accounting'
+  | 'HR'
+  | 'Finance'
+  | 'Procurement'
   | 'Operations'
   | 'Customer Success'
   | 'Product Management'
@@ -58,17 +60,23 @@ export const DEPARTMENT_CONFIG: Record<Department, DepartmentConfig> = {
     color: 'pink',
     badgeVariant: 'outline'
   },
-  'Human Resources': {
-    name: 'Human Resources',
+  'HR': {
+    name: 'HR',
     icon: Users,
     color: 'muted',
     badgeVariant: 'secondary'
   },
-  'Finance & Accounting': {
-    name: 'Finance & Accounting',
+  'Finance': {
+    name: 'Finance',
     icon: Calculator,
     color: 'muted',
     badgeVariant: 'outline'
+  },
+  'Procurement': {
+    name: 'Procurement',
+    icon: ShoppingCart,
+    color: 'muted',
+    badgeVariant: 'secondary'
   },
   'Operations': {
     name: 'Operations',

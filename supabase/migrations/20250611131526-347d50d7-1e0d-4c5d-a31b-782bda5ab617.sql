@@ -91,10 +91,10 @@ BEGIN
             -- Extract department from response
             classified_department := webhook_response->>'department';
             
-            -- Validate the department is one of our expected values
+            -- Validate the department is one of our expected values (updated to match webhook)
             IF classified_department IN (
-                'Engineering', 'IT', 'Sales', 'Marketing', 'Human Resources',
-                'Finance & Accounting', 'Operations', 'Customer Success',
+                'Engineering', 'IT', 'Sales', 'Marketing', 'HR',
+                'Finance', 'Procurement', 'Operations', 'Customer Success',
                 'Product Management', 'Executive', 'Other'
             ) THEN
                 NEW.department := classified_department;
@@ -172,10 +172,10 @@ BEGIN
             -- Extract department from response
             classified_department := webhook_response->>'department';
             
-            -- Validate and update
+            -- Validate and update (updated to match webhook department names)
             IF classified_department IN (
-                'Engineering', 'IT', 'Sales', 'Marketing', 'Human Resources',
-                'Finance & Accounting', 'Operations', 'Customer Success',
+                'Engineering', 'IT', 'Sales', 'Marketing', 'HR',
+                'Finance', 'Procurement', 'Operations', 'Customer Success',
                 'Product Management', 'Executive', 'Other'
             ) THEN
                 UPDATE public.employee_profiles 
