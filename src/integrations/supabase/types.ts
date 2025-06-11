@@ -10195,6 +10195,16 @@ export type Database = {
         Args: { queue_id: string }
         Returns: undefined
       }
+      test_department_classification: {
+        Args: { test_job_title: string }
+        Returns: {
+          job_title: string
+          classified_department: string
+          response_raw: Json
+          success: boolean
+          error_message: string
+        }[]
+      }
       text_to_bytea: {
         Args: { data: string }
         Returns: string
