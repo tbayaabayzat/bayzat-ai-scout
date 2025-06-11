@@ -2,7 +2,6 @@
 import { Badge } from "@/components/ui/badge"
 import { Info } from "lucide-react"
 import { SystemsDisplay } from "@/components/SystemsDisplay"
-import { EvidenceTooltip } from "./EvidenceTooltip"
 import { QuickActionsBar } from "./QuickActionsBar"
 import { CompanyInfoGrid } from "./CompanyInfoGrid"
 
@@ -39,11 +38,9 @@ export function CompanyOverview({ company, aiAnalysis }: CompanyOverviewProps) {
                 <div className="flex-1">
                   <p className="text-sm">{typeof fact === 'string' ? fact : fact.fact || 'Notable fact'}</p>
                   {fact.evidence && (
-                    <EvidenceTooltip evidence={fact.evidence}>
-                      <Badge variant="outline" className="mt-1 text-xs cursor-help">
-                        Evidence available
-                      </Badge>
-                    </EvidenceTooltip>
+                    <Badge variant="outline" className="mt-1 text-xs">
+                      Evidence available
+                    </Badge>
                   )}
                 </div>
               </div>

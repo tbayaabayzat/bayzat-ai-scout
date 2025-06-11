@@ -1,7 +1,6 @@
 
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle2, AlertTriangle, XCircle, Settings } from "lucide-react"
-import { EvidenceTooltip } from "./EvidenceTooltip"
 
 interface ProcessesSectionProps {
   aiAnalysis: any
@@ -26,11 +25,9 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
                     <p className="text-xs text-muted-foreground mt-1">{process.description}</p>
                   )}
                   {process.evidence && (
-                    <EvidenceTooltip evidence={process.evidence}>
-                      <Badge variant="outline" className="mt-2 text-xs cursor-help">
-                        View Evidence
-                      </Badge>
-                    </EvidenceTooltip>
+                    <Badge variant="outline" className="mt-2 text-xs">
+                      Evidence available
+                    </Badge>
                   )}
                 </div>
               </div>
@@ -55,11 +52,9 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
                     <p className="text-xs text-muted-foreground mt-1">{indicator.description}</p>
                   )}
                   {indicator.evidence && (
-                    <EvidenceTooltip evidence={indicator.evidence}>
-                      <Badge variant="outline" className="mt-2 text-xs cursor-help">
-                        View Evidence
-                      </Badge>
-                    </EvidenceTooltip>
+                    <Badge variant="outline" className="mt-2 text-xs">
+                      Evidence available
+                    </Badge>
                   )}
                 </div>
               </div>
