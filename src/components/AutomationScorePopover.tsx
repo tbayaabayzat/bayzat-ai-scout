@@ -57,8 +57,27 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
       <PopoverContent className="w-80" align="start">
         <div className="space-y-4">
           <div>
-            <h4 className="font-medium mb-2">Automation Analysis</h4>
+            <h4 className="font-medium mb-3">Automation Analysis</h4>
+            
+            {/* Overall Score */}
+            <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+              <div className="flex justify-between items-center text-sm mb-2">
+                <span className="font-medium">Overall Score</span>
+                <span className="font-semibold">{score.toFixed(1)}</span>
+              </div>
+              <Progress 
+                value={score * 20} 
+                className={`h-3 ${getProgressColor(score)}`} 
+              />
+              <div className="text-xs text-muted-foreground mt-1">
+                {getScoreLabel(score)} automation potential
+              </div>
+            </div>
+
+            {/* Department Breakdown */}
             <div className="space-y-3">
+              <h5 className="text-sm font-medium text-muted-foreground">Department Breakdown</h5>
+              
               {automationLevel?.finance && (
                 <div>
                   <div className="flex justify-between text-sm mb-1">
