@@ -1,6 +1,8 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Info } from "lucide-react"
 import { SystemsInventory } from "./SystemsInventory"
 
 interface AutomationSectionProps {
@@ -22,13 +24,17 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
     return "Low"
   }
 
+  // Filter out non-department fields from automation_level
   const departmentScores = aiAnalysis?.automation_level ? 
     Object.entries(aiAnalysis.automation_level)
-      .filter(([key]) => key !== 'overall')
+      .filter(([key]) => !['overall', 'evidence', 'automation_rationale'].includes(key))
       .map(([department, score]: [string, any]) => ({
         department: department.replace('_', ' '),
         score: typeof score === 'number' ? score : 0
       })) : []
+
+  // Get automation rationale from the correct path
+  const automationRationale = aiAnalysis?.automation_level?.automation_rationale
 
   return (
     <div className="space-y-8">
@@ -40,7 +46,23 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
         {aiAnalysis?.automation_level?.overall && (
           <div className="p-6 border rounded-lg bg-card">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-lg font-semibold">Overall Automation Score</h4>
+              <div className="flex items-center gap-2">
+                <h4 className="text-lg font-semibold">Overall Automation Score</h4>
+                {aiAnalysis?.automation_level?.evidence && aiAnalysis.automation_level.evidence.length > 0 && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="h-4 w-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="max-w-xs">
+                          <p className="text-xs">Evidence available for overall score</p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
               <Badge className={`${getAutomationScoreColor(aiAnalysis.automation_level.overall)} text-white px-3 py-1`}>
                 {getAutomationLabel(aiAnalysis.automation_level.overall)} ({aiAnalysis.automation_level.overall}/5)
               </Badge>
@@ -62,7 +84,21 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
                 {departmentScores.map(({ department, score }) => (
                   <div key={department} className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium capitalize">{department}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium capitalize">{department}</span>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Info className="h-3 w-3 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <div className="max-w-xs">
+                                <p className="text-xs">Evidence available for {department} automation</p>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                       <Badge 
                         variant="outline" 
                         className={`text-xs ${getAutomationScoreColor(score)} text-white border-none`}
@@ -83,12 +119,12 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
           )}
 
           {/* Analysis Rationale */}
-          {aiAnalysis?.automation_rationale && typeof aiAnalysis.automation_rationale === 'string' && (
+          {automationRationale && typeof automationRationale === 'string' && (
             <div className="space-y-3">
               <h4 className="text-lg font-semibold">Analysis Rationale</h4>
               <div className="p-4 bg-muted/30 rounded-lg border">
                 <p className="text-sm text-foreground leading-relaxed">
-                  {aiAnalysis.automation_rationale}
+                  {automationRationale}
                 </p>
               </div>
             </div>
