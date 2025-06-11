@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import {
   Sheet,
@@ -32,8 +31,11 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[1000px] sm:w-[1200px] max-w-[65vw] overflow-y-auto">
-        <SheetHeader className="border-b pb-6 mb-8">
+      <SheetContent 
+        side="right" 
+        className="!w-[1400px] !sm:w-[1600px] !max-w-[70vw] !min-w-[800px] overflow-y-auto p-8"
+      >
+        <SheetHeader className="border-b pb-8 mb-10">
           <SheetTitle className="flex items-center gap-3">
             {company.logo_url ? (
               <img 
@@ -59,14 +61,14 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex gap-2 mb-8 border-b pb-2">
+        <div className="flex gap-3 mb-10 border-b pb-3">
           {sections.map((section) => (
             <Button
               key={section.id}
               variant={activeSection === section.id ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveSection(section.id)}
-              className="flex items-center gap-2 px-4 py-2"
+              className="flex items-center gap-2 px-5 py-3"
             >
               <section.icon className="h-4 w-4" />
               {section.label}
@@ -74,7 +76,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
           ))}
         </div>
 
-        <div className="px-2">
+        <div className="px-3">
           {activeSection === "overview" && (
             <CompanyOverview company={company} aiAnalysis={aiAnalysis} />
           )}
