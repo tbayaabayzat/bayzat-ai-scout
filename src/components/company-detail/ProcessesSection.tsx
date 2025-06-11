@@ -16,7 +16,7 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
   const processesData = aiAnalysis?.processes_mentioned || {}
   const manualWorkIndicators = aiAnalysis?.manual_work_indicators || []
 
-  // Extract and sort department data with proper structure
+  // Extract and sort department data with proper structure including activities and evidence
   const departments = sortDepartments(
     Object.entries(processesData)
       .filter(([key]) => !['evidence', 'sub_processes'].includes(key))
