@@ -164,6 +164,75 @@ export type Database = {
           },
         ]
       }
+      employee_profile_vectors: {
+        Row: {
+          chunk_index: number | null
+          content: string
+          content_hash: string
+          created_at: string | null
+          current_company_name: string | null
+          current_title: string | null
+          department: string | null
+          embedding: string
+          id: string
+          location_country: string | null
+          metadata: Json | null
+          profile_id: string
+          updated_at: string | null
+          vector_type: string
+          years_of_experience: number | null
+        }
+        Insert: {
+          chunk_index?: number | null
+          content: string
+          content_hash: string
+          created_at?: string | null
+          current_company_name?: string | null
+          current_title?: string | null
+          department?: string | null
+          embedding: string
+          id?: string
+          location_country?: string | null
+          metadata?: Json | null
+          profile_id: string
+          updated_at?: string | null
+          vector_type: string
+          years_of_experience?: number | null
+        }
+        Update: {
+          chunk_index?: number | null
+          content?: string
+          content_hash?: string
+          created_at?: string | null
+          current_company_name?: string | null
+          current_title?: string | null
+          department?: string | null
+          embedding?: string
+          id?: string
+          location_country?: string | null
+          metadata?: Json | null
+          profile_id?: string
+          updated_at?: string | null
+          vector_type?: string
+          years_of_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_profile_vectors_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "employee_engagement_metrics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_profile_vectors_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employee_profiles: {
         Row: {
           about: string | null
@@ -206,6 +275,7 @@ export type Database = {
           location_country: string | null
           location_country_code: string | null
           location_full: string | null
+          needs_embed: boolean | null
           profile_activity_status: string | null
           profile_completeness_score: number | null
           profile_created_at: string | null
@@ -267,6 +337,7 @@ export type Database = {
           location_country?: string | null
           location_country_code?: string | null
           location_full?: string | null
+          needs_embed?: boolean | null
           profile_activity_status?: string | null
           profile_completeness_score?: number | null
           profile_created_at?: string | null
@@ -328,6 +399,7 @@ export type Database = {
           location_country?: string | null
           location_country_code?: string | null
           location_full?: string | null
+          needs_embed?: boolean | null
           profile_activity_status?: string | null
           profile_completeness_score?: number | null
           profile_created_at?: string | null

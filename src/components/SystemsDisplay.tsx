@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge"
 import {
   HoverCard,
@@ -19,14 +18,28 @@ export function SystemsDisplay({ systems }: SystemsDisplayProps) {
 
   console.log('SystemsDisplay - systems structure:', systems)
 
-  // Always show ERP, HRIS, and Accounting - even if "None"
+  // Always show ERP, HRIS, and Accounting - with category names when "None"
   const erpName = systems.ERP?.name || 'None'
   const hrisName = systems.HRIS?.name || 'None'
   const accountingName = systems.Accounting?.name || 'None'
 
-  prioritySystems.push({ name: erpName, isNone: erpName === 'None' })
-  prioritySystems.push({ name: hrisName, isNone: hrisName === 'None' })
-  prioritySystems.push({ name: accountingName, isNone: accountingName === 'None' })
+  // Format display text with category names when value is "None"
+  const formatSystemDisplay = (categoryName: string, systemName: string) => {
+    return systemName === 'None' ? `${categoryName}: None` : systemName
+  }
+
+  prioritySystems.push({ 
+    name: formatSystemDisplay('ERP', erpName), 
+    isNone: erpName === 'None' 
+  })
+  prioritySystems.push({ 
+    name: formatSystemDisplay('HRIS', hrisName), 
+    isNone: hrisName === 'None' 
+  })
+  prioritySystems.push({ 
+    name: formatSystemDisplay('Accounting', accountingName), 
+    isNone: accountingName === 'None' 
+  })
 
   // Add other systems only if they have actual values (not "None")
   if (systems.Payroll?.name && systems.Payroll.name !== 'None') {
