@@ -1,7 +1,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { GraduationCap, Award, Code, Users, TrendingUp, Zap } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { GraduationCap, Award, Code, Users, TrendingUp, Zap, Calendar } from "lucide-react"
 import { EmployeeWithDepartment } from "@/types/employee"
 import { getDepartmentConfig } from "@/utils/employeeDepartmentUtils"
 
@@ -53,20 +54,40 @@ export function EmployeeSkillsEducation({ employee }: EmployeeSkillsEducationPro
 
   const mockEducation = [
     {
-      degree: "Bachelor's Degree",
+      degree: "Bachelor of Science",
       field: "Business Administration",
-      institution: "University",
+      institution: "Stanford University",
       year: "2018"
+    },
+    {
+      degree: "Master of Business Administration",
+      field: "Finance & Strategy",
+      institution: "Harvard Business School",
+      year: "2020"
     }
   ]
 
   const mockCertifications = [
     {
-      name: "Professional Certification",
-      issuer: "Industry Association",
+      name: "Project Management Professional (PMP)",
+      issuer: "Project Management Institute",
       year: "2022"
+    },
+    {
+      name: "Google Analytics Certified",
+      issuer: "Google",
+      year: "2023"
     }
   ]
+
+  const getInstitutionInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  }
 
   return (
     <div className="space-y-6">
@@ -134,15 +155,34 @@ export function EmployeeSkillsEducation({ employee }: EmployeeSkillsEducationPro
         <CardContent>
           <div className="space-y-4">
             {mockEducation.map((edu, index) => (
-              <div key={index} className="flex gap-4 pb-4 border-b last:border-b-0">
-                <div className="w-3 h-3 rounded-full bg-blue-500 mt-2" />
-                <div className="flex-1">
-                  <h4 className="font-medium">{edu.degree}</h4>
-                  <p className="text-sm text-muted-foreground">{edu.field}</p>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                    <span>{edu.institution}</span>
-                    <span>•</span>
-                    <span>{edu.year}</span>
+              <div key={index} className={`flex gap-3 pb-4 border-b last:border-b-0 ${index > 0 ? 'pt-2' : ''}`}>
+                {/* Timeline dot */}
+                <div className={`w-2.5 h-2.5 rounded-full bg-blue-500 ${index > 0 ? 'mt-6' : 'mt-1.5'} flex-shrink-0`} />
+                
+                {/* Content */}
+                <div className="flex gap-3 flex-1 min-w-0">
+                  {/* Institution logo */}
+                  <Avatar className="w-8 h-8 flex-shrink-0">
+                    <AvatarFallback className="text-xs font-medium bg-muted">
+                      {getInstitutionInitials(edu.institution)}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  {/* Education details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-semibold text-sm leading-tight">{edu.degree}</h4>
+                        <p className="text-sm text-muted-foreground">{edu.field}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{edu.institution}</p>
+                      </div>
+                      
+                      {/* Graduation year */}
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0 ml-4">
+                        <Calendar className="h-3 w-3" />
+                        <span>{edu.year}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -162,14 +202,33 @@ export function EmployeeSkillsEducation({ employee }: EmployeeSkillsEducationPro
         <CardContent>
           <div className="space-y-4">
             {mockCertifications.map((cert, index) => (
-              <div key={index} className="flex gap-4 pb-4 border-b last:border-b-0">
-                <div className="w-3 h-3 rounded-full bg-green-500 mt-2" />
-                <div className="flex-1">
-                  <h4 className="font-medium">{cert.name}</h4>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                    <span>{cert.issuer}</span>
-                    <span>•</span>
-                    <span>{cert.year}</span>
+              <div key={index} className={`flex gap-3 pb-4 border-b last:border-b-0 ${index > 0 ? 'pt-2' : ''}`}>
+                {/* Timeline dot */}
+                <div className={`w-2.5 h-2.5 rounded-full bg-green-500 ${index > 0 ? 'mt-6' : 'mt-1.5'} flex-shrink-0`} />
+                
+                {/* Content */}
+                <div className="flex gap-3 flex-1 min-w-0">
+                  {/* Certification icon */}
+                  <Avatar className="w-8 h-8 flex-shrink-0">
+                    <AvatarFallback className="text-xs font-medium bg-muted">
+                      <Award className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  {/* Certification details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-semibold text-sm leading-tight">{cert.name}</h4>
+                        <p className="text-xs text-muted-foreground mt-0.5">{cert.issuer}</p>
+                      </div>
+                      
+                      {/* Certification year */}
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0 ml-4">
+                        <Calendar className="h-3 w-3" />
+                        <span>{cert.year}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
