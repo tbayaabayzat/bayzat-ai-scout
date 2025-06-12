@@ -12,6 +12,9 @@ export interface Employee {
   current_company_urn?: string
   profile_url?: string
   department?: Department
+  engagement_level?: string
+  profile_activity_status?: string
+  response_rate?: string
   linkedin_data?: {
     experience?: any[]
     skills?: any[]
