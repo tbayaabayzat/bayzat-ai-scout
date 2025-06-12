@@ -2,7 +2,6 @@
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { SystemsInventory } from "./SystemsInventory"
-import { EvidenceIndicator } from "./EvidenceIndicator"
 import { formatDepartmentName, sortDepartments } from "@/utils/departmentUtils"
 
 interface AutomationSectionProps {
@@ -37,7 +36,6 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
 
   // Get automation rationale from the correct path
   const automationRationale = aiAnalysis?.automation_level?.automation_rationale
-  const automationEvidence = aiAnalysis?.automation_level?.evidence || []
 
   return (
     <div className="space-y-8">
@@ -51,9 +49,6 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <h4 className="text-lg font-semibold">Overall Automation Score</h4>
-                {automationEvidence.length > 0 && (
-                  <EvidenceIndicator evidence={automationEvidence} label="Evidence" />
-                )}
               </div>
               <Badge className={`${getAutomationScoreColor(aiAnalysis.automation_level.overall)} text-white px-3 py-1`}>
                 {getAutomationLabel(aiAnalysis.automation_level.overall)} ({aiAnalysis.automation_level.overall}/5)
@@ -78,9 +73,6 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">{department}</span>
-                        {automationEvidence.length > 0 && (
-                          <EvidenceIndicator evidence={automationEvidence} label="Evidence" size="sm" />
-                        )}
                       </div>
                       <Badge 
                         variant="outline" 
