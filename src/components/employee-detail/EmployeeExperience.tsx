@@ -30,10 +30,7 @@ export function EmployeeExperience({ employee }: EmployeeExperienceProps) {
   const careerProgression = {
     totalYears: employee.years_of_experience || 0,
     companies: 2,
-    averageTenure: employee.years_of_experience ? Math.round(employee.years_of_experience / 2) : 0,
-    careerLevel: employee.department === 'Executive' ? 'Executive' : 
-                 employee.headline?.toLowerCase().includes('senior') ? 'Senior' :
-                 employee.headline?.toLowerCase().includes('manager') ? 'Management' : 'Individual Contributor'
+    averageTenure: employee.years_of_experience ? Math.round(employee.years_of_experience / 2) : 0
   }
 
   return (
@@ -61,9 +58,10 @@ export function EmployeeExperience({ employee }: EmployeeExperienceProps) {
               <div className="text-xs text-muted-foreground">Avg Tenure</div>
             </div>
             <div className="text-center p-3 bg-muted/30 rounded-lg">
-              <Badge variant="secondary" className="text-xs">
-                {careerProgression.careerLevel}
-              </Badge>
+              <div className="text-sm font-medium text-center px-2">
+                {employee.headline || "Current Position"}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">Current Title</div>
             </div>
           </div>
         </CardContent>
