@@ -1,4 +1,5 @@
 
+import { useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Users, Crown } from "lucide-react"
@@ -6,6 +7,7 @@ import { DataTable } from "@/components/ui/data-table"
 import { CompanyDescriptionCell } from "@/components/CompanyDescriptionCell"
 import { AutomationScorePopover } from "@/components/AutomationScorePopover"
 import { SystemsDisplay } from "@/components/SystemsDisplay"
+import { CompanyDetailSheet } from "@/components/company-detail/CompanyDetailSheet"
 import { Company } from "@/hooks/useCompaniesData"
 
 interface CompaniesTableProps {
@@ -15,15 +17,23 @@ interface CompaniesTableProps {
 }
 
 export function CompaniesTable({ companies, isLoading, error }: CompaniesTableProps) {
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
+  const [sheetOpen, setSheetOpen] = useState(false)
+
+  const handleCompanyClick = (company: Company) => {
+    setSelectedCompany(company)
+    setSheetOpen(true)
+  }
+
   const getRelationshipBadge = (relationship: string) => {
     switch (relationship) {
       case 'customer':
-        return <Badge variant="default" className="bg-green-500 text-white"><Crown className="h-3 w-3 mr-1" />Customer</Badge>
+        return <Badge variant="default" className="bg-green-500 text-white cursor-pointer hover:bg-green-600 transition-colors"><Crown className="h-3 w-3 mr-1" />Customer</Badge>
       case 'partner':
-        return <Badge variant="secondary"><Users className="h-3 w-3 mr-1" />Partner</Badge>
+        return <Badge variant="secondary" className="cursor-pointer hover:bg-secondary/80 transition-colors"><Users className="h-3 w-3 mr-1" />Partner</Badge>
       case 'prospect':
       default:
-        return <Badge variant="outline">Prospect</Badge>
+        return <Badge variant="outline" className="cursor-pointer hover:bg-muted transition-colors">Prospect</Badge>
     }
   }
 
@@ -32,7 +42,7 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
       accessorKey: "company_name",
       header: "Company",
       enableColumnFilter: true,
-      cell: ({ row }) => <CompanyDescriptionCell company={row.original} />
+      cell: ({ row }) => <CompanyDescriptionCell company={row.original} onCompanyClick={handleCompanyClick} />
     },
     {
       accessorKey: "industry",
@@ -41,7 +51,11 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
       cell: ({ row }) => {
         const industry = row.getValue("industry") as string
         return industry ? (
-          <Badge variant="outline" className="text-xs">
+          <Badge 
+            variant="outline" 
+            className="text-xs cursor-pointer hover:bg-muted transition-colors"
+            onClick={() => handleCompanyClick(row.original)}
+          >
             {industry}
           </Badge>
         ) : null
@@ -59,7 +73,10 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
           headquarter.city || headquarter.country || JSON.stringify(headquarter)
         
         return (
-          <div className="flex items-center space-x-1 text-sm">
+          <div 
+            className="flex items-center space-x-1 text-sm cursor-pointer hover:text-primary transition-colors"
+            onClick={() => handleCompanyClick(row.original)}
+          >
             <MapPin className="h-3 w-3 text-muted-foreground" />
             <span>{location}</span>
           </div>
@@ -72,7 +89,10 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
       cell: ({ row }) => {
         const count = row.getValue("employee_count") as number
         return count ? (
-          <div className="flex items-center space-x-1 text-sm">
+          <div 
+            className="flex items-center space-x-1 text-sm cursor-pointer hover:text-primary transition-colors"
+            onClick={() => handleCompanyClick(row.original)}
+          >
             <Users className="h-3 w-3 text-muted-foreground" />
             <span>{count.toLocaleString()}</span>
           </div>
@@ -86,7 +106,11 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
       cell: ({ row }) => {
         const relationship = row.getValue("bayzat_relationship") as string
         console.log('Relationship value for', row.original.company_name, ':', relationship)
-        return getRelationshipBadge(relationship)
+        return (
+          <div onClick={() => handleCompanyClick(row.original)}>
+            {getRelationshipBadge(relationship)}
+          </div>
+        )
       }
     },
     {
@@ -150,23 +174,31 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
   console.log('CompaniesTable rendering with', safeCompanies.length, 'companies')
 
   return (
-    <div>
-      <div className="mb-4 flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          Showing {safeCompanies.length} companies
-        </div>
-        {safeCompanies.length === 0 && !isLoading && (
-          <div className="text-sm text-orange-600">
-            No data found. Check console for debugging info.
+    <>
+      <div>
+        <div className="mb-4 flex items-center justify-between">
+          <div className="text-sm text-muted-foreground">
+            Showing {safeCompanies.length} companies
           </div>
-        )}
+          {safeCompanies.length === 0 && !isLoading && (
+            <div className="text-sm text-orange-600">
+              No data found. Check console for debugging info.
+            </div>
+          )}
+        </div>
+        <DataTable 
+          columns={columns} 
+          data={safeCompanies} 
+          searchColumn="company_name"
+          searchPlaceholder="Search companies..."
+        />
       </div>
-      <DataTable 
-        columns={columns} 
-        data={safeCompanies} 
-        searchColumn="company_name"
-        searchPlaceholder="Search companies..."
+
+      <CompanyDetailSheet
+        company={selectedCompany}
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
       />
-    </div>
+    </>
   )
 }
