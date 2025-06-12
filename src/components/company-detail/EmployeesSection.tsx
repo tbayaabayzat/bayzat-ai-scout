@@ -8,14 +8,14 @@ import { DepartmentFilter } from "./DepartmentFilter"
 import { Department } from "@/utils/employeeDepartmentUtils"
 
 interface EmployeesSectionProps {
-  companyId: string
+  company: any
 }
 
-export function EmployeesSection({ companyId }: EmployeesSectionProps) {
+export function EmployeesSection({ company }: EmployeesSectionProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedDepartments, setSelectedDepartments] = useState<Department[]>([])
   
-  const { employees, isLoading, error } = useCompanyEmployees(companyId)
+  const { employees, isLoading, error } = useCompanyEmployees(company.company_id)
 
   // Calculate department counts
   const departmentCounts = useMemo(() => {
@@ -67,6 +67,14 @@ export function EmployeesSection({ companyId }: EmployeesSectionProps) {
     setSelectedDepartments([])
   }
 
+  // Format employee count display
+  const getEmployeeCountDisplay = () => {
+    if (company.employee_count) {
+      return `(${employees.length} out of ${company.employee_count})`
+    }
+    return `(${employees.length})`
+  }
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -103,7 +111,7 @@ export function EmployeesSection({ companyId }: EmployeesSectionProps) {
         <div className="flex items-center gap-2">
           <Users className="h-5 w-5 text-muted-foreground" />
           <h3 className="text-xl font-semibold">Current Employees</h3>
-          <span className="text-sm text-muted-foreground">({employees.length})</span>
+          <span className="text-sm text-muted-foreground">{getEmployeeCountDisplay()}</span>
         </div>
       </div>
 
