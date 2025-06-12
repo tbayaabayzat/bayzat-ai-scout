@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -52,7 +53,7 @@ export function EmployeeSkillsEducation({ employee }: EmployeeSkillsEducationPro
   const skills = getDepartmentSkills(employee.department)
 
   // Get real education data from LinkedIn
-  const educationData = employee.linkedin_data?.education || employee.education || []
+  const educationData = employee.linkedin_data?.education || []
 
   const mockCertifications = [
     {
