@@ -1,5 +1,5 @@
 
-import { Building2, Users, Search, Home, TestTube } from "lucide-react"
+import { Building2, Users, Search, Home } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -37,11 +37,6 @@ const menuItems = [
     title: "Research",
     url: "/research",
     icon: Search,
-  },
-  {
-    title: "Test Classification",
-    url: "/test-classification",
-    icon: TestTube,
   },
 ]
 
