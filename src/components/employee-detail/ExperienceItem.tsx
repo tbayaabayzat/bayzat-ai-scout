@@ -39,9 +39,9 @@ export function ExperienceItem({ experience, index }: ExperienceItemProps) {
   }
 
   return (
-    <div className="flex gap-4 pb-8 border-b last:border-b-0">
+    <div className={`flex gap-4 pb-8 border-b last:border-b-0 ${index > 0 ? 'pt-6' : ''}`}>
       {/* Timeline dot */}
-      <div className={`w-3 h-3 rounded-full mt-2 flex-shrink-0 ${
+      <div className={`w-3 h-3 rounded-full ${index > 0 ? 'mt-8' : 'mt-2'} flex-shrink-0 ${
         experience.is_current ? 'bg-green-500' : 'bg-muted-foreground'
       }`} />
       
