@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import {
   Sheet,
@@ -30,7 +31,8 @@ export function CompanyDetailSheet({ company, open, onOpenChange, onCompanyClick
   const [isEmployeeSheetOpen, setIsEmployeeSheetOpen] = useState(false)
   const isMobile = useIsMobile()
 
-  const aiAnalysis = company.ai_analysis
+  // Add null check before accessing ai_analysis
+  const aiAnalysis = company?.ai_analysis
 
   const sections = [
     { id: "overview", label: "Overview", icon: Building2 },
@@ -62,7 +64,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange, onCompanyClick
     setSelectedEmployee(null)
     
     // If it's the same company, don't do anything (already viewing this company)
-    if (companyName === company.company_name) {
+    if (companyName === company?.company_name) {
       return
     }
     
@@ -71,6 +73,9 @@ export function CompanyDetailSheet({ company, open, onOpenChange, onCompanyClick
       onCompanyClick(companyName, companyUrn)
     }
   }
+
+  // Early return if no company is provided
+  if (!company) return null
 
   return (
     <>
