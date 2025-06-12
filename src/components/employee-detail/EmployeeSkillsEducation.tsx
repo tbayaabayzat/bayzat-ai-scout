@@ -42,20 +42,14 @@ export function EmployeeSkillsEducation({ employee }: EmployeeSkillsEducationPro
     return 'soft'
   }
 
-  // Get real skills data from LinkedIn
+  // Get real skills data from LinkedIn with fallback to empty array
   const linkedinSkills = employee.linkedin_data?.skills || []
-  const fallbackSkills = employee.skills_list || []
   
   // Process skills and categorize them
-  const processedSkills = linkedinSkills.length > 0 
-    ? linkedinSkills.map((skill: any) => ({
-        name: skill.name,
-        category: categorizeSkill(skill.name)
-      }))
-    : fallbackSkills.map((skill: string) => ({
-        name: skill,
-        category: categorizeSkill(skill)
-      }))
+  const processedSkills = linkedinSkills.map((skill: any) => ({
+    name: skill.name,
+    category: categorizeSkill(skill.name)
+  }))
 
   const skillsByCategory = {
     technical: processedSkills.filter(skill => skill.category === 'technical').map(s => s.name),
@@ -63,21 +57,14 @@ export function EmployeeSkillsEducation({ employee }: EmployeeSkillsEducationPro
     tools: processedSkills.filter(skill => skill.category === 'tools').map(s => s.name)
   }
 
-  // Get real certifications data
+  // Get real certifications data from LinkedIn with fallback to empty array
   const linkedinCertifications = employee.linkedin_data?.certifications || []
-  const fallbackCertifications = employee.certifications_list || []
 
-  const certifications = linkedinCertifications.length > 0
-    ? linkedinCertifications.map((cert: any) => ({
-        name: cert.name,
-        issuer: cert.organization || cert.authority || 'Unknown Issuer',
-        year: cert.issue_date ? new Date(cert.issue_date).getFullYear().toString() : 'Unknown'
-      }))
-    : fallbackCertifications.map((cert: string) => ({
-        name: cert,
-        issuer: 'Unknown Issuer',
-        year: 'Unknown'
-      }))
+  const certifications = linkedinCertifications.map((cert: any) => ({
+    name: cert.name,
+    issuer: cert.organization || cert.authority || 'Unknown Issuer',
+    year: cert.issue_date ? new Date(cert.issue_date).getFullYear().toString() : 'Unknown'
+  }))
 
   // Get real education data from LinkedIn
   const educationData = employee.linkedin_data?.education || []
