@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -206,9 +205,6 @@ export function EmployeeSkillsEducation({ employee }: EmployeeSkillsEducationPro
             <div className="space-y-3">
               {educationData.map((edu: any, index: number) => (
                 <div key={index} className={`flex gap-3 pb-3 border-b last:border-b-0 ${index > 0 ? 'pt-1' : ''}`}>
-                  {/* Timeline dot */}
-                  <div className={`w-2 h-2 rounded-full bg-blue-500 ${index > 0 ? 'mt-5' : 'mt-1'} flex-shrink-0`} />
-                  
                   {/* Content */}
                   <div className="flex gap-2.5 flex-1 min-w-0">
                     {/* Institution logo */}
@@ -275,9 +271,6 @@ export function EmployeeSkillsEducation({ employee }: EmployeeSkillsEducationPro
             <div className="space-y-4">
               {certifications.map((cert, index) => (
                 <div key={index} className={`flex gap-3 pb-4 border-b last:border-b-0 ${index > 0 ? 'pt-2' : ''}`}>
-                  {/* Timeline dot */}
-                  <div className={`w-2.5 h-2.5 rounded-full bg-green-500 ${index > 0 ? 'mt-6' : 'mt-1.5'} flex-shrink-0`} />
-                  
                   {/* Content */}
                   <div className="flex gap-3 flex-1 min-w-0">
                     {/* Certification icon */}

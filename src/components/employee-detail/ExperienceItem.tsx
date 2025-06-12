@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -52,8 +51,8 @@ export function ExperienceItem({ experience, index }: ExperienceItemProps) {
 
   return (
     <div className={`flex gap-4 pb-8 border-b last:border-b-0 ${index > 0 ? 'pt-6' : ''}`}>
-      {/* Timeline dot */}
-      <div className={`w-3 h-3 rounded-full ${index > 0 ? 'mt-8' : 'mt-2'} flex-shrink-0 ${
+      {/* Timeline dot - consistently aligned with avatar top */}
+      <div className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${
         experience.is_current ? 'bg-green-500' : 'bg-muted-foreground'
       }`} />
       
