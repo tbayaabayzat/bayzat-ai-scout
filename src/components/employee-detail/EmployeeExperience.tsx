@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Briefcase, Calendar, Building2, TrendingUp } from "lucide-react"
+import { Briefcase, Calendar, Building2, TrendingUp, Activity, Target, User } from "lucide-react"
 import { EmployeeWithDepartment } from "@/types/employee"
 
 interface EmployeeExperienceProps {
@@ -33,6 +33,15 @@ export function EmployeeExperience({ employee }: EmployeeExperienceProps) {
     averageTenure: employee.years_of_experience ? Math.round(employee.years_of_experience / 2) : 0
   }
 
+  // Extract just the title from headline, removing company name after "at"
+  const getCurrentTitle = (headline: string | null): string => {
+    if (!headline) return "Current Position"
+    
+    // Split by " at " and take the first part (the title)
+    const titlePart = headline.split(' at ')[0].trim()
+    return titlePart || headline
+  }
+
   return (
     <div className="space-y-6">
       {/* Career Overview */}
@@ -59,7 +68,7 @@ export function EmployeeExperience({ employee }: EmployeeExperienceProps) {
             </div>
             <div className="text-center p-3 bg-muted/30 rounded-lg">
               <div className="text-sm font-medium text-center px-2">
-                {employee.headline || "Current Position"}
+                {getCurrentTitle(employee.headline)}
               </div>
               <div className="text-xs text-muted-foreground mt-1">Current Title</div>
             </div>
