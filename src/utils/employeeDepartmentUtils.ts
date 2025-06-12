@@ -40,7 +40,7 @@ export const DEPARTMENT_CONFIG: Record<Department, DepartmentConfig> = {
     name: 'Engineering',
     icon: Code,
     color: 'primary',
-    badgeVariant: 'default'
+    badgeVariant: 'secondary'
   },
   'IT': {
     name: 'IT',
@@ -52,7 +52,7 @@ export const DEPARTMENT_CONFIG: Record<Department, DepartmentConfig> = {
     name: 'Sales',
     icon: TrendingUp,
     color: 'pink',
-    badgeVariant: 'default'
+    badgeVariant: 'secondary'
   },
   'Marketing': {
     name: 'Marketing',
@@ -94,7 +94,7 @@ export const DEPARTMENT_CONFIG: Record<Department, DepartmentConfig> = {
     name: 'Product Management',
     icon: Package,
     color: 'accent',
-    badgeVariant: 'default'
+    badgeVariant: 'secondary'
   },
   'Executive': {
     name: 'Executive',
