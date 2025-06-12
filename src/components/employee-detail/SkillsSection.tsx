@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Code, Users, TrendingUp, Zap } from "lucide-react"
@@ -70,7 +69,7 @@ export function SkillsSection({ employee }: SkillsSectionProps) {
             </h5>
             <div className="flex flex-wrap gap-2">
               {skillsByCategory.technical.map((skill, index) => (
-                <Badge key={index} variant="default" className="text-xs">
+                <Badge key={index} variant="secondary" className="text-xs">
                   {skill}
                 </Badge>
               ))}
