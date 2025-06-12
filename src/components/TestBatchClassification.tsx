@@ -24,7 +24,10 @@ interface CompanyEmployee {
 
 export function TestBatchClassification() {
   const [isRunning, setIsRunning] = useState(false)
+  const [isRunningAll, setIsRunningAll] = useState(false)
   const [lastResult, setLastResult] = useState<BatchClassificationResult | null>(null)
+  const [totalProcessed, setTotalProcessed] = useState(0)
+  const [batchCount, setBatchCount] = useState(0)
 
   // Query to find Arabian Ethicals employees
   const { data: arabianEthicalsEmployees, isLoading: loadingEmployees, refetch: refetchEmployees } = useQuery({
@@ -73,6 +76,25 @@ export function TestBatchClassification() {
     }
   })
 
+  // Query to get unclassified count
+  const { data: unclassifiedCount, refetch: refetchUnclassified } = useQuery({
+    queryKey: ['unclassified-count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('employee_profiles')
+        .select('*', { count: 'exact', head: true })
+        .or('department.is.null,department.eq.Other')
+        .not('headline', 'is', null)
+
+      if (error) {
+        console.error('Error fetching unclassified count:', error)
+        throw error
+      }
+
+      return count || 0
+    }
+  })
+
   const runBatchClassification = async (batchSize: number = 10) => {
     setIsRunning(true)
     try {
@@ -83,7 +105,7 @@ export function TestBatchClassification() {
       if (error) {
         console.error('Batch classification error:', error)
         toast.error(`Batch classification failed: ${error.message}`)
-        return
+        return null
       }
 
       if (data && data.length > 0) {
@@ -95,15 +117,57 @@ export function TestBatchClassification() {
         setTimeout(() => {
           refetchEmployees()
           refetchStats()
+          refetchUnclassified()
         }, 2000)
+
+        return result
       } else {
         toast.warning("No employees found to process")
+        return null
       }
     } catch (err) {
       console.error('Batch classification error:', err)
       toast.error("Failed to run batch classification")
+      return null
     } finally {
       setIsRunning(false)
+    }
+  }
+
+  const runAllBatches = async () => {
+    setIsRunningAll(true)
+    setTotalProcessed(0)
+    setBatchCount(0)
+    
+    try {
+      let currentBatch = 1
+      let totalProcessedCount = 0
+      
+      while (true) {
+        console.log(`Running batch ${currentBatch} of 500 employees...`)
+        toast.info(`Running batch ${currentBatch} of 500 employees...`)
+        
+        const result = await runBatchClassification(500)
+        
+        if (!result || result.processed_count === 0) {
+          console.log('No more employees to process')
+          toast.success(`All batches completed! Total processed: ${totalProcessedCount}`)
+          break
+        }
+        
+        currentBatch++
+        totalProcessedCount += result.processed_count
+        setTotalProcessed(totalProcessedCount)
+        setBatchCount(currentBatch - 1)
+        
+        // Add a small delay between batches to avoid overwhelming the system
+        await new Promise(resolve => setTimeout(resolve, 2000))
+      }
+    } catch (error) {
+      console.error('Error in batch processing:', error)
+      toast.error('Error occurred during batch processing')
+    } finally {
+      setIsRunningAll(false)
     }
   }
 
@@ -151,19 +215,36 @@ export function TestBatchClassification() {
           <CardTitle>Employee Department Classification Testing</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-            <Button onClick={testSingleClassification} disabled={isRunning} variant="default">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
+            <Button onClick={testSingleClassification} disabled={isRunning || isRunningAll} variant="default">
               {isRunning ? "Running..." : "Test Single Update"}
             </Button>
-            <Button onClick={() => runBatchClassification(5)} disabled={isRunning} variant="outline">
+            <Button onClick={() => runBatchClassification(5)} disabled={isRunning || isRunningAll} variant="outline">
               {isRunning ? "Running..." : "Process 5 Employees"}
             </Button>
-            <Button onClick={() => runBatchClassification(10)} disabled={isRunning} variant="outline">
+            <Button onClick={() => runBatchClassification(10)} disabled={isRunning || isRunningAll} variant="outline">
               {isRunning ? "Running..." : "Process 10 Employees"}
             </Button>
-            <Button onClick={() => runBatchClassification(20)} disabled={isRunning} variant="outline">
-              {isRunning ? "Running..." : "Process 20 Employees"}
+            <Button onClick={() => runBatchClassification(500)} disabled={isRunning || isRunningAll} variant="outline">
+              {isRunning ? "Running..." : "Process 500 Employees"}
             </Button>
+            <Button onClick={runAllBatches} disabled={isRunning || isRunningAll} variant="default" className="bg-green-600 hover:bg-green-700">
+              {isRunningAll ? "Processing All..." : "Process All Remaining"}
+            </Button>
+          </div>
+
+          {/* Unclassified count display */}
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 className="font-semibold text-blue-900">Unclassified Employees</h3>
+            <div className="text-lg font-bold text-blue-800">
+              {unclassifiedCount !== undefined ? unclassifiedCount.toLocaleString() : 'Loading...'} employees remaining
+            </div>
+            {isRunningAll && (
+              <div className="mt-2 text-sm text-blue-700">
+                <div>Batches completed: {batchCount}</div>
+                <div>Total processed in this run: {totalProcessed}</div>
+              </div>
+            )}
           </div>
 
           {lastResult && (
@@ -198,7 +279,7 @@ export function TestBatchClassification() {
                   <Badge variant={department === 'Other' ? 'outline' : 'default'}>
                     {department}
                   </Badge>
-                  <span className="font-medium">{count} employees</span>
+                  <span className="font-medium">{count.toLocaleString()} employees</span>
                 </div>
               ))}
             </div>
