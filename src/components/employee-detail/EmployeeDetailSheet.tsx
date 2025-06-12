@@ -65,7 +65,7 @@ export function EmployeeDetailSheet({
           isMobile 
             ? 'w-full max-w-full p-4' 
             : '!w-[1400px] !sm:w-[1600px] !max-w-[70vw] !min-w-[800px] p-8'
-        }`}
+        } [&>button]:hidden`}
       >
         <CustomSheetHeader
           onClose={() => onOpenChange(false)}
