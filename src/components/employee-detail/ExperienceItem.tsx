@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Building2, Calendar, MapPin, ChevronDown, ChevronUp, ExternalLink } from "lucide-react"
-import { ExperienceItem as ExperienceItemType, formatExperienceDate, calculateDuration } from "@/utils/experienceUtils"
+import { ExperienceItem as ExperienceItemType, formatExperienceDate, calculateDuration, parseDurationString } from "@/utils/experienceUtils"
 
 interface ExperienceItemProps {
   experience: ExperienceItemType
@@ -14,9 +14,21 @@ interface ExperienceItemProps {
 export function ExperienceItem({ experience, index }: ExperienceItemProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   
-  const startDateFormatted = formatExperienceDate(experience.start_date)
-  const endDateFormatted = experience.is_current ? 'Present' : formatExperienceDate(experience.end_date, experience.is_current)
-  const duration = calculateDuration(experience.start_date, experience.end_date, experience.is_current)
+  // Use duration field if available, otherwise fall back to date parsing
+  let startDateFormatted = ''
+  let endDateFormatted = ''
+  let duration = ''
+  
+  if (experience.duration) {
+    const parsed = parseDurationString(experience.duration)
+    startDateFormatted = parsed.startDate
+    endDateFormatted = parsed.endDate
+    duration = parsed.duration
+  } else {
+    startDateFormatted = formatExperienceDate(experience.start_date)
+    endDateFormatted = experience.is_current ? 'Present' : formatExperienceDate(experience.end_date, experience.is_current)
+    duration = calculateDuration(experience.start_date, experience.end_date, experience.is_current)
+  }
   
   const getCompanyInitials = (name: string) => {
     return name
@@ -75,6 +87,11 @@ export function ExperienceItem({ experience, index }: ExperienceItemProps) {
                     <ExternalLink className="h-3 w-3 text-muted-foreground" />
                   )}
                 </div>
+                {experience.employment_type && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {experience.employment_type}
+                  </div>
+                )}
               </div>
               
               {/* Date and current badge */}
