@@ -63,42 +63,42 @@
   }
 
   .dark {
-    /* Ultra-dark sophisticated backgrounds with extremely subtle purple tint */
-    --background: 262 8% 4%;
+    /* Ultra-dark sophisticated backgrounds with extremely subtle charcoal tint */
+    --background: 240 5% 4%;
     --foreground: 0 0% 98%;
 
-    --card: 262 10% 6%;
+    --card: 240 6% 6%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 262 10% 6%;
+    --popover: 240 6% 6%;
     --popover-foreground: 0 0% 98%;
 
     --primary: 262 100% 64%;
     --primary-foreground: 0 0% 4%;
 
-    /* Sophisticated gray scale with subtle purple undertone */
-    --secondary: 262 6% 8%;
+    /* Sophisticated gray scale with subtle charcoal undertone */
+    --secondary: 240 4% 8%;
     --secondary-foreground: 0 0% 85%;
 
-    --muted: 262 6% 8%;
+    --muted: 240 4% 8%;
     --muted-foreground: 0 0% 60%;
 
-    --accent: 262 6% 8%;
+    --accent: 240 4% 8%;
     --accent-foreground: 0 0% 85%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 262 4% 12%;
-    --input: 262 6% 8%;
-    --input-enhanced: 262 8% 10%;
+    --border: 240 3% 12%;
+    --input: 240 4% 8%;
+    --input-enhanced: 240 5% 10%;
     --ring: 262 100% 64%;
 
     /* Refined Bayzat colors for dark theme */
     --bayzat-purple: 262 100% 64%;
     --bayzat-dark-purple: 262 83% 45%;
     --bayzat-charcoal: 0 0% 85%;
-    --bayzat-light-gray: 262 6% 8%;
+    --bayzat-light-gray: 240 4% 8%;
     --bayzat-pink: 340 79% 48%;
 
     /* Automation score colors - same for dark theme */
@@ -106,13 +106,13 @@
     --automation-medium: 262 100% 64%; /* Brand purple for 3 */
     --automation-high: 340 79% 48%;    /* Pink for 4-5 */
 
-    --sidebar-background: 262 8% 6%;
+    --sidebar-background: 240 5% 6%;
     --sidebar-foreground: 0 0% 85%;
     --sidebar-primary: 262 100% 64%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 262 6% 8%;
+    --sidebar-accent: 240 4% 8%;
     --sidebar-accent-foreground: 0 0% 85%;
-    --sidebar-border: 262 4% 12%;
+    --sidebar-border: 240 3% 12%;
     --sidebar-ring: 262 100% 64%;
   }
 }
