@@ -27,7 +27,7 @@ interface CompanyDetailSheetProps {
 export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetailSheetProps) {
   const [activeSection, setActiveSection] = useState("overview")
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithDepartment | null>(null)
-  const [showEmployeeSheet, setShowEmployeeSheet] = useState(false)
+  const [isEmployeeSheetOpen, setIsEmployeeSheetOpen] = useState(false)
   const isMobile = useIsMobile()
 
   const aiAnalysis = company.ai_analysis
@@ -41,18 +41,18 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
 
   const handleEmployeeClick = (employee: EmployeeWithDepartment) => {
     setSelectedEmployee(employee)
-    setShowEmployeeSheet(true)
+    setIsEmployeeSheetOpen(true)
   }
 
   const handleEmployeeSheetClose = (open: boolean) => {
-    setShowEmployeeSheet(open)
+    setIsEmployeeSheetOpen(open)
     if (!open) {
       setSelectedEmployee(null)
     }
   }
 
   const handleEmployeeSheetBack = () => {
-    setShowEmployeeSheet(false)
+    setIsEmployeeSheetOpen(false)
     setSelectedEmployee(null)
   }
 
@@ -136,10 +136,10 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
         </SheetContent>
       </Sheet>
 
-      {/* Employee Detail Sheet - stacked on top of company sheet */}
+      {/* Employee Detail Sheet - nested navigation */}
       <EmployeeDetailSheet
         employee={selectedEmployee}
-        open={showEmployeeSheet}
+        open={isEmployeeSheetOpen}
         onOpenChange={handleEmployeeSheetClose}
         showBackButton={true}
         onBack={handleEmployeeSheetBack}
