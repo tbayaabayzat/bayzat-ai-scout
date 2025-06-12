@@ -184,6 +184,9 @@ export type Database = {
           education: Json | null
           education_degrees: string[] | null
           education_schools: string[] | null
+          engagement_level: string | null
+          engagement_potential: number | null
+          estimated_connections: string | null
           experience: Json | null
           first_name: string | null
           follower_count: number | null
@@ -203,6 +206,8 @@ export type Database = {
           location_country: string | null
           location_country_code: string | null
           location_full: string | null
+          profile_activity_status: string | null
+          profile_completeness_score: number | null
           profile_created_at: string | null
           profile_picture_url: string | null
           profile_url: string
@@ -210,6 +215,7 @@ export type Database = {
           public_identifier: string
           queue_record_id: string | null
           recommendations: Json | null
+          response_rate: string | null
           show_follower_count: boolean | null
           skills: Json | null
           skills_list: string[] | null
@@ -239,6 +245,9 @@ export type Database = {
           education?: Json | null
           education_degrees?: string[] | null
           education_schools?: string[] | null
+          engagement_level?: string | null
+          engagement_potential?: number | null
+          estimated_connections?: string | null
           experience?: Json | null
           first_name?: string | null
           follower_count?: number | null
@@ -258,6 +267,8 @@ export type Database = {
           location_country?: string | null
           location_country_code?: string | null
           location_full?: string | null
+          profile_activity_status?: string | null
+          profile_completeness_score?: number | null
           profile_created_at?: string | null
           profile_picture_url?: string | null
           profile_url: string
@@ -265,6 +276,7 @@ export type Database = {
           public_identifier: string
           queue_record_id?: string | null
           recommendations?: Json | null
+          response_rate?: string | null
           show_follower_count?: boolean | null
           skills?: Json | null
           skills_list?: string[] | null
@@ -294,6 +306,9 @@ export type Database = {
           education?: Json | null
           education_degrees?: string[] | null
           education_schools?: string[] | null
+          engagement_level?: string | null
+          engagement_potential?: number | null
+          estimated_connections?: string | null
           experience?: Json | null
           first_name?: string | null
           follower_count?: number | null
@@ -313,6 +328,8 @@ export type Database = {
           location_country?: string | null
           location_country_code?: string | null
           location_full?: string | null
+          profile_activity_status?: string | null
+          profile_completeness_score?: number | null
           profile_created_at?: string | null
           profile_picture_url?: string | null
           profile_url?: string
@@ -320,6 +337,7 @@ export type Database = {
           public_identifier?: string
           queue_record_id?: string | null
           recommendations?: Json | null
+          response_rate?: string | null
           show_follower_count?: boolean | null
           skills?: Json | null
           skills_list?: string[] | null
@@ -9985,6 +10003,69 @@ export type Database = {
           },
         ]
       }
+      employee_engagement_metrics: {
+        Row: {
+          connection_count: number | null
+          current_company_name: string | null
+          current_title: string | null
+          department: string | null
+          engagement_level: string | null
+          engagement_potential: number | null
+          estimated_connections: string | null
+          follower_count: number | null
+          full_name: string | null
+          id: string | null
+          is_creator: boolean | null
+          is_influencer: boolean | null
+          is_premium: boolean | null
+          last_scraped_at: string | null
+          profile_activity_status: string | null
+          profile_completeness_score: number | null
+          response_rate: string | null
+          years_of_experience: number | null
+        }
+        Insert: {
+          connection_count?: number | null
+          current_company_name?: string | null
+          current_title?: string | null
+          department?: string | null
+          engagement_level?: string | null
+          engagement_potential?: number | null
+          estimated_connections?: string | null
+          follower_count?: number | null
+          full_name?: string | null
+          id?: string | null
+          is_creator?: boolean | null
+          is_influencer?: boolean | null
+          is_premium?: boolean | null
+          last_scraped_at?: string | null
+          profile_activity_status?: string | null
+          profile_completeness_score?: number | null
+          response_rate?: string | null
+          years_of_experience?: number | null
+        }
+        Update: {
+          connection_count?: number | null
+          current_company_name?: string | null
+          current_title?: string | null
+          department?: string | null
+          engagement_level?: string | null
+          engagement_potential?: number | null
+          estimated_connections?: string | null
+          follower_count?: number | null
+          full_name?: string | null
+          id?: string | null
+          is_creator?: boolean | null
+          is_influencer?: boolean | null
+          is_premium?: boolean | null
+          last_scraped_at?: string | null
+          profile_activity_status?: string | null
+          profile_completeness_score?: number | null
+          response_rate?: string | null
+          years_of_experience?: number | null
+        }
+        Relationships: []
+      }
       industry_statistics: {
         Row: {
           avg_employee_count: number | null
@@ -10058,6 +10139,27 @@ export type Database = {
         Args: { data: string }
         Returns: string
       }
+      calculate_engagement_potential: {
+        Args: {
+          p_years_of_experience: number
+          p_connection_count: number
+          p_follower_count: number
+          p_current_title: string
+          p_about: string
+          p_headline: string
+          p_skills_count: number
+          p_education_count: number
+          p_certifications_count: number
+          p_is_premium: boolean
+          p_is_creator: boolean
+          p_is_influencer: boolean
+        }
+        Returns: {
+          engagement_score: number
+          engagement_level: string
+          completeness_score: number
+        }[]
+      }
       compare_llm_results: {
         Args: { p_run_id: string }
         Returns: {
@@ -10067,6 +10169,27 @@ export type Database = {
           claude_value: string
           variance: number
         }[]
+      }
+      determine_profile_activity: {
+        Args: {
+          p_last_scraped_at: string
+          p_is_creator: boolean
+          p_is_influencer: boolean
+          p_connection_count: number
+        }
+        Returns: string
+      }
+      estimate_response_rate: {
+        Args: {
+          p_engagement_score: number
+          p_is_premium: boolean
+          p_profile_activity: string
+        }
+        Returns: string
+      }
+      format_connection_count: {
+        Args: { p_count: number }
+        Returns: string
       }
       halfvec_avg: {
         Args: { "": number[] }

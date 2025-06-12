@@ -3,7 +3,7 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Briefcase, TrendingUp, ChevronDown } from "lucide-react"
+import { Briefcase, TrendingUp, ChevronDown, ChevronUp } from "lucide-react"
 import { EmployeeWithDepartment } from "@/types/employee"
 import { ExperienceItem } from "./ExperienceItem"
 import { processExperienceData } from "@/utils/experienceUtils"
@@ -94,17 +94,28 @@ export function EmployeeExperience({ employee }: EmployeeExperienceProps) {
                 />
               ))}
               
-              {/* Load More Button */}
-              {hasMoreExperience && !showAllExperience && (
+              {/* Load More / Show Less Button */}
+              {hasMoreExperience && (
                 <div className="pt-4 text-center">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowAllExperience(true)}
-                    className="text-sm"
-                  >
-                    <ChevronDown className="h-4 w-4 mr-2" />
-                    Show {experienceData.length - initialDisplayCount} more positions
-                  </Button>
+                  {!showAllExperience ? (
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowAllExperience(true)}
+                      className="text-sm"
+                    >
+                      <ChevronDown className="h-4 w-4 mr-2" />
+                      Show {experienceData.length - initialDisplayCount} more positions
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowAllExperience(false)}
+                      className="text-sm"
+                    >
+                      <ChevronUp className="h-4 w-4 mr-2" />
+                      Show less
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
