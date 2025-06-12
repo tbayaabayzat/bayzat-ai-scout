@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { MapPin, Calendar, Building2, Users, TrendingUp, Activity, Target, User } from "lucide-react"
@@ -12,7 +11,7 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
   const getEngagementColor = (level?: string): string => {
     switch (level?.toLowerCase()) {
       case 'very high': return 'bg-green-500'
-      case 'high': return 'bg-blue-500'
+      case 'high': return 'bg-green-500'
       case 'medium': return 'bg-yellow-500'
       case 'low': return 'bg-orange-500'
       case 'very low': return 'bg-red-500'
@@ -33,19 +32,19 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
 
   const getActivityColor = (status?: string): string => {
     switch (status?.toLowerCase()) {
-      case 'active': return 'text-green-600'
-      case 'moderately active': return 'text-yellow-600'
-      case 'inactive': return 'text-red-600'
-      default: return 'text-gray-600'
+      case 'active': return 'text-green-400'
+      case 'moderately active': return 'text-yellow-400'
+      case 'inactive': return 'text-red-400'
+      default: return 'text-gray-400'
     }
   }
 
   const getResponseRateColor = (rate?: string): string => {
     switch (rate?.toLowerCase()) {
-      case 'high': return 'text-green-600'
-      case 'medium': return 'text-yellow-600'
-      case 'low': return 'text-red-600'
-      default: return 'text-gray-600'
+      case 'high': return 'text-green-400'
+      case 'medium': return 'text-yellow-400'
+      case 'low': return 'text-red-400'
+      default: return 'text-gray-400'
     }
   }
 
