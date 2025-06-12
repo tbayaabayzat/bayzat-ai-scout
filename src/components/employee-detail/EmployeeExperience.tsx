@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Briefcase, Calendar, Building2, TrendingUp } from "lucide-react"
+import { Briefcase, Calendar, TrendingUp } from "lucide-react"
 import { EmployeeWithDepartment } from "@/types/employee"
 
 interface EmployeeExperienceProps {
@@ -13,14 +13,12 @@ export function EmployeeExperience({ employee }: EmployeeExperienceProps) {
   const mockExperience = [
     {
       title: employee.headline || "Current Position",
-      company: employee.current_company_name || "Current Company",
       duration: "Present",
       isCurrent: true,
       description: "Leading initiatives and driving growth in the organization."
     },
     {
       title: "Previous Role",
-      company: "Previous Company",
       duration: "2+ years",
       isCurrent: false,
       description: "Gained valuable experience in the industry and developed key skills."
@@ -84,10 +82,6 @@ export function EmployeeExperience({ employee }: EmployeeExperienceProps) {
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <h4 className="font-medium">{exp.title}</h4>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Building2 className="h-3 w-3" />
-                        <span>{exp.company}</span>
-                      </div>
                     </div>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Calendar className="h-3 w-3" />
