@@ -1,4 +1,5 @@
 
+
 import { useState } from "react"
 import {
   Sheet,
@@ -80,7 +81,7 @@ export function EmployeeDetailSheet({
           showBackButton={showBackButton}
           onBack={onBack}
         >
-          <SheetHeader className={`border-b mb-6 ${isMobile ? 'pb-4' : 'pb-8 mb-10'}`}>
+          <SheetHeader className={`border-b mb-6 ${isMobile ? 'pb-4' : 'pb-8 mb-10'} relative`}>
             <SheetTitle className="flex items-center gap-4">
               <div className="relative">
                 <Avatar className="h-12 w-12">
@@ -115,6 +116,23 @@ export function EmployeeDetailSheet({
                 </div>
               </div>
             </SheetTitle>
+            
+            {/* Company CTA in header - positioned top right */}
+            {employee.current_company_name && onCompanyClick && (
+              <div className={`absolute top-0 ${isMobile ? 'right-10' : 'right-12'} flex items-center`}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCompanyClick}
+                  className={`text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4 decoration-1 hover:decoration-2 ${
+                    isMobile ? 'text-xs px-2 py-1' : 'text-sm px-3 py-2'
+                  }`}
+                >
+                  SEE COMPANY
+                </Button>
+              </div>
+            )}
+            
             <SheetDescription>
               {employee.headline || "Professional profile and insights"}
             </SheetDescription>
@@ -140,20 +158,6 @@ export function EmployeeDetailSheet({
               {section.label}
             </Button>
           ))}
-          
-          {/* Company CTA styled as tab */}
-          {employee.current_company_name && onCompanyClick && (
-            <Button
-              variant="ghost"
-              size={isMobile ? "sm" : "sm"}
-              onClick={handleCompanyClick}
-              className={`relative flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors ml-auto ${
-                isMobile ? 'px-3 py-2 text-xs' : 'px-5 py-3'
-              }`}
-            >
-              SEE COMPANY
-            </Button>
-          )}
         </div>
 
         <div className={isMobile ? '' : 'px-3'}>
@@ -173,3 +177,4 @@ export function EmployeeDetailSheet({
     </Sheet>
   )
 }
+
