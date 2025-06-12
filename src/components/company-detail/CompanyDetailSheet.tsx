@@ -41,8 +41,6 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
 
   const handleEmployeeClick = (employee: EmployeeWithDepartment) => {
     setSelectedEmployee(employee)
-    // Close company sheet and open employee sheet
-    onOpenChange(false)
     setShowEmployeeSheet(true)
   }
 
@@ -54,10 +52,8 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
   }
 
   const handleEmployeeSheetBack = () => {
-    // Close employee sheet and reopen company sheet
     setShowEmployeeSheet(false)
     setSelectedEmployee(null)
-    onOpenChange(true)
   }
 
   return (
@@ -140,7 +136,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
         </SheetContent>
       </Sheet>
 
-      {/* Employee Detail Sheet - replaces company sheet instead of stacking */}
+      {/* Employee Detail Sheet - stacked on top of company sheet */}
       <EmployeeDetailSheet
         employee={selectedEmployee}
         open={showEmployeeSheet}
