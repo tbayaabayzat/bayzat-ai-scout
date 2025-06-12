@@ -1,11 +1,10 @@
-
 import { useState, useMemo } from "react"
 import { Input } from "@/components/ui/input"
 import { Users, Search } from "lucide-react"
 import { useCompanyEmployees } from "@/hooks/useCompanyEmployees"
 import { EmployeeCard } from "./EmployeeCard"
 import { DepartmentFilter } from "./DepartmentFilter"
-import { Department } from "@/utils/employeeDepartmentUtils"
+import { Department, getDepartmentPriority } from "@/utils/employeeDepartmentUtils"
 
 interface EmployeesSectionProps {
   company: any
@@ -41,18 +40,33 @@ export function EmployeesSection({ company }: EmployeesSectionProps) {
     return counts
   }, [employees])
 
-  // Filter employees
+  // Filter and sort employees
   const filteredEmployees = useMemo(() => {
-    return employees.filter(employee => {
-      const matchesSearch = !searchTerm || 
-        employee.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.headline?.toLowerCase().includes(searchTerm.toLowerCase())
-      
-      const matchesDepartment = selectedDepartments.length === 0 || 
-        selectedDepartments.includes(employee.department)
+    return employees
+      .filter(employee => {
+        const matchesSearch = !searchTerm || 
+          employee.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          employee.headline?.toLowerCase().includes(searchTerm.toLowerCase())
+        
+        const matchesDepartment = selectedDepartments.length === 0 || 
+          selectedDepartments.includes(employee.department)
 
-      return matchesSearch && matchesDepartment
-    })
+        return matchesSearch && matchesDepartment
+      })
+      .sort((a, b) => {
+        // Sort by department priority first
+        const aPriority = getDepartmentPriority(a.department)
+        const bPriority = getDepartmentPriority(b.department)
+        
+        if (aPriority !== bPriority) {
+          return aPriority - bPriority
+        }
+        
+        // Then sort by name
+        const aName = a.full_name || ''
+        const bName = b.full_name || ''
+        return aName.localeCompare(bName)
+      })
   }, [employees, searchTerm, selectedDepartments])
 
   const handleDepartmentToggle = (department: Department) => {

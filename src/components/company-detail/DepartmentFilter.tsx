@@ -2,7 +2,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
-import { Department, DEPARTMENT_CONFIG } from "@/utils/employeeDepartmentUtils"
+import { Department, DEPARTMENT_CONFIG, getDepartmentPriority } from "@/utils/employeeDepartmentUtils"
 
 interface DepartmentFilterProps {
   selectedDepartments: Department[]
@@ -17,9 +17,9 @@ export function DepartmentFilter({
   onClearAll,
   departmentCounts 
 }: DepartmentFilterProps) {
-  const availableDepartments = Object.keys(DEPARTMENT_CONFIG).filter(
-    dept => departmentCounts[dept as Department] > 0
-  ) as Department[]
+  const availableDepartments = Object.keys(DEPARTMENT_CONFIG)
+    .filter(dept => departmentCounts[dept as Department] > 0)
+    .sort((a, b) => getDepartmentPriority(a as Department) - getDepartmentPriority(b as Department)) as Department[]
 
   if (availableDepartments.length === 0) {
     return null

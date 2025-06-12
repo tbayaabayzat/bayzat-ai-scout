@@ -128,3 +128,22 @@ export const getDepartmentColorClass = (color: DepartmentConfig['color']): strin
       return 'bg-muted-foreground'
   }
 }
+
+export const getDepartmentPriority = (department: Department): number => {
+  const priorityMap: Record<Department, number> = {
+    'Executive': 1,
+    'HR': 2,
+    'Finance': 3,
+    'Procurement': 4,
+    'IT': 5,
+    'Operations': 6,
+    'Engineering': 7,
+    'Sales': 8,
+    'Marketing': 9,
+    'Customer Success': 10,
+    'Product Management': 11,
+    'Other': 12
+  }
+  
+  return priorityMap[department] || 12
+}
