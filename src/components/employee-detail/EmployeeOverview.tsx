@@ -157,7 +157,7 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
           </div>
           
           <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-            <h5 className="font-medium text-sm mb-2">Outreach Recommendations</h5>
+            <h5 className="font-medium text-sm mb-2">Out, reach Recommendations</h5>
             <ul className="text-xs text-muted-foreground space-y-1">
               <li>• Best time to reach out: Weekday mornings (9-11 AM)</li>
               <li>• Preferred communication: LinkedIn InMail or connection request</li>
@@ -170,15 +170,15 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
         </CardContent>
       </Card>
 
-      {/* Professional Summary */}
-      {employee.headline && (
+      {/* Professional Summary - Changed from headline to about */}
+      {employee.about && (
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Professional Summary</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {employee.headline}
+              {employee.about}
             </p>
           </CardContent>
         </Card>

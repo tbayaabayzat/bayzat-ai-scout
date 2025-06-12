@@ -5,6 +5,7 @@ export interface Employee {
   id: string
   full_name: string
   headline?: string
+  about?: string
   profile_picture_url?: string
   location_full?: string
   years_of_experience?: number
