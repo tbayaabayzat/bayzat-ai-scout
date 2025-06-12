@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import {
   Sheet,
@@ -22,9 +21,10 @@ interface CompanyDetailSheetProps {
   company: any
   open: boolean
   onOpenChange: (open: boolean) => void
+  onCompanyClick?: (companyName: string, companyUrn?: string) => void
 }
 
-export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetailSheetProps) {
+export function CompanyDetailSheet({ company, open, onOpenChange, onCompanyClick }: CompanyDetailSheetProps) {
   const [activeSection, setActiveSection] = useState("overview")
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithDepartment | null>(null)
   const [isEmployeeSheetOpen, setIsEmployeeSheetOpen] = useState(false)
@@ -54,6 +54,22 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
   const handleEmployeeSheetBack = () => {
     setIsEmployeeSheetOpen(false)
     setSelectedEmployee(null)
+  }
+
+  const handleEmployeeCompanyClick = (companyName: string, companyUrn?: string) => {
+    // Close the employee sheet first
+    setIsEmployeeSheetOpen(false)
+    setSelectedEmployee(null)
+    
+    // If it's the same company, don't do anything (already viewing this company)
+    if (companyName === company.company_name) {
+      return
+    }
+    
+    // Otherwise, let the parent handle navigation to the new company
+    if (onCompanyClick) {
+      onCompanyClick(companyName, companyUrn)
+    }
   }
 
   return (
@@ -143,6 +159,7 @@ export function CompanyDetailSheet({ company, open, onOpenChange }: CompanyDetai
         onOpenChange={handleEmployeeSheetClose}
         showBackButton={true}
         onBack={handleEmployeeSheetBack}
+        onCompanyClick={handleEmployeeCompanyClick}
       />
     </>
   )

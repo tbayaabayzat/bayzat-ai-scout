@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import {
   Sheet,
@@ -10,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { User, Briefcase, GraduationCap, ExternalLink } from "lucide-react"
+import { User, Briefcase, GraduationCap, ExternalLink, Building2 } from "lucide-react"
 import { EmployeeOverview } from "./EmployeeOverview"
 import { EmployeeExperience } from "./EmployeeExperience"
 import { EmployeeSkillsEducation } from "./EmployeeSkillsEducation"
@@ -25,6 +24,7 @@ interface EmployeeDetailSheetProps {
   onOpenChange: (open: boolean) => void
   showBackButton?: boolean
   onBack?: () => void
+  onCompanyClick?: (companyName: string, companyUrn?: string) => void
 }
 
 export function EmployeeDetailSheet({ 
@@ -32,7 +32,8 @@ export function EmployeeDetailSheet({
   open, 
   onOpenChange, 
   showBackButton = false, 
-  onBack 
+  onBack,
+  onCompanyClick
 }: EmployeeDetailSheetProps) {
   const [activeSection, setActiveSection] = useState("overview")
   const isMobile = useIsMobile()
@@ -49,6 +50,12 @@ export function EmployeeDetailSheet({
       .join('')
       .toUpperCase()
       .slice(0, 2)
+  }
+
+  const handleCompanyClick = () => {
+    if (employee.current_company_name && onCompanyClick) {
+      onCompanyClick(employee.current_company_name, employee.current_company_urn || undefined)
+    }
   }
 
   const sections = [
@@ -106,6 +113,24 @@ export function EmployeeDetailSheet({
                   </Badge>
                 </div>
               </div>
+              
+              {/* Company CTA Section */}
+              {employee.current_company_name && onCompanyClick && (
+                <div className="flex flex-col items-end gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCompanyClick}
+                    className={`text-muted-foreground hover:text-foreground hover:bg-accent transition-colors ${
+                      isMobile ? 'text-xs px-2 py-1' : 'text-sm px-3 py-2'
+                    }`}
+                  >
+                    <Building2 className="h-3 w-3 mr-1.5" />
+                    <span className="max-w-[120px] truncate">{employee.current_company_name}</span>
+                  </Button>
+                  <span className="text-xs text-muted-foreground">View Company</span>
+                </div>
+              )}
             </SheetTitle>
             <SheetDescription>
               {employee.headline || "Professional profile and insights"}
