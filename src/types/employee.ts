@@ -12,6 +12,12 @@ export interface Employee {
   current_company_urn?: string
   profile_url?: string
   department?: Department
+  linkedin_data?: {
+    experience?: any[]
+    skills?: any[]
+    education?: any[]
+    [key: string]: any
+  }
 }
 
 export interface EmployeeWithDepartment extends Employee {

@@ -1,36 +1,35 @@
 
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Briefcase, Calendar, Building2, TrendingUp, Activity, Target, User } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Briefcase, TrendingUp, ChevronDown } from "lucide-react"
 import { EmployeeWithDepartment } from "@/types/employee"
+import { ExperienceItem } from "./ExperienceItem"
+import { processExperienceData } from "@/utils/experienceUtils"
 
 interface EmployeeExperienceProps {
   employee: EmployeeWithDepartment
 }
 
 export function EmployeeExperience({ employee }: EmployeeExperienceProps) {
-  // Mock experience data - in real implementation, this would come from the database
-  const mockExperience = [
-    {
-      title: employee.headline || "Current Position",
-      company: employee.current_company_name || "Current Company",
-      duration: "Present",
-      isCurrent: true,
-      description: "Leading initiatives and driving growth in the organization."
-    },
-    {
-      title: "Previous Role",
-      company: "Previous Company",
-      duration: "2+ years",
-      isCurrent: false,
-      description: "Gained valuable experience in the industry and developed key skills."
-    }
-  ]
+  const [showAllExperience, setShowAllExperience] = useState(false)
+  
+  // Process real experience data from the employee
+  const experienceData = processExperienceData(employee.linkedin_data?.experience || [])
+  
+  // Pagination logic
+  const initialDisplayCount = 3
+  const displayedExperience = showAllExperience 
+    ? experienceData 
+    : experienceData.slice(0, initialDisplayCount)
+  
+  const hasMoreExperience = experienceData.length > initialDisplayCount
 
   const careerProgression = {
     totalYears: employee.years_of_experience || 0,
-    companies: 2,
-    averageTenure: employee.years_of_experience ? Math.round(employee.years_of_experience / 2) : 0
+    companies: experienceData.length,
+    averageTenure: experienceData.length > 0 ? Math.round((employee.years_of_experience || 0) / experienceData.length) : 0
   }
 
   // Extract just the title from headline, removing company name after "at"
@@ -85,34 +84,36 @@ export function EmployeeExperience({ employee }: EmployeeExperienceProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {mockExperience.map((exp, index) => (
-              <div key={index} className="flex gap-4 pb-4 border-b last:border-b-0">
-                <div className={`w-3 h-3 rounded-full mt-2 ${exp.isCurrent ? 'bg-green-500' : 'bg-muted-foreground'}`} />
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h4 className="font-medium">{exp.title}</h4>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Building2 className="h-3 w-3" />
-                        <span>{exp.company}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      <span>{exp.duration}</span>
-                      {exp.isCurrent && (
-                        <Badge variant="outline" className="ml-2 text-xs">
-                          Current
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{exp.description}</p>
+          {experienceData.length > 0 ? (
+            <div className="space-y-0">
+              {displayedExperience.map((exp, index) => (
+                <ExperienceItem 
+                  key={index} 
+                  experience={exp} 
+                  index={index}
+                />
+              ))}
+              
+              {/* Load More Button */}
+              {hasMoreExperience && !showAllExperience && (
+                <div className="pt-4 text-center">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAllExperience(true)}
+                    className="text-sm"
+                  >
+                    <ChevronDown className="h-4 w-4 mr-2" />
+                    Show {experienceData.length - initialDisplayCount} more positions
+                  </Button>
                 </div>
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Briefcase className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No work experience data available</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -126,13 +127,13 @@ export function EmployeeExperience({ employee }: EmployeeExperienceProps) {
             <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
               <h5 className="font-medium text-sm mb-1">Career Trajectory</h5>
               <p className="text-xs text-muted-foreground">
-                Demonstrates consistent growth within the {employee.department} department with {careerProgression.totalYears} years of experience.
+                Demonstrates consistent growth within the {employee.department} department with {careerProgression.totalYears} years of experience across {careerProgression.companies} organizations.
               </p>
             </div>
             <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
-              <h5 className="font-medium text-sm mb-1">Stability Index</h5>
+              <h5 className="font-medium text-sm mb-1">Professional Stability</h5>
               <p className="text-xs text-muted-foreground">
-                Shows good career stability with an average tenure of {careerProgression.averageTenure} years per role.
+                Shows strong career stability with an average tenure of {careerProgression.averageTenure} years per role, indicating commitment and growth potential.
               </p>
             </div>
           </div>
