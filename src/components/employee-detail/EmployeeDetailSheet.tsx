@@ -17,14 +17,23 @@ import { EmployeeSkillsEducation } from "./EmployeeSkillsEducation"
 import { EmployeeWithDepartment } from "@/types/employee"
 import { getDepartmentConfig, getDepartmentColorClass } from "@/utils/employeeDepartmentUtils"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { CustomSheetHeader } from "@/components/ui/custom-sheet-header"
 
 interface EmployeeDetailSheetProps {
   employee: EmployeeWithDepartment | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  showBackButton?: boolean
+  onBack?: () => void
 }
 
-export function EmployeeDetailSheet({ employee, open, onOpenChange }: EmployeeDetailSheetProps) {
+export function EmployeeDetailSheet({ 
+  employee, 
+  open, 
+  onOpenChange, 
+  showBackButton = false, 
+  onBack 
+}: EmployeeDetailSheetProps) {
   const [activeSection, setActiveSection] = useState("overview")
   const isMobile = useIsMobile()
 
@@ -58,45 +67,51 @@ export function EmployeeDetailSheet({ employee, open, onOpenChange }: EmployeeDe
             : '!w-[1400px] !sm:w-[1600px] !max-w-[70vw] !min-w-[800px] p-8'
         }`}
       >
-        <SheetHeader className={`border-b mb-6 ${isMobile ? 'pb-4' : 'pb-8 mb-10'}`}>
-          <SheetTitle className="flex items-center gap-4">
-            <div className="relative">
-              <Avatar className="h-12 w-12">
-                <AvatarImage src={employee.profile_picture_url || undefined} />
-                <AvatarFallback className="text-sm font-medium">
-                  {getInitials(employee.full_name || 'U N')}
-                </AvatarFallback>
-              </Avatar>
-              <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${colorClass}`} />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-3">
-                <div className={`font-semibold ${isMobile ? 'text-lg' : 'text-xl'}`}>
-                  {employee.full_name}
+        <CustomSheetHeader
+          onClose={() => onOpenChange(false)}
+          showBackButton={showBackButton}
+          onBack={onBack}
+        >
+          <SheetHeader className={`border-b mb-6 ${isMobile ? 'pb-4' : 'pb-8 mb-10'}`}>
+            <SheetTitle className="flex items-center gap-4">
+              <div className="relative">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage src={employee.profile_picture_url || undefined} />
+                  <AvatarFallback className="text-sm font-medium">
+                    {getInitials(employee.full_name || 'U N')}
+                  </AvatarFallback>
+                </Avatar>
+                <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${colorClass}`} />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-3">
+                  <div className={`font-semibold ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                    {employee.full_name}
+                  </div>
+                  {employee.profile_url && (
+                    <a 
+                      href={employee.profile_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  )}
                 </div>
-                {employee.profile_url && (
-                  <a 
-                    href={employee.profile_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                )}
+                <div className="flex items-center gap-2 mt-1">
+                  <departmentConfig.icon className="h-3 w-3 text-muted-foreground" />
+                  <Badge variant={departmentConfig.badgeVariant} className="text-xs">
+                    {departmentConfig.name}
+                  </Badge>
+                </div>
               </div>
-              <div className="flex items-center gap-2 mt-1">
-                <departmentConfig.icon className="h-3 w-3 text-muted-foreground" />
-                <Badge variant={departmentConfig.badgeVariant} className="text-xs">
-                  {departmentConfig.name}
-                </Badge>
-              </div>
-            </div>
-          </SheetTitle>
-          <SheetDescription>
-            {employee.headline || "Professional profile and insights"}
-          </SheetDescription>
-        </SheetHeader>
+            </SheetTitle>
+            <SheetDescription>
+              {employee.headline || "Professional profile and insights"}
+            </SheetDescription>
+          </SheetHeader>
+        </CustomSheetHeader>
 
         <div className={`flex gap-1 border-b ${isMobile ? 'mb-6 pb-2' : 'mb-10 pb-3'}`}>
           {sections.map((section) => (

@@ -1,23 +1,20 @@
-
 import { useState, useMemo } from "react"
 import { Input } from "@/components/ui/input"
 import { Users, Search } from "lucide-react"
 import { useCompanyEmployees } from "@/hooks/useCompanyEmployees"
 import { EmployeeCard } from "../employee-detail/EmployeeCard"
-import { EmployeeDetailSheet } from "../employee-detail/EmployeeDetailSheet"
 import { DepartmentFilter } from "./DepartmentFilter"
 import { Department, getDepartmentPriority } from "@/utils/employeeDepartmentUtils"
 import { EmployeeWithDepartment } from "@/types/employee"
 
 interface EmployeesSectionProps {
   company: any
+  onEmployeeClick: (employee: EmployeeWithDepartment) => void
 }
 
-export function EmployeesSection({ company }: EmployeesSectionProps) {
+export function EmployeesSection({ company, onEmployeeClick }: EmployeesSectionProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedDepartments, setSelectedDepartments] = useState<Department[]>([])
-  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithDepartment | null>(null)
-  const [isEmployeeSheetOpen, setIsEmployeeSheetOpen] = useState(false)
   
   const { employees, isLoading, error } = useCompanyEmployees(company.company_id)
 
@@ -86,19 +83,6 @@ export function EmployeesSection({ company }: EmployeesSectionProps) {
     setSelectedDepartments([])
   }
 
-  const handleEmployeeClick = (employee: EmployeeWithDepartment) => {
-    setSelectedEmployee(employee)
-    setIsEmployeeSheetOpen(true)
-  }
-
-  const handleEmployeeSheetClose = (open: boolean) => {
-    setIsEmployeeSheetOpen(open)
-    if (!open) {
-      setSelectedEmployee(null)
-    }
-  }
-
-  // Format employee count display
   const getEmployeeCountDisplay = () => {
     if (company.employee_count) {
       return `(${employees.length} out of ${company.employee_count})`
@@ -185,20 +169,13 @@ export function EmployeesSection({ company }: EmployeesSectionProps) {
                 <EmployeeCard 
                   key={employee.id} 
                   employee={employee} 
-                  onClick={handleEmployeeClick}
+                  onClick={onEmployeeClick}
                 />
               ))}
             </div>
           )}
         </>
       )}
-
-      {/* Employee Detail Sheet */}
-      <EmployeeDetailSheet
-        employee={selectedEmployee}
-        open={isEmployeeSheetOpen}
-        onOpenChange={handleEmployeeSheetClose}
-      />
     </div>
   )
 }
