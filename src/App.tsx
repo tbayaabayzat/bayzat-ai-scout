@@ -11,7 +11,6 @@ import Dashboard from "./pages/Dashboard";
 import Companies from "./pages/Companies";
 import Employees from "./pages/Employees";
 import Research from "./pages/Research";
-import TestClassification from "./pages/TestClassification";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -57,14 +56,6 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Research />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/test-classification"
-                  element={
-                    <ProtectedRoute>
-                      <TestClassification />
                     </ProtectedRoute>
                   }
                 />
