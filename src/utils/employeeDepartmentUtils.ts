@@ -31,7 +31,7 @@ export type Department =
 export interface DepartmentConfig {
   name: Department
   icon: typeof Code
-  color: 'primary' | 'pink' | 'muted' | 'accent'
+  color: 'primary' | 'pink' | 'muted' | 'accent' | 'purple'
   badgeVariant: 'default' | 'secondary' | 'outline'
 }
 
@@ -39,43 +39,43 @@ export const DEPARTMENT_CONFIG: Record<Department, DepartmentConfig> = {
   'Engineering': {
     name: 'Engineering',
     icon: Code,
-    color: 'primary',
+    color: 'muted',
     badgeVariant: 'secondary'
   },
   'IT': {
     name: 'IT',
     icon: Zap,
-    color: 'primary',
+    color: 'purple',
     badgeVariant: 'outline'
   },
   'Sales': {
     name: 'Sales',
     icon: TrendingUp,
-    color: 'pink',
+    color: 'muted',
     badgeVariant: 'secondary'
   },
   'Marketing': {
     name: 'Marketing',
     icon: Megaphone,
-    color: 'pink',
+    color: 'muted',
     badgeVariant: 'outline'
   },
   'HR': {
     name: 'HR',
     icon: Users,
-    color: 'muted',
+    color: 'purple',
     badgeVariant: 'secondary'
   },
   'Finance': {
     name: 'Finance',
     icon: Calculator,
-    color: 'muted',
+    color: 'purple',
     badgeVariant: 'outline'
   },
   'Procurement': {
     name: 'Procurement',
     icon: ShoppingCart,
-    color: 'muted',
+    color: 'purple',
     badgeVariant: 'secondary'
   },
   'Operations': {
@@ -87,19 +87,19 @@ export const DEPARTMENT_CONFIG: Record<Department, DepartmentConfig> = {
   'Customer Success': {
     name: 'Customer Success',
     icon: HeartHandshake,
-    color: 'pink',
+    color: 'muted',
     badgeVariant: 'secondary'
   },
   'Product Management': {
     name: 'Product Management',
     icon: Package,
-    color: 'accent',
+    color: 'muted',
     badgeVariant: 'secondary'
   },
   'Executive': {
     name: 'Executive',
     icon: Crown,
-    color: 'accent',
+    color: 'purple',
     badgeVariant: 'outline'
   },
   'Other': {
@@ -120,6 +120,8 @@ export const getDepartmentColorClass = (color: DepartmentConfig['color']): strin
       return 'bg-primary'
     case 'pink':
       return 'bg-bayzat-pink'
+    case 'purple':
+      return 'bg-bayzat-purple'
     case 'muted':
       return 'bg-muted-foreground'
     case 'accent':
