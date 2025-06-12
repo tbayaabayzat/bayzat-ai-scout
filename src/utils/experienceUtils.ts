@@ -20,7 +20,11 @@ export interface ExperienceItem {
   is_current?: boolean
 }
 
-export const formatExperienceDate = (date?: { year?: number; month?: number }): string => {
+export const formatExperienceDate = (date?: { year?: number; month?: number }, isCurrent?: boolean): string => {
+  // If it's a current position and no end date, show Present
+  if (isCurrent && !date?.year) return 'Present'
+  
+  // If no date at all, show Unknown
   if (!date?.year) return 'Unknown'
   
   const month = date.month ? String(date.month).padStart(2, '0') : '01'
@@ -47,11 +51,13 @@ export const calculateDuration = (
   
   const diffInMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth())
   
-  if (diffInMonths < 1) return '1 mo'
-  if (diffInMonths < 12) return `${diffInMonths} mos`
+  // Ensure minimum of 1 month
+  const totalMonths = Math.max(1, diffInMonths)
   
-  const years = Math.floor(diffInMonths / 12)
-  const months = diffInMonths % 12
+  if (totalMonths < 12) return `${totalMonths} mo${totalMonths > 1 ? 's' : ''}`
+  
+  const years = Math.floor(totalMonths / 12)
+  const months = totalMonths % 12
   
   if (months === 0) return `${years} yr${years > 1 ? 's' : ''}`
   return `${years} yr${years > 1 ? 's' : ''} ${months} mo${months > 1 ? 's' : ''}`
@@ -70,6 +76,6 @@ export const processExperienceData = (experienceData: any[]): ExperienceItem[] =
     start_date: exp.start_date,
     end_date: exp.end_date,
     skills: exp.skills || [],
-    is_current: !exp.end_date
+    is_current: !exp.end_date || !exp.end_date.year
   }))
 }

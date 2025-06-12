@@ -10191,6 +10191,16 @@ export type Database = {
         Args: { p_count: number }
         Returns: string
       }
+      get_engagement_stats_by_dept: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          department: string
+          total_employees: number
+          avg_engagement: number
+          high_engagement_count: number
+          active_profiles_count: number
+        }[]
+      }
       halfvec_avg: {
         Args: { "": number[] }
         Returns: unknown
@@ -10301,6 +10311,10 @@ export type Database = {
           success_count: number
           error_count: number
         }[]
+      }
+      refresh_engagement_metrics: {
+        Args: { employee_ids: string[] }
+        Returns: boolean
       }
       sparsevec_out: {
         Args: { "": unknown }

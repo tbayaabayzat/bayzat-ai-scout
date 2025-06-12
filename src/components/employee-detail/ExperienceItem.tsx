@@ -15,7 +15,7 @@ export function ExperienceItem({ experience, index }: ExperienceItemProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   
   const startDateFormatted = formatExperienceDate(experience.start_date)
-  const endDateFormatted = experience.is_current ? 'Present' : formatExperienceDate(experience.end_date)
+  const endDateFormatted = experience.is_current ? 'Present' : formatExperienceDate(experience.end_date, experience.is_current)
   const duration = calculateDuration(experience.start_date, experience.end_date, experience.is_current)
   
   const getCompanyInitials = (name: string) => {
@@ -39,7 +39,7 @@ export function ExperienceItem({ experience, index }: ExperienceItemProps) {
   }
 
   return (
-    <div className="flex gap-4 pb-6 border-b last:border-b-0">
+    <div className="flex gap-4 pb-8 border-b last:border-b-0">
       {/* Timeline dot */}
       <div className={`w-3 h-3 rounded-full mt-2 flex-shrink-0 ${
         experience.is_current ? 'bg-green-500' : 'bg-muted-foreground'
@@ -47,7 +47,7 @@ export function ExperienceItem({ experience, index }: ExperienceItemProps) {
       
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-start gap-3 mb-3">
+        <div className="flex items-start gap-3 mb-4">
           {/* Company logo */}
           <Avatar className="w-12 h-12 flex-shrink-0">
             <AvatarImage src={experience.company_logo_url} alt={experience.company} />
@@ -96,7 +96,7 @@ export function ExperienceItem({ experience, index }: ExperienceItemProps) {
             
             {/* Location */}
             {experience.location && (
-              <div className="flex items-center gap-1 mb-2">
+              <div className="flex items-center gap-1 mb-3">
                 <MapPin className="h-3 w-3 text-muted-foreground" />
                 <span className="text-xs text-muted-foreground">{experience.location}</span>
               </div>
@@ -104,7 +104,7 @@ export function ExperienceItem({ experience, index }: ExperienceItemProps) {
             
             {/* Description */}
             {experience.description && (
-              <div className="mb-3">
+              <div className="mb-4">
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {isExpanded 
                     ? experience.description 
