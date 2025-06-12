@@ -15,6 +15,7 @@ export interface Employee {
   engagement_level?: string
   profile_activity_status?: string
   response_rate?: string
+  connection_count?: number
   linkedin_data?: {
     experience?: any[]
     skills?: any[]

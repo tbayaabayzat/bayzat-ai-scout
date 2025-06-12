@@ -49,11 +49,20 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
     }
   }
 
+  const formatConnectionCount = (count?: number): string => {
+    if (!count) return 'Unknown'
+    if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}K`
+    }
+    return count.toString()
+  }
+
   const engagementLevel = employee.engagement_level || 'Medium'
   const engagementColor = getEngagementColor(engagementLevel)
   const engagementPercentage = getEngagementPercentage(engagementLevel)
   const activityStatus = employee.profile_activity_status || 'Active'
   const responseRate = employee.response_rate || 'Medium'
+  const connectionCount = formatConnectionCount(employee.connection_count)
 
   return (
     <div className="space-y-6">
@@ -129,8 +138,8 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center p-4 bg-muted/30 rounded-lg">
               <Users className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-              <div className="text-lg font-semibold">500+</div>
-              <div className="text-xs text-muted-foreground">Estimated Connections</div>
+              <div className="text-lg font-semibold">{connectionCount}</div>
+              <div className="text-xs text-muted-foreground">Connections</div>
             </div>
             <div className="text-center p-4 bg-muted/30 rounded-lg">
               <TrendingUp className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
