@@ -1,7 +1,7 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MapPin, Calendar, Building2, Users, TrendingUp, Activity, Target } from "lucide-react"
+import { MapPin, Calendar, Building2, Users, TrendingUp, Activity, Target, User } from "lucide-react"
 import { EmployeeWithDepartment } from "@/types/employee"
 
 interface EmployeeOverviewProps {
