@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import {
   Sheet,
@@ -113,20 +114,6 @@ export function EmployeeDetailSheet({
                   </Badge>
                 </div>
               </div>
-              
-              {/* Company CTA Section */}
-              {employee.current_company_name && onCompanyClick && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCompanyClick}
-                  className={`text-muted-foreground hover:text-foreground hover:bg-accent transition-colors ${
-                    isMobile ? 'text-xs px-3 py-2' : 'text-sm px-4 py-2'
-                  }`}
-                >
-                  SEE COMPANY
-                </Button>
-              )}
             </SheetTitle>
             <SheetDescription>
               {employee.headline || "Professional profile and insights"}
@@ -153,6 +140,20 @@ export function EmployeeDetailSheet({
               {section.label}
             </Button>
           ))}
+          
+          {/* Company CTA styled as tab */}
+          {employee.current_company_name && onCompanyClick && (
+            <Button
+              variant="ghost"
+              size={isMobile ? "sm" : "sm"}
+              onClick={handleCompanyClick}
+              className={`relative flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors ml-auto ${
+                isMobile ? 'px-3 py-2 text-xs' : 'px-5 py-3'
+              }`}
+            >
+              SEE COMPANY
+            </Button>
+          )}
         </div>
 
         <div className={isMobile ? '' : 'px-3'}>
