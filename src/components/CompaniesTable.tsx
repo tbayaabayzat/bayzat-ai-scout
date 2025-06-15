@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
@@ -41,13 +40,13 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
     {
       accessorKey: "company_name",
       header: "Company",
-      enableColumnFilter: true,
+      enableSorting: true,
       cell: ({ row }) => <CompanyDescriptionCell company={row.original} onCompanyClick={handleCompanyClick} />
     },
     {
       accessorKey: "industry",
       header: "Industry",
-      enableColumnFilter: true,
+      enableSorting: true,
       cell: ({ row }) => {
         const industry = row.getValue("industry") as string
         return industry ? (
@@ -62,11 +61,18 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
       }
     },
     {
-      accessorKey: "headquarter",
+      id: "location",
       header: "Location",
-      enableColumnFilter: true,
+      enableSorting: true,
+      accessorFn: (row) => {
+        const headquarter = row.headquarter
+        if (!headquarter) return ""
+        
+        return typeof headquarter === 'string' ? headquarter : 
+          headquarter.city || headquarter.country || JSON.stringify(headquarter)
+      },
       cell: ({ row }) => {
-        const headquarter = row.getValue("headquarter") as any
+        const headquarter = row.original.headquarter
         if (!headquarter) return null
         
         const location = typeof headquarter === 'string' ? headquarter : 
@@ -86,6 +92,8 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
     {
       accessorKey: "employee_count",
       header: "Employees",
+      enableSorting: true,
+      sortingFn: "basic",
       cell: ({ row }) => {
         const count = row.getValue("employee_count") as number
         return count ? (
@@ -102,7 +110,13 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
     {
       accessorKey: "bayzat_relationship",
       header: "Status",
-      enableColumnFilter: true,
+      enableSorting: true,
+      sortingFn: (rowA, rowB) => {
+        const relationshipOrder = { customer: 3, partner: 2, prospect: 1 }
+        const aValue = relationshipOrder[rowA.getValue("bayzat_relationship") as keyof typeof relationshipOrder] || 0
+        const bValue = relationshipOrder[rowB.getValue("bayzat_relationship") as keyof typeof relationshipOrder] || 0
+        return aValue - bValue
+      },
       cell: ({ row }) => {
         const relationship = row.getValue("bayzat_relationship") as string
         console.log('Relationship value for', row.original.company_name, ':', relationship)
@@ -116,6 +130,15 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
     {
       id: "automation",
       header: "Automation",
+      enableSorting: true,
+      accessorFn: (row) => {
+        const analysis = row.ai_analysis
+        if (analysis?.automation_level?.overall) {
+          return analysis.automation_level.overall
+        }
+        return 0
+      },
+      sortingFn: "basic",
       cell: ({ row }) => {
         const analysis = row.original.ai_analysis
         console.log('Automation analysis for', row.original.company_name, ':', analysis)

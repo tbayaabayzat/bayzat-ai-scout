@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import {
   ColumnDef,
@@ -12,7 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ChevronDown, Filter } from "lucide-react"
+import { ChevronDown, ArrowUp, ArrowDown } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -132,40 +131,39 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
+                  const canSort = header.column.getCanSort()
+                  const sorted = header.column.getIsSorted()
+                  
                   return (
                     <TableHead key={header.id} className="relative">
-                      <div className="flex items-center justify-between">
-                        <div>
+                      <div 
+                        className={`flex items-center justify-between ${
+                          canSort ? 'cursor-pointer select-none hover:text-foreground transition-colors' : ''
+                        }`}
+                        onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                      >
+                        <div className="flex items-center space-x-1">
                           {header.isPlaceholder
                             ? null
                             : flexRender(
                                 header.column.columnDef.header,
                                 header.getContext()
                               )}
+                          {canSort && (
+                            <div className="flex flex-col items-center justify-center ml-1">
+                              {sorted === "asc" ? (
+                                <ArrowUp className="h-3 w-3 text-primary" />
+                              ) : sorted === "desc" ? (
+                                <ArrowDown className="h-3 w-3 text-primary" />
+                              ) : (
+                                <div className="flex flex-col">
+                                  <ArrowUp className="h-2.5 w-2.5 text-muted-foreground/40 -mb-0.5" />
+                                  <ArrowDown className="h-2.5 w-2.5 text-muted-foreground/40" />
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        {header.column.getCanFilter() && (
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0 hover:bg-muted"
-                              >
-                                <Filter className="h-3 w-3" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-48" align="start">
-                              <Input
-                                placeholder={`Filter ${header.id}...`}
-                                value={(header.column.getFilterValue() as string) ?? ""}
-                                onChange={(event) =>
-                                  header.column.setFilterValue(event.target.value)
-                                }
-                                className="h-8"
-                              />
-                            </PopoverContent>
-                          </Popover>
-                        )}
                       </div>
                     </TableHead>
                   )

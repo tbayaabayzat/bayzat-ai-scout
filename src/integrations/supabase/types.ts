@@ -162,6 +162,13 @@ export type Database = {
             referencedRelation: "companies2"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "company_vectors_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_search_flat"
+            referencedColumns: ["company_id"]
+          },
         ]
       }
       employee_profile_vectors: {
@@ -524,6 +531,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "employment_stints_matched_company_id_fkey"
+            columns: ["matched_company_id"]
+            isOneToOne: false
+            referencedRelation: "company_search_flat"
+            referencedColumns: ["company_id"]
+          },
+          {
             foreignKeyName: "employment_stints_queue_record_id_fkey"
             columns: ["queue_record_id"]
             isOneToOne: false
@@ -630,6 +644,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies2"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_profiles_queue_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_search_flat"
+            referencedColumns: ["company_id"]
           },
         ]
       }
@@ -819,7 +840,71 @@ export type Database = {
             referencedRelation: "companies2"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "llm_analysis_results_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_search_flat"
+            referencedColumns: ["company_id"]
+          },
         ]
+      }
+      query_expansion_cache: {
+        Row: {
+          cache_key: string
+          created_at: string
+          expansion_result: Json
+          id: string
+          original_query: string
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          expansion_result: Json
+          id?: string
+          original_query: string
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          expansion_result?: Json
+          id?: string
+          original_query?: string
+        }
+        Relationships: []
+      }
+      query_expansion_log: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          expansion_result: Json
+          id: string
+          model_used: string
+          original_query: string
+          response_time_ms: number | null
+          success: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          expansion_result: Json
+          id?: string
+          model_used?: string
+          original_query: string
+          response_time_ms?: number | null
+          success?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          expansion_result?: Json
+          id?: string
+          model_used?: string
+          original_query?: string
+          response_time_ms?: number | null
+          success?: boolean | null
+        }
+        Relationships: []
       }
       user_profiles: {
         Row: {
@@ -10053,6 +10138,25 @@ export type Database = {
           },
         ]
       }
+      company_search_flat: {
+        Row: {
+          automation_finance: number | null
+          automation_hr: number | null
+          automation_overall: number | null
+          company_id: string | null
+          company_name: string | null
+          employee_count: number | null
+          founded_year: number | null
+          has_accounting: boolean | null
+          has_erp: boolean | null
+          has_hris: boolean | null
+          has_payroll: boolean | null
+          industry: string | null
+          location: string | null
+          website_url: string | null
+        }
+        Relationships: []
+      }
       company_similarities: {
         Row: {
           company: string | null
@@ -10095,6 +10199,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies2"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_vectors_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_search_flat"
+            referencedColumns: ["company_id"]
           },
         ]
       }
@@ -10255,6 +10366,10 @@ export type Database = {
           completeness_score: number
         }[]
       }
+      cleanup_query_expansion_cache: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       compare_llm_results: {
         Args: { p_run_id: string }
         Returns: {
@@ -10273,6 +10388,25 @@ export type Database = {
           p_connection_count: number
         }
         Returns: string
+      }
+      enrich_companies: {
+        Args: { company_ids: string[] }
+        Returns: {
+          id: string
+          company_name: string
+          industry: string
+          employee_count: number
+          website_url: string
+          location: string
+          bayzat_relationship: string
+          has_erp: boolean
+          has_hris: boolean
+          has_accounting: boolean
+          has_payroll: boolean
+          automation_overall: number
+          automation_hr: number
+          automation_finance: number
+        }[]
       }
       estimate_response_rate: {
         Args: {
@@ -10295,6 +10429,26 @@ export type Database = {
           high_engagement_count: number
           active_profiles_count: number
         }[]
+      }
+      gtrgm_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_decompress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_options: {
+        Args: { "": unknown }
+        Returns: undefined
+      }
+      gtrgm_out: {
+        Args: { "": unknown }
+        Returns: unknown
       }
       halfvec_avg: {
         Args: { "": number[] }
@@ -10410,6 +10564,31 @@ export type Database = {
       refresh_engagement_metrics: {
         Args: { employee_ids: string[] }
         Returns: boolean
+      }
+      search_companies_vector: {
+        Args: {
+          query_vector: string
+          vector_type: string
+          threshold_distance?: number
+          max_results?: number
+        }
+        Returns: {
+          company_id: string
+          distance: number
+          content: string
+        }[]
+      }
+      set_limit: {
+        Args: { "": number }
+        Returns: number
+      }
+      show_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      show_trgm: {
+        Args: { "": string }
+        Returns: string[]
       }
       sparsevec_out: {
         Args: { "": unknown }
