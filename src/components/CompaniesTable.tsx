@@ -1,5 +1,6 @@
+
 import { useState } from "react"
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel, SortingState, ColumnFiltersState, VisibilityState } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Users, Crown } from "lucide-react"
 import { DataTable } from "@/components/ui/data-table"
@@ -8,6 +9,7 @@ import { AutomationScorePopover } from "@/components/AutomationScorePopover"
 import { SystemsDisplay } from "@/components/SystemsDisplay"
 import { CompanyDetailSheet } from "@/components/company-detail/CompanyDetailSheet"
 import { Company } from "@/types/company"
+import * as React from "react"
 
 interface CompaniesTableProps {
   companies: Company[]
@@ -18,6 +20,10 @@ interface CompaniesTableProps {
 export function CompaniesTable({ companies, isLoading, error }: CompaniesTableProps) {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = React.useState({})
 
   const handleCompanyClick = (company: Company) => {
     setSelectedCompany(company)
@@ -170,6 +176,33 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
     }
   ]
 
+  // Handle undefined companies data
+  const safeCompanies = companies || []
+
+  const table = useReactTable({
+    data: safeCompanies,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+    initialState: {
+      pagination: {
+        pageSize: 25,
+      },
+    },
+  })
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -192,16 +225,18 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
     )
   }
 
-  // Handle undefined companies data
-  const safeCompanies = companies || []
   console.log('CompaniesTable rendering with', safeCompanies.length, 'companies')
+
+  // Calculate pagination info
+  const currentPageRows = table.getRowModel().rows.length
+  const totalRows = safeCompanies.length
 
   return (
     <>
       <div>
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-2 flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            Showing {safeCompanies.length} companies
+            Showing {currentPageRows} of {totalRows} companies
           </div>
           {safeCompanies.length === 0 && !isLoading && (
             <div className="text-sm text-orange-600">
@@ -210,8 +245,7 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
           )}
         </div>
         <DataTable 
-          columns={columns} 
-          data={safeCompanies}
+          table={table}
         />
       </div>
 
