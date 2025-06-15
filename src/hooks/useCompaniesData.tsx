@@ -14,23 +14,49 @@ export type Company = {
   ai_analysis?: any
   description?: string
   founded_year?: number
+  has_erp?: boolean
+  has_hris?: boolean
+  has_accounting?: boolean
+  has_payroll?: boolean
+}
+
+export type SystemFilter = {
+  has_erp: boolean
+  has_hris: boolean
+  has_accounting: boolean
+  has_payroll: boolean
 }
 
 export function useCompaniesData() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedFilter, setSelectedFilter] = useState("")
+  const [systemFilter, setSystemFilter] = useState<SystemFilter>({
+    has_erp: false,
+    has_hris: false,
+    has_accounting: false,
+    has_payroll: false
+  })
 
   const { data: companies, isLoading, error } = useQuery({
-    queryKey: ['companies', searchTerm, selectedFilter],
+    queryKey: ['companies', searchTerm, selectedFilter, systemFilter],
     queryFn: async () => {
       console.log('=== Starting companies fetch ===')
       console.log('Search term:', searchTerm)
       console.log('Selected filter:', selectedFilter)
+      console.log('System filter:', systemFilter)
       
       try {
         let query = supabase
           .from('companies2')
-          .select('*')
+          .select(`
+            *,
+            company_search_flat!inner(
+              has_erp,
+              has_hris,
+              has_accounting,
+              has_payroll
+            )
+          `)
 
         // Apply search filter only if search term is provided
         if (searchTerm && searchTerm.trim()) {
@@ -48,8 +74,6 @@ export function useCompaniesData() {
           } else if (selectedFilter === "Legacy Systems") {
             query = query.lt('founded_year', 2015)
           }
-        } else {
-          console.log('No specific filter applied - showing all companies')
         }
 
         console.log('Executing main query...')
@@ -69,30 +93,31 @@ export function useCompaniesData() {
         console.log('Raw data received:', data)
         console.log('Number of records:', data?.length || 0)
         
-        if (data && data.length > 0) {
-          console.log('Sample record structure:')
-          console.log('- Full record:', data[0])
-          console.log('- Company name:', data[0]?.company_name)
-          console.log('- AI analysis exists:', !!data[0]?.ai_analysis)
-          console.log('- AI analysis type:', typeof data[0]?.ai_analysis)
-          console.log('- AI analysis structure:', data[0]?.ai_analysis)
-          
-          // Check for automation data specifically with proper type checking
-          if (data[0]?.ai_analysis && typeof data[0].ai_analysis === 'object') {
-            const aiAnalysis = data[0].ai_analysis as any
-            console.log('- Automation level exists:', !!aiAnalysis?.automation_level)
-            console.log('- Automation level structure:', aiAnalysis?.automation_level)
-            console.log('- Systems inventory exists:', !!aiAnalysis?.systems)
-            console.log('- Systems inventory structure:', aiAnalysis?.systems)
-          }
-          
-          // Check relationship field
-          console.log('- Bayzat relationship:', data[0]?.bayzat_relationship)
-        } else {
-          console.log('No data returned from main query')
+        // Transform data to flatten company_search_flat fields
+        const transformedData = data?.map(company => ({
+          ...company,
+          has_erp: company.company_search_flat?.has_erp || false,
+          has_hris: company.company_search_flat?.has_hris || false,
+          has_accounting: company.company_search_flat?.has_accounting || false,
+          has_payroll: company.company_search_flat?.has_payroll || false,
+        })) || []
+
+        // Apply system filters client-side
+        let filteredData = transformedData
+        const activeSystemFilters = Object.entries(systemFilter).filter(([_, value]) => value)
+        
+        if (activeSystemFilters.length > 0) {
+          console.log('Applying system filters:', activeSystemFilters)
+          filteredData = transformedData.filter(company => {
+            return activeSystemFilters.every(([key]) => {
+              const systemKey = key as keyof SystemFilter
+              return company[systemKey] === true
+            })
+          })
+          console.log('Filtered data count:', filteredData.length)
         }
         
-        return data || []
+        return filteredData
       } catch (err) {
         console.error('Fetch error:', err)
         throw err
@@ -106,8 +131,6 @@ export function useCompaniesData() {
   console.log('Error:', error)
   console.log('Companies data:', companies)
   console.log('Companies length:', companies?.length)
-  console.log('Companies is undefined:', companies === undefined)
-  console.log('Companies is null:', companies === null)
 
   return {
     companies,
@@ -116,6 +139,8 @@ export function useCompaniesData() {
     searchTerm,
     setSearchTerm,
     selectedFilter,
-    setSelectedFilter
+    setSelectedFilter,
+    systemFilter,
+    setSystemFilter
   }
 }

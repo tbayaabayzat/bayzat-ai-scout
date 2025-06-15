@@ -10,7 +10,9 @@ export default function Companies() {
     isLoading,
     error,
     setSearchTerm,
-    setSelectedFilter
+    setSelectedFilter,
+    systemFilter,
+    setSystemFilter
   } = useCompaniesData()
 
   return (
@@ -26,6 +28,8 @@ export default function Companies() {
         companies={companies}
         isLoading={isLoading}
         error={error}
+        systemFilter={systemFilter}
+        onSystemFilterChange={setSystemFilter}
       />
     </div>
   )
