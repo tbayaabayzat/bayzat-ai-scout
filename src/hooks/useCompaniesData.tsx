@@ -161,25 +161,30 @@ export function useCompaniesData() {
         console.log('Number of records:', data?.length || 0)
         
         // Transform the data to flatten the joined fields
-        const transformedData: Company[] = (data || []).map(item => ({
-          id: item.companies2.id,
-          company_name: item.companies2.company_name,
-          website_url: item.companies2.website_url,
-          industry: item.companies2.industry,
-          headquarter: item.companies2.headquarter,
-          employee_count: item.companies2.employee_count,
-          bayzat_relationship: item.companies2.bayzat_relationship,
-          ai_analysis: item.companies2.ai_analysis,
-          description: item.companies2.description,
-          founded_year: item.companies2.founded_year,
-          has_erp: item.has_erp,
-          has_hris: item.has_hris,
-          has_accounting: item.has_accounting,
-          has_payroll: item.has_payroll,
-          automation_overall: item.automation_overall,
-          automation_hr: item.automation_hr,
-          automation_finance: item.automation_finance,
-        }))
+        const transformedData: Company[] = (data || []).map(item => {
+          // Since companies2 is joined with !inner, it should be a single object, not an array
+          const company = Array.isArray(item.companies2) ? item.companies2[0] : item.companies2
+          
+          return {
+            id: company.id,
+            company_name: company.company_name,
+            website_url: company.website_url,
+            industry: company.industry,
+            headquarter: company.headquarter,
+            employee_count: company.employee_count,
+            bayzat_relationship: company.bayzat_relationship,
+            ai_analysis: company.ai_analysis,
+            description: company.description,
+            founded_year: company.founded_year,
+            has_erp: item.has_erp,
+            has_hris: item.has_hris,
+            has_accounting: item.has_accounting,
+            has_payroll: item.has_payroll,
+            automation_overall: item.automation_overall,
+            automation_hr: item.automation_hr,
+            automation_finance: item.automation_finance,
+          }
+        })
         
         return transformedData
       } catch (err) {
