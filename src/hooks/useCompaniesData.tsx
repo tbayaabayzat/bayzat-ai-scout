@@ -49,16 +49,7 @@ export function useCompaniesData() {
             bayzat_relationship,
             ai_analysis,
             description,
-            founded_year,
-            company_search_flat(
-              has_erp,
-              has_hris,
-              has_accounting,
-              has_payroll,
-              automation_hr,
-              automation_finance,
-              automation_overall
-            )
+            founded_year
           `)
 
         // Apply search filter only if search term is provided
@@ -79,22 +70,6 @@ export function useCompaniesData() {
           }
         }
 
-        // Apply system filters
-        if (systemFilters && systemFilters.length > 0) {
-          console.log('Applying system filters:', systemFilters)
-          systemFilters.forEach(filter => {
-            if (filter === "Has ERP") {
-              query = query.eq('company_search_flat.has_erp', true)
-            } else if (filter === "Has HRIS") {
-              query = query.eq('company_search_flat.has_hris', true)
-            } else if (filter === "Has Accounting") {
-              query = query.eq('company_search_flat.has_accounting', true)
-            } else if (filter === "Has Payroll") {
-              query = query.eq('company_search_flat.has_payroll', true)
-            }
-          })
-        }
-
         console.log('Executing main query...')
         const { data, error } = await query.limit(100)
         
@@ -112,20 +87,41 @@ export function useCompaniesData() {
         console.log('Raw data received:', data)
         console.log('Number of records:', data?.length || 0)
         
-        // Transform the data to flatten the company_search_flat fields
-        const transformedData = data?.map(company => ({
-          ...company,
-          has_erp: company.company_search_flat?.[0]?.has_erp || false,
-          has_hris: company.company_search_flat?.[0]?.has_hris || false,
-          has_accounting: company.company_search_flat?.[0]?.has_accounting || false,
-          has_payroll: company.company_search_flat?.[0]?.has_payroll || false,
-          automation_hr: company.company_search_flat?.[0]?.automation_hr || 0,
-          automation_finance: company.company_search_flat?.[0]?.automation_finance || 0,
-          automation_overall: company.company_search_flat?.[0]?.automation_overall || 0,
-        })) || []
+        // Transform the data to extract system and automation info from ai_analysis
+        const transformedData = data?.map(company => {
+          const aiAnalysis = company.ai_analysis || {}
+          const systems = aiAnalysis.systems || {}
+          const automationLevel = aiAnalysis.automation_level || {}
+          
+          return {
+            ...company,
+            has_erp: systems.ERP?.name && systems.ERP.name !== 'None',
+            has_hris: systems.HRIS?.name && systems.HRIS.name !== 'None',
+            has_accounting: systems.Accounting?.name && systems.Accounting.name !== 'None',
+            has_payroll: systems.Payroll?.name && systems.Payroll.name !== 'None',
+            automation_hr: automationLevel.hr || 0,
+            automation_finance: automationLevel.finance || 0,
+            automation_overall: automationLevel.overall || 0,
+          }
+        }) || []
+
+        // Apply system filters after transformation
+        let filteredData = transformedData
+        if (systemFilters && systemFilters.length > 0) {
+          console.log('Applying system filters:', systemFilters)
+          filteredData = transformedData.filter(company => {
+            return systemFilters.every(filter => {
+              if (filter === "Has ERP") return company.has_erp
+              if (filter === "Has HRIS") return company.has_hris
+              if (filter === "Has Accounting") return company.has_accounting
+              if (filter === "Has Payroll") return company.has_payroll
+              return true
+            })
+          })
+        }
         
-        console.log('Transformed data:', transformedData)
-        return transformedData
+        console.log('Transformed and filtered data:', filteredData)
+        return filteredData
       } catch (err) {
         console.error('Fetch error:', err)
         throw err
