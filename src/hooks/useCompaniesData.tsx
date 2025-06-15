@@ -60,73 +60,83 @@ export function useCompaniesData() {
       console.log('Automation filter:', automationFilter)
       
       try {
-        // Start with base query using explicit join
+        // Start with base query from company_search_flat and join companies2
         let query = supabase
-          .from('companies2')
+          .from('company_search_flat')
           .select(`
-            *,
-            company_search_flat!inner(
-              has_erp,
-              has_hris,
-              has_accounting,
-              has_payroll,
-              automation_overall,
-              automation_hr,
-              automation_finance
+            company_id,
+            has_erp,
+            has_hris,
+            has_accounting,
+            has_payroll,
+            automation_overall,
+            automation_hr,
+            automation_finance,
+            companies2!inner(
+              id,
+              company_name,
+              website_url,
+              industry,
+              headquarter,
+              employee_count,
+              bayzat_relationship,
+              ai_analysis,
+              description,
+              founded_year
             )
           `)
 
-        // Apply search filter
+        // Apply search filter on the joined table
         if (searchTerm && searchTerm.trim()) {
           console.log('Applying search filter for:', searchTerm)
-          query = query.or(`company_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
+          query = query.or(`companies2.company_name.ilike.%${searchTerm}%,companies2.description.ilike.%${searchTerm}%,companies2.industry.ilike.%${searchTerm}%`)
         }
 
         // Apply legacy relationship filters
         if (selectedFilter && selectedFilter.trim() && selectedFilter !== "all") {
           console.log('Applying specific filter:', selectedFilter)
           if (selectedFilter === "Customers Only") {
-            query = query.eq('bayzat_relationship', 'customer')
+            query = query.eq('companies2.bayzat_relationship', 'customer')
           } else if (selectedFilter === "Prospects Only") {
-            query = query.eq('bayzat_relationship', 'prospect')
+            query = query.eq('companies2.bayzat_relationship', 'prospect')
           } else if (selectedFilter === "Legacy Systems") {
-            query = query.lt('founded_year', 2015)
+            query = query.lt('companies2.founded_year', 2015)
           }
         }
 
-        // Apply systems filters - using explicit column references
+        // Apply systems filters
         if (systemsFilter.erp !== null && systemsFilter.erp !== undefined) {
-          query = query.eq('company_search_flat.has_erp', systemsFilter.erp)
+          query = query.eq('has_erp', systemsFilter.erp)
           console.log(`Applied ERP filter: ${systemsFilter.erp}`)
         }
         if (systemsFilter.hris !== null && systemsFilter.hris !== undefined) {
-          query = query.eq('company_search_flat.has_hris', systemsFilter.hris)
+          query = query.eq('has_hris', systemsFilter.hris)
           console.log(`Applied HRIS filter: ${systemsFilter.hris}`)
         }
         if (systemsFilter.accounting !== null && systemsFilter.accounting !== undefined) {
-          query = query.eq('company_search_flat.has_accounting', systemsFilter.accounting)
+          query = query.eq('has_accounting', systemsFilter.accounting)
           console.log(`Applied Accounting filter: ${systemsFilter.accounting}`)
         }
         if (systemsFilter.payroll !== null && systemsFilter.payroll !== undefined) {
-          query = query.eq('company_search_flat.has_payroll', systemsFilter.payroll)
+          query = query.eq('has_payroll', systemsFilter.payroll)
           console.log(`Applied Payroll filter: ${systemsFilter.payroll}`)
         }
 
         // Apply employee count filter
         if (employeeCountFilter.min !== undefined) {
-          query = query.gte('employee_count', employeeCountFilter.min)
+          query = query.gte('companies2.employee_count', employeeCountFilter.min)
           console.log(`Applied employee count min filter: ${employeeCountFilter.min}`)
         }
         if (employeeCountFilter.max !== undefined) {
-          query = query.lte('employee_count', employeeCountFilter.max)
+          query = query.lte('companies2.employee_count', employeeCountFilter.max)
           console.log(`Applied employee count max filter: ${employeeCountFilter.max}`)
         }
 
         // Apply automation score filter
         if (automationFilter.min !== undefined || automationFilter.max !== undefined) {
-          const automationColumn = automationFilter.department === 'hr' ? 'company_search_flat.automation_hr' :
-                                  automationFilter.department === 'finance' ? 'company_search_flat.automation_finance' :
-                                  'company_search_flat.automation_overall'
+          const automationColumn = automationFilter.department === 'hr' ? 'automation_hr' :
+                                  automationFilter.department === 'finance' ? 'automation_finance' :
+                                  'automation_overall'
           
           if (automationFilter.min !== undefined) {
             query = query.gte(automationColumn, automationFilter.min)
@@ -151,15 +161,24 @@ export function useCompaniesData() {
         console.log('Number of records:', data?.length || 0)
         
         // Transform the data to flatten the joined fields
-        const transformedData: Company[] = (data || []).map(company => ({
-          ...company,
-          has_erp: company.company_search_flat?.[0]?.has_erp,
-          has_hris: company.company_search_flat?.[0]?.has_hris,
-          has_accounting: company.company_search_flat?.[0]?.has_accounting,
-          has_payroll: company.company_search_flat?.[0]?.has_payroll,
-          automation_overall: company.company_search_flat?.[0]?.automation_overall,
-          automation_hr: company.company_search_flat?.[0]?.automation_hr,
-          automation_finance: company.company_search_flat?.[0]?.automation_finance,
+        const transformedData: Company[] = (data || []).map(item => ({
+          id: item.companies2.id,
+          company_name: item.companies2.company_name,
+          website_url: item.companies2.website_url,
+          industry: item.companies2.industry,
+          headquarter: item.companies2.headquarter,
+          employee_count: item.companies2.employee_count,
+          bayzat_relationship: item.companies2.bayzat_relationship,
+          ai_analysis: item.companies2.ai_analysis,
+          description: item.companies2.description,
+          founded_year: item.companies2.founded_year,
+          has_erp: item.has_erp,
+          has_hris: item.has_hris,
+          has_accounting: item.has_accounting,
+          has_payroll: item.has_payroll,
+          automation_overall: item.automation_overall,
+          automation_hr: item.automation_hr,
+          automation_finance: item.automation_finance,
         }))
         
         return transformedData
