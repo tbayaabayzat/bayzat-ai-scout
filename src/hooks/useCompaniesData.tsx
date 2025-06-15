@@ -46,67 +46,7 @@ export function useCompaniesData() {
       console.log('System filter:', systemFilter)
       
       try {
-        // Build the SQL query with explicit JOIN
-        let sqlQuery = `
-          SELECT 
-            c.*,
-            csf.has_erp,
-            csf.has_hris,
-            csf.has_accounting,
-            csf.has_payroll
-          FROM companies2 c
-          LEFT JOIN company_search_flat csf ON c.id = csf.company_id
-          WHERE 1=1
-        `
-        
-        const params: any[] = []
-        let paramCounter = 1
-
-        // Apply search filter
-        if (searchTerm && searchTerm.trim()) {
-          console.log('Applying search filter for:', searchTerm)
-          sqlQuery += ` AND (
-            c.company_name ILIKE $${paramCounter} OR 
-            c.description ILIKE $${paramCounter} OR 
-            c.industry ILIKE $${paramCounter}
-          )`
-          params.push(`%${searchTerm}%`)
-          paramCounter++
-        }
-
-        // Apply specific filters
-        if (selectedFilter && selectedFilter.trim()) {
-          console.log('Applying specific filter:', selectedFilter)
-          if (selectedFilter === "Customers Only") {
-            sqlQuery += ` AND c.bayzat_relationship = $${paramCounter}`
-            params.push('customer')
-            paramCounter++
-          } else if (selectedFilter === "Prospects Only") {
-            sqlQuery += ` AND c.bayzat_relationship = $${paramCounter}`
-            params.push('prospect')
-            paramCounter++
-          } else if (selectedFilter === "Legacy Systems") {
-            sqlQuery += ` AND c.founded_year < $${paramCounter}`
-            params.push(2015)
-            paramCounter++
-          }
-        }
-
-        sqlQuery += ` LIMIT 100`
-
-        console.log('Executing SQL query:', sqlQuery)
-        console.log('With params:', params)
-
-        const { data, error } = await supabase.rpc('', {}, { 
-          get: false,
-          post: true,
-          body: {
-            query: sqlQuery,
-            params: params
-          }
-        }).select('*')
-
-        // Fallback to using the SQL directly via rpc call
+        // Use direct Supabase query with explicit foreign key join
         const result = await supabase
           .from('companies2')
           .select(`
@@ -136,7 +76,12 @@ export function useCompaniesData() {
         
         // Transform and filter the data
         let transformedData = result.data?.map(company => {
-          const searchFlat = company.company_search_flat?.[0] || {}
+          const searchFlat = (company.company_search_flat as any)?.[0] || {
+            has_erp: false,
+            has_hris: false,
+            has_accounting: false,
+            has_payroll: false
+          }
           
           return {
             ...company,
