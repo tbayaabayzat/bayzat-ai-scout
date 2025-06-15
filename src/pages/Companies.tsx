@@ -10,9 +10,7 @@ export default function Companies() {
     isLoading,
     error,
     setSearchTerm,
-    setSelectedFilter,
-    systemFilters,
-    setSystemFilters
+    setSelectedFilter
   } = useCompaniesData()
 
   return (
@@ -22,8 +20,6 @@ export default function Companies() {
       <CompaniesFilters
         onSearch={setSearchTerm}
         onFilterSelect={setSelectedFilter}
-        systemFilters={systemFilters}
-        onSystemFiltersChange={setSystemFilters}
       />
 
       <CompaniesTable

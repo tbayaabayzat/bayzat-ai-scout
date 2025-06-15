@@ -1,78 +1,74 @@
-
 import { Badge } from "@/components/ui/badge"
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
-import { MoreHorizontal, Check, X } from "lucide-react"
+import { MoreHorizontal } from "lucide-react"
 
 interface SystemsDisplayProps {
   systems: any
-  has_erp?: boolean
-  has_hris?: boolean
-  has_accounting?: boolean
-  has_payroll?: boolean
 }
 
-export function SystemsDisplay({ 
-  systems, 
-  has_erp, 
-  has_hris, 
-  has_accounting, 
-  has_payroll 
-}: SystemsDisplayProps) {
+export function SystemsDisplay({ systems }: SystemsDisplayProps) {
   const prioritySystems = []
   const otherSystems = []
 
+  if (!systems) return <span className="text-muted-foreground text-sm">No systems data</span>
+
   console.log('SystemsDisplay - systems structure:', systems)
-  console.log('SystemsDisplay - system flags:', { has_erp, has_hris, has_accounting, has_payroll })
 
-  // Primary systems with status indicators
-  const primarySystemsConfig = [
-    { key: 'ERP', hasSystem: has_erp, name: systems?.ERP?.name },
-    { key: 'HRIS', hasSystem: has_hris, name: systems?.HRIS?.name },
-    { key: 'Accounting', hasSystem: has_accounting, name: systems?.Accounting?.name },
-    { key: 'Payroll', hasSystem: has_payroll, name: systems?.Payroll?.name }
-  ]
+  // Always show ERP, HRIS, and Accounting - with category names when "None"
+  const erpName = systems.ERP?.name || 'None'
+  const hrisName = systems.HRIS?.name || 'None'
+  const accountingName = systems.Accounting?.name || 'None'
 
-  primarySystemsConfig.forEach(({ key, hasSystem, name }) => {
-    const systemName = name && name !== 'None' ? name : key
-    const displayName = hasSystem ? systemName : `${key}: None`
-    
-    prioritySystems.push({ 
-      name: displayName, 
-      hasSystem: hasSystem || false,
-      isNone: !hasSystem || name === 'None'
-    })
+  // Format display text with category names when value is "None"
+  const formatSystemDisplay = (categoryName: string, systemName: string) => {
+    return systemName === 'None' ? `${categoryName}: None` : systemName
+  }
+
+  prioritySystems.push({ 
+    name: formatSystemDisplay('ERP', erpName), 
+    isNone: erpName === 'None' 
+  })
+  prioritySystems.push({ 
+    name: formatSystemDisplay('HRIS', hrisName), 
+    isNone: hrisName === 'None' 
+  })
+  prioritySystems.push({ 
+    name: formatSystemDisplay('Accounting', accountingName), 
+    isNone: accountingName === 'None' 
   })
 
   // Add other systems only if they have actual values (not "None")
-  if (systems) {
-    if (systems.AP_Automation?.name && systems.AP_Automation.name !== 'None') {
-      otherSystems.push(systems.AP_Automation.name)
-    }
-    
-    if (systems.Expense_Management?.name && systems.Expense_Management.name !== 'None') {
-      otherSystems.push(systems.Expense_Management.name)
-    }
-    
-    if (systems.Document_Management?.name && systems.Document_Management.name !== 'None') {
-      otherSystems.push(systems.Document_Management.name)
-    }
-    
-    if (systems.Time_Attendance_Hardware?.name && systems.Time_Attendance_Hardware.name !== 'None') {
-      otherSystems.push(systems.Time_Attendance_Hardware.name)
-    }
+  if (systems.Payroll?.name && systems.Payroll.name !== 'None') {
+    otherSystems.push(systems.Payroll.name)
+  }
+  
+  if (systems.AP_Automation?.name && systems.AP_Automation.name !== 'None') {
+    otherSystems.push(systems.AP_Automation.name)
+  }
+  
+  if (systems.Expense_Management?.name && systems.Expense_Management.name !== 'None') {
+    otherSystems.push(systems.Expense_Management.name)
+  }
+  
+  if (systems.Document_Management?.name && systems.Document_Management.name !== 'None') {
+    otherSystems.push(systems.Document_Management.name)
+  }
+  
+  if (systems.Time_Attendance_Hardware?.name && systems.Time_Attendance_Hardware.name !== 'None') {
+    otherSystems.push(systems.Time_Attendance_Hardware.name)
+  }
 
-    // Add other software
-    if (systems.Other_Software && Array.isArray(systems.Other_Software)) {
-      systems.Other_Software.forEach((software: any) => {
-        if (software.name) {
-          otherSystems.push(software.name)
-        }
-      })
-    }
+  // Add other software
+  if (systems.Other_Software && Array.isArray(systems.Other_Software)) {
+    systems.Other_Software.forEach((software: any) => {
+      if (software.name) {
+        otherSystems.push(software.name)
+      }
+    })
   }
 
   const hasMoreSystems = otherSystems.length > 0
@@ -82,18 +78,9 @@ export function SystemsDisplay({
       {prioritySystems.map((system, index) => (
         <Badge 
           key={index} 
-          variant={system.hasSystem ? "default" : "outline"} 
-          className={`text-xs flex items-center gap-1 ${
-            system.hasSystem 
-              ? 'bg-green-500 hover:bg-green-600 text-white' 
-              : 'text-muted-foreground border-muted'
-          }`}
+          variant={system.isNone ? "outline" : "secondary"} 
+          className={`text-xs ${system.isNone ? 'text-muted-foreground' : ''}`}
         >
-          {system.hasSystem ? (
-            <Check className="h-3 w-3" />
-          ) : (
-            <X className="h-3 w-3" />
-          )}
           {system.name}
         </Badge>
       ))}
