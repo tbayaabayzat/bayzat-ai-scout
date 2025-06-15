@@ -4,12 +4,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown, Database, Users, Bot, X, Filter } from "lucide-react"
+import { ChevronDown, Database, Users, X, Filter } from "lucide-react"
 import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/hooks/useCompaniesData"
+import { AutomationScoreFilter } from "@/components/AutomationScoreFilter"
 
 interface AdvancedFiltersProps {
   systemsFilter: SystemsFilter
@@ -47,7 +45,7 @@ export function AdvancedFilters({
     if (employeeCountFilter.min !== undefined || employeeCountFilter.max !== undefined) count++
     
     // Count automation filters
-    if (automationFilter.min !== undefined || automationFilter.max !== undefined) count++
+    if (automationFilter.selectedScores && automationFilter.selectedScores.length > 0) count++
     
     return count
   }
@@ -70,21 +68,6 @@ export function AdvancedFilters({
     onEmployeeCountFilterChange({
       ...employeeCountFilter,
       [field]: numValue
-    })
-  }
-
-  const handleAutomationScoreChange = (values: number[]) => {
-    onAutomationFilterChange({
-      ...automationFilter,
-      min: values[0],
-      max: values[1]
-    })
-  }
-
-  const handleAutomationDepartmentChange = (department: string) => {
-    onAutomationFilterChange({
-      ...automationFilter,
-      department: department as 'overall' | 'hr' | 'finance'
     })
   }
 
@@ -183,43 +166,10 @@ export function AdvancedFilters({
             </div>
 
             {/* Automation Score Filter */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Bot className="h-4 w-4 text-muted-foreground" />
-                <Label className="text-sm font-medium">Automation Score</Label>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block">Department</Label>
-                  <Select
-                    value={automationFilter.department || 'overall'}
-                    onValueChange={handleAutomationDepartmentChange}
-                  >
-                    <SelectTrigger className="h-8">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="overall">Overall</SelectItem>
-                      <SelectItem value="hr">HR</SelectItem>
-                      <SelectItem value="finance">Finance</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block">
-                    Score Range: {automationFilter.min || 0} - {automationFilter.max || 100}
-                  </Label>
-                  <Slider
-                    value={[automationFilter.min || 0, automationFilter.max || 100]}
-                    onValueChange={handleAutomationScoreChange}
-                    max={100}
-                    min={0}
-                    step={1}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-            </div>
+            <AutomationScoreFilter
+              automationFilter={automationFilter}
+              onAutomationFilterChange={onAutomationFilterChange}
+            />
           </div>
 
           {/* Action Buttons */}

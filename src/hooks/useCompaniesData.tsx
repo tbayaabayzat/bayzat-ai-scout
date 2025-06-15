@@ -37,8 +37,7 @@ export type EmployeeCountFilter = {
 }
 
 export type AutomationFilter = {
-  min?: number
-  max?: number
+  selectedScores?: number[]
   department?: 'overall' | 'hr' | 'finance'
 }
 
@@ -172,19 +171,17 @@ export function useCompaniesData() {
         }
 
         // Apply automation score filter on the transformed data
-        if (automationFilter.min !== undefined || automationFilter.max !== undefined) {
+        if (automationFilter.selectedScores && automationFilter.selectedScores.length > 0) {
           const automationField = automationFilter.department === 'hr' ? 'automation_hr' :
                                   automationFilter.department === 'finance' ? 'automation_finance' :
                                   'automation_overall'
           
           transformedData = transformedData.filter(company => {
             const score = company[automationField as keyof Company] as number || 0
-            const meetsMin = automationFilter.min === undefined || score >= automationFilter.min
-            const meetsMax = automationFilter.max === undefined || score <= automationFilter.max
-            return meetsMin && meetsMax
+            return automationFilter.selectedScores!.includes(score)
           })
           
-          console.log(`Applied automation filter: ${automationField} min=${automationFilter.min} max=${automationFilter.max}`)
+          console.log(`Applied automation filter: ${automationField} scores=${automationFilter.selectedScores.join(',')}`)
         }
         
         console.log('Filtered data length:', transformedData.length)
