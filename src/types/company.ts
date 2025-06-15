@@ -1,8 +1,12 @@
 
 export type Company = {
   id: string
+  company_id?: string | number
   company_name: string
   website_url?: string
+  logo_url?: string
+  url?: string
+  tagline?: string
   industry?: string
   headquarter?: any
   employee_count?: number

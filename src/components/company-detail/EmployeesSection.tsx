@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from "react"
 import { Input } from "@/components/ui/input"
 import { Users, Search } from "lucide-react"
@@ -16,7 +17,17 @@ export function EmployeesSection({ company, onEmployeeClick }: EmployeesSectionP
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedDepartments, setSelectedDepartments] = useState<Department[]>([])
   
-  const { employees, isLoading, error } = useCompanyEmployees(company.company_id)
+  // Debug the company object to see what ID fields are available
+  console.log('EmployeesSection - Company object:', company)
+  console.log('Available company fields:', Object.keys(company || {}))
+  console.log('company.id:', company?.id)
+  console.log('company.company_id:', company?.company_id)
+  
+  // Try to get the correct company identifier
+  const companyId = company?.company_id || company?.id
+  console.log('Using company ID for employee lookup:', companyId)
+  
+  const { employees, isLoading, error } = useCompanyEmployees(companyId)
 
   // Calculate department counts
   const departmentCounts = useMemo(() => {
@@ -105,6 +116,7 @@ export function EmployeesSection({ company, onEmployeeClick }: EmployeesSectionP
   }
 
   if (error) {
+    console.error('Employee fetch error:', error)
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-2 mb-4">
@@ -114,6 +126,7 @@ export function EmployeesSection({ company, onEmployeeClick }: EmployeesSectionP
         <div className="text-center py-12 text-muted-foreground">
           <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <p>Unable to load employee data</p>
+          <p className="text-xs mt-2">Company ID: {companyId}</p>
         </div>
       </div>
     )
@@ -135,6 +148,7 @@ export function EmployeesSection({ company, onEmployeeClick }: EmployeesSectionP
           <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <h3 className="text-lg font-medium mb-2">No Employee Data Available</h3>
           <p className="text-sm">No current employees found for this company.</p>
+          <p className="text-xs mt-2">Searched with Company ID: {companyId}</p>
         </div>
       ) : (
         <>

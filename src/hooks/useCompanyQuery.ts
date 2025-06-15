@@ -30,13 +30,17 @@ export function useCompanyQuery({
       console.log('Automation filter:', automationFilter)
       
       try {
-        // Query directly from companies2 table
+        // Query directly from companies2 table - include logo_url and company_id
         let query = supabase
           .from('companies2')
           .select(`
             id,
+            company_id,
             company_name,
             website_url,
+            logo_url,
+            url,
+            tagline,
             industry,
             headquarter,
             employee_count,
@@ -85,6 +89,7 @@ export function useCompanyQuery({
         console.log('Main query successful!')
         console.log('Raw data received:', data)
         console.log('Number of records:', data?.length || 0)
+        console.log('Sample company data structure:', data?.[0])
         
         // Transform the data and extract systems/automation info from ai_analysis
         let transformedData: Company[] = transformCompanyData(data)
@@ -122,6 +127,7 @@ export function useCompanyQuery({
         }
         
         console.log('Filtered data length:', transformedData.length)
+        console.log('Sample transformed company:', transformedData[0])
         return transformedData
       } catch (err) {
         console.error('Fetch error:', err)

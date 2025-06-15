@@ -14,10 +14,18 @@ export const extractAutomationScore = (aiAnalysis: any, department: string): num
 
 export const transformCompanyData = (data: any[]): Company[] => {
   return (data || []).map(item => {
+    console.log('Transforming company:', item.company_name, 'with fields:', Object.keys(item))
+    console.log('Company ID field:', item.company_id)
+    console.log('Logo URL field:', item.logo_url)
+    
     const company: Company = {
       id: item.id,
+      company_id: item.company_id,
       company_name: item.company_name,
       website_url: item.website_url,
+      logo_url: item.logo_url,
+      url: item.url,
+      tagline: item.tagline,
       industry: item.industry,
       headquarter: item.headquarter,
       employee_count: item.employee_count,
@@ -35,6 +43,8 @@ export const transformCompanyData = (data: any[]): Company[] => {
       automation_hr: extractAutomationScore(item.ai_analysis, 'hr'),
       automation_finance: extractAutomationScore(item.ai_analysis, 'finance'),
     }
+    
+    console.log('Transformed company fields:', Object.keys(company))
     return company
   })
 }
