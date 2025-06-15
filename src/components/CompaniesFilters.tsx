@@ -44,7 +44,7 @@ export function CompaniesFilters({
             <SelectValue placeholder="Legacy filters" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Companies</SelectItem>
+            <SelectItem value="all">All Companies</SelectItem>
             <SelectItem value="Customers Only">Customers Only</SelectItem>
             <SelectItem value="Prospects Only">Prospects Only</SelectItem>
             <SelectItem value="Legacy Systems">Legacy Systems</SelectItem>

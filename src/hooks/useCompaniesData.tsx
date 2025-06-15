@@ -25,7 +25,7 @@ export type Company = {
 }
 
 export type SystemsFilter = {
-  erp?: boolean | null // null = don't filter, true = has, false = missing
+  erp?: boolean | null
   hris?: boolean | null
   accounting?: boolean | null
   payroll?: boolean | null
@@ -82,7 +82,7 @@ export function useCompaniesData() {
         }
 
         // Apply legacy relationship filters
-        if (selectedFilter && selectedFilter.trim()) {
+        if (selectedFilter && selectedFilter.trim() && selectedFilter !== "all") {
           console.log('Applying specific filter:', selectedFilter)
           if (selectedFilter === "Customers Only") {
             query = query.eq('bayzat_relationship', 'customer')
@@ -94,13 +94,14 @@ export function useCompaniesData() {
         }
 
         // Apply systems filters
-        Object.entries(systemsFilter).forEach(([system, value]) => {
+        const systemEntries = Object.entries(systemsFilter)
+        for (const [system, value] of systemEntries) {
           if (value !== null && value !== undefined) {
             const columnName = `company_search_flat.has_${system}`
             query = query.eq(columnName, value)
             console.log(`Applied systems filter: ${columnName} = ${value}`)
           }
-        })
+        }
 
         // Apply employee count filter
         if (employeeCountFilter.min !== undefined) {
@@ -141,7 +142,7 @@ export function useCompaniesData() {
         console.log('Number of records:', data?.length || 0)
         
         // Transform the data to flatten the joined fields
-        const transformedData = data?.map(company => ({
+        const transformedData: Company[] = (data || []).map(company => ({
           ...company,
           has_erp: company.company_search_flat?.[0]?.has_erp,
           has_hris: company.company_search_flat?.[0]?.has_hris,
@@ -150,7 +151,7 @@ export function useCompaniesData() {
           automation_overall: company.company_search_flat?.[0]?.automation_overall,
           automation_hr: company.company_search_flat?.[0]?.automation_hr,
           automation_finance: company.company_search_flat?.[0]?.automation_finance,
-        })) || []
+        }))
         
         return transformedData
       } catch (err) {
