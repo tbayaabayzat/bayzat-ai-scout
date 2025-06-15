@@ -18,6 +18,9 @@ export type Company = {
   has_hris?: boolean
   has_accounting?: boolean
   has_payroll?: boolean
+  automation_hr?: number
+  automation_finance?: number
+  automation_overall?: number
 }
 
 export function useCompaniesData() {
@@ -47,7 +50,7 @@ export function useCompaniesData() {
             ai_analysis,
             description,
             founded_year,
-            company_search_flat!inner(
+            company_search_flat(
               has_erp,
               has_hris,
               has_accounting,
@@ -116,6 +119,9 @@ export function useCompaniesData() {
           has_hris: company.company_search_flat?.[0]?.has_hris || false,
           has_accounting: company.company_search_flat?.[0]?.has_accounting || false,
           has_payroll: company.company_search_flat?.[0]?.has_payroll || false,
+          automation_hr: company.company_search_flat?.[0]?.automation_hr || 0,
+          automation_finance: company.company_search_flat?.[0]?.automation_finance || 0,
+          automation_overall: company.company_search_flat?.[0]?.automation_overall || 0,
         })) || []
         
         console.log('Transformed data:', transformedData)
