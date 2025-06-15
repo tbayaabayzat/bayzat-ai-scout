@@ -93,14 +93,22 @@ export function useCompaniesData() {
           }
         }
 
-        // Apply systems filters
-        const systemEntries = Object.entries(systemsFilter)
-        for (const [system, value] of systemEntries) {
-          if (value !== null && value !== undefined) {
-            const columnName = `company_search_flat.has_${system}`
-            query = query.eq(columnName, value)
-            console.log(`Applied systems filter: ${columnName} = ${value}`)
-          }
+        // Apply systems filters - fix type inference issue
+        if (systemsFilter.erp !== null && systemsFilter.erp !== undefined) {
+          query = query.eq('company_search_flat.has_erp', systemsFilter.erp)
+          console.log(`Applied ERP filter: ${systemsFilter.erp}`)
+        }
+        if (systemsFilter.hris !== null && systemsFilter.hris !== undefined) {
+          query = query.eq('company_search_flat.has_hris', systemsFilter.hris)
+          console.log(`Applied HRIS filter: ${systemsFilter.hris}`)
+        }
+        if (systemsFilter.accounting !== null && systemsFilter.accounting !== undefined) {
+          query = query.eq('company_search_flat.has_accounting', systemsFilter.accounting)
+          console.log(`Applied Accounting filter: ${systemsFilter.accounting}`)
+        }
+        if (systemsFilter.payroll !== null && systemsFilter.payroll !== undefined) {
+          query = query.eq('company_search_flat.has_payroll', systemsFilter.payroll)
+          console.log(`Applied Payroll filter: ${systemsFilter.payroll}`)
         }
 
         // Apply employee count filter
