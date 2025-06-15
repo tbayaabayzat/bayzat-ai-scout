@@ -165,7 +165,15 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
           systems = row.original.ai_analysis.systems
         }
         console.log('Systems for', row.original.company_name, ':', systems)
-        return <SystemsDisplay systems={systems} />
+        return (
+          <SystemsDisplay 
+            systems={systems}
+            has_erp={row.original.has_erp}
+            has_hris={row.original.has_hris}
+            has_accounting={row.original.has_accounting}
+            has_payroll={row.original.has_payroll}
+          />
+        )
       }
     }
   ]

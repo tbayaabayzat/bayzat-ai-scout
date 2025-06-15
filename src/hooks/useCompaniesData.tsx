@@ -14,23 +14,37 @@ export type Company = {
   ai_analysis?: any
   description?: string
   founded_year?: number
+  has_erp?: boolean
+  has_hris?: boolean
+  has_accounting?: boolean
+  has_payroll?: boolean
 }
 
 export function useCompaniesData() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedFilter, setSelectedFilter] = useState("")
+  const [systemFilters, setSystemFilters] = useState<string[]>([])
 
   const { data: companies, isLoading, error } = useQuery({
-    queryKey: ['companies', searchTerm, selectedFilter],
+    queryKey: ['companies', searchTerm, selectedFilter, systemFilters],
     queryFn: async () => {
       console.log('=== Starting companies fetch ===')
       console.log('Search term:', searchTerm)
       console.log('Selected filter:', selectedFilter)
+      console.log('System filters:', systemFilters)
       
       try {
         let query = supabase
           .from('companies2')
-          .select('*')
+          .select(`
+            *,
+            company_search_flat!inner(
+              has_erp,
+              has_hris,
+              has_accounting,
+              has_payroll
+            )
+          `)
 
         // Apply search filter only if search term is provided
         if (searchTerm && searchTerm.trim()) {
@@ -48,8 +62,22 @@ export function useCompaniesData() {
           } else if (selectedFilter === "Legacy Systems") {
             query = query.lt('founded_year', 2015)
           }
-        } else {
-          console.log('No specific filter applied - showing all companies')
+        }
+
+        // Apply system filters
+        if (systemFilters && systemFilters.length > 0) {
+          console.log('Applying system filters:', systemFilters)
+          systemFilters.forEach(filter => {
+            if (filter === "Has ERP") {
+              query = query.eq('company_search_flat.has_erp', true)
+            } else if (filter === "Has HRIS") {
+              query = query.eq('company_search_flat.has_hris', true)
+            } else if (filter === "Has Accounting") {
+              query = query.eq('company_search_flat.has_accounting', true)
+            } else if (filter === "Has Payroll") {
+              query = query.eq('company_search_flat.has_payroll', true)
+            }
+          })
         }
 
         console.log('Executing main query...')
@@ -69,30 +97,17 @@ export function useCompaniesData() {
         console.log('Raw data received:', data)
         console.log('Number of records:', data?.length || 0)
         
-        if (data && data.length > 0) {
-          console.log('Sample record structure:')
-          console.log('- Full record:', data[0])
-          console.log('- Company name:', data[0]?.company_name)
-          console.log('- AI analysis exists:', !!data[0]?.ai_analysis)
-          console.log('- AI analysis type:', typeof data[0]?.ai_analysis)
-          console.log('- AI analysis structure:', data[0]?.ai_analysis)
-          
-          // Check for automation data specifically with proper type checking
-          if (data[0]?.ai_analysis && typeof data[0].ai_analysis === 'object') {
-            const aiAnalysis = data[0].ai_analysis as any
-            console.log('- Automation level exists:', !!aiAnalysis?.automation_level)
-            console.log('- Automation level structure:', aiAnalysis?.automation_level)
-            console.log('- Systems inventory exists:', !!aiAnalysis?.systems)
-            console.log('- Systems inventory structure:', aiAnalysis?.systems)
-          }
-          
-          // Check relationship field
-          console.log('- Bayzat relationship:', data[0]?.bayzat_relationship)
-        } else {
-          console.log('No data returned from main query')
-        }
+        // Transform the data to flatten the company_search_flat fields
+        const transformedData = data?.map(company => ({
+          ...company,
+          has_erp: company.company_search_flat?.[0]?.has_erp || false,
+          has_hris: company.company_search_flat?.[0]?.has_hris || false,
+          has_accounting: company.company_search_flat?.[0]?.has_accounting || false,
+          has_payroll: company.company_search_flat?.[0]?.has_payroll || false,
+        })) || []
         
-        return data || []
+        console.log('Transformed data:', transformedData)
+        return transformedData
       } catch (err) {
         console.error('Fetch error:', err)
         throw err
@@ -106,8 +121,6 @@ export function useCompaniesData() {
   console.log('Error:', error)
   console.log('Companies data:', companies)
   console.log('Companies length:', companies?.length)
-  console.log('Companies is undefined:', companies === undefined)
-  console.log('Companies is null:', companies === null)
 
   return {
     companies,
@@ -116,6 +129,8 @@ export function useCompaniesData() {
     searchTerm,
     setSearchTerm,
     selectedFilter,
-    setSelectedFilter
+    setSelectedFilter,
+    systemFilters,
+    setSystemFilters
   }
 }
