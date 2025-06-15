@@ -37,12 +37,24 @@ export function useCompaniesData() {
         let query = supabase
           .from('companies2')
           .select(`
-            *,
+            id,
+            company_name,
+            website_url,
+            industry,
+            headquarter,
+            employee_count,
+            bayzat_relationship,
+            ai_analysis,
+            description,
+            founded_year,
             company_search_flat!inner(
               has_erp,
               has_hris,
               has_accounting,
-              has_payroll
+              has_payroll,
+              automation_hr,
+              automation_finance,
+              automation_overall
             )
           `)
 
