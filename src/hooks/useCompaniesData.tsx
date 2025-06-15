@@ -14,7 +14,7 @@ export type Company = {
   ai_analysis?: any
   description?: string
   founded_year?: number
-  // Fields from company_search_flat
+  // Fields from ai_analysis extraction
   has_erp?: boolean
   has_hris?: boolean
   has_accounting?: boolean
@@ -42,6 +42,17 @@ export type AutomationFilter = {
   department?: 'overall' | 'hr' | 'finance'
 }
 
+// Helper functions to extract data from ai_analysis
+const extractSystemBoolean = (aiAnalysis: any, systemName: string): boolean => {
+  if (!aiAnalysis?.systems?.[systemName]) return false
+  return aiAnalysis.systems[systemName].name !== "None"
+}
+
+const extractAutomationScore = (aiAnalysis: any, department: string): number => {
+  if (!aiAnalysis?.automation_level) return 0
+  return aiAnalysis.automation_level[department] || 0
+}
+
 export function useCompaniesData() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedFilter, setSelectedFilter] = useState("")
@@ -60,92 +71,48 @@ export function useCompaniesData() {
       console.log('Automation filter:', automationFilter)
       
       try {
-        // Start with base query from company_search_flat and join companies2
+        // Query directly from companies2 table
         let query = supabase
-          .from('company_search_flat')
+          .from('companies2')
           .select(`
-            company_id,
-            has_erp,
-            has_hris,
-            has_accounting,
-            has_payroll,
-            automation_overall,
-            automation_hr,
-            automation_finance,
-            companies2!inner(
-              id,
-              company_name,
-              website_url,
-              industry,
-              headquarter,
-              employee_count,
-              bayzat_relationship,
-              ai_analysis,
-              description,
-              founded_year
-            )
+            id,
+            company_name,
+            website_url,
+            industry,
+            headquarter,
+            employee_count,
+            bayzat_relationship,
+            ai_analysis,
+            description,
+            founded_year
           `)
 
-        // Apply search filter on the joined table
+        // Apply search filter
         if (searchTerm && searchTerm.trim()) {
           console.log('Applying search filter for:', searchTerm)
-          query = query.or(`companies2.company_name.ilike.%${searchTerm}%,companies2.description.ilike.%${searchTerm}%,companies2.industry.ilike.%${searchTerm}%`)
+          query = query.or(`company_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
         }
 
         // Apply legacy relationship filters
         if (selectedFilter && selectedFilter.trim() && selectedFilter !== "all") {
           console.log('Applying specific filter:', selectedFilter)
           if (selectedFilter === "Customers Only") {
-            query = query.eq('companies2.bayzat_relationship', 'customer')
+            query = query.eq('bayzat_relationship', 'customer')
           } else if (selectedFilter === "Prospects Only") {
-            query = query.eq('companies2.bayzat_relationship', 'prospect')
+            query = query.eq('bayzat_relationship', 'prospect')
           } else if (selectedFilter === "Legacy Systems") {
-            query = query.lt('companies2.founded_year', 2015)
+            query = query.lt('founded_year', 2015)
           }
-        }
-
-        // Apply systems filters
-        if (systemsFilter.erp !== null && systemsFilter.erp !== undefined) {
-          query = query.eq('has_erp', systemsFilter.erp)
-          console.log(`Applied ERP filter: ${systemsFilter.erp}`)
-        }
-        if (systemsFilter.hris !== null && systemsFilter.hris !== undefined) {
-          query = query.eq('has_hris', systemsFilter.hris)
-          console.log(`Applied HRIS filter: ${systemsFilter.hris}`)
-        }
-        if (systemsFilter.accounting !== null && systemsFilter.accounting !== undefined) {
-          query = query.eq('has_accounting', systemsFilter.accounting)
-          console.log(`Applied Accounting filter: ${systemsFilter.accounting}`)
-        }
-        if (systemsFilter.payroll !== null && systemsFilter.payroll !== undefined) {
-          query = query.eq('has_payroll', systemsFilter.payroll)
-          console.log(`Applied Payroll filter: ${systemsFilter.payroll}`)
         }
 
         // Apply employee count filter
         if (employeeCountFilter.min !== undefined) {
-          query = query.gte('companies2.employee_count', employeeCountFilter.min)
+          query = query.gte('employee_count', employeeCountFilter.min)
           console.log(`Applied employee count min filter: ${employeeCountFilter.min}`)
         }
         if (employeeCountFilter.max !== undefined) {
-          query = query.lte('companies2.employee_count', employeeCountFilter.max)
+          query = query.lte('employee_count', employeeCountFilter.max)
           console.log(`Applied employee count max filter: ${employeeCountFilter.max}`)
-        }
-
-        // Apply automation score filter
-        if (automationFilter.min !== undefined || automationFilter.max !== undefined) {
-          const automationColumn = automationFilter.department === 'hr' ? 'automation_hr' :
-                                  automationFilter.department === 'finance' ? 'automation_finance' :
-                                  'automation_overall'
-          
-          if (automationFilter.min !== undefined) {
-            query = query.gte(automationColumn, automationFilter.min)
-            console.log(`Applied automation min filter: ${automationColumn} >= ${automationFilter.min}`)
-          }
-          if (automationFilter.max !== undefined) {
-            query = query.lte(automationColumn, automationFilter.max)
-            console.log(`Applied automation max filter: ${automationColumn} <= ${automationFilter.max}`)
-          }
         }
 
         console.log('Executing main query...')
@@ -160,32 +127,67 @@ export function useCompaniesData() {
         console.log('Raw data received:', data)
         console.log('Number of records:', data?.length || 0)
         
-        // Transform the data to flatten the joined fields
-        const transformedData: Company[] = (data || []).map(item => {
-          // Since companies2 is joined with !inner, it should be a single object, not an array
-          const company = Array.isArray(item.companies2) ? item.companies2[0] : item.companies2
-          
-          return {
-            id: company.id,
-            company_name: company.company_name,
-            website_url: company.website_url,
-            industry: company.industry,
-            headquarter: company.headquarter,
-            employee_count: company.employee_count,
-            bayzat_relationship: company.bayzat_relationship,
-            ai_analysis: company.ai_analysis,
-            description: company.description,
-            founded_year: company.founded_year,
-            has_erp: item.has_erp,
-            has_hris: item.has_hris,
-            has_accounting: item.has_accounting,
-            has_payroll: item.has_payroll,
-            automation_overall: item.automation_overall,
-            automation_hr: item.automation_hr,
-            automation_finance: item.automation_finance,
+        // Transform the data and extract systems/automation info from ai_analysis
+        let transformedData: Company[] = (data || []).map(item => {
+          const company: Company = {
+            id: item.id,
+            company_name: item.company_name,
+            website_url: item.website_url,
+            industry: item.industry,
+            headquarter: item.headquarter,
+            employee_count: item.employee_count,
+            bayzat_relationship: item.bayzat_relationship,
+            ai_analysis: item.ai_analysis,
+            description: item.description,
+            founded_year: item.founded_year,
+            // Extract systems data from ai_analysis
+            has_erp: extractSystemBoolean(item.ai_analysis, 'ERP'),
+            has_hris: extractSystemBoolean(item.ai_analysis, 'HRIS'),
+            has_accounting: extractSystemBoolean(item.ai_analysis, 'Accounting'),
+            has_payroll: extractSystemBoolean(item.ai_analysis, 'Payroll'),
+            // Extract automation scores from ai_analysis
+            automation_overall: extractAutomationScore(item.ai_analysis, 'overall'),
+            automation_hr: extractAutomationScore(item.ai_analysis, 'hr'),
+            automation_finance: extractAutomationScore(item.ai_analysis, 'finance'),
           }
+          return company
         })
+
+        // Apply systems filters on the transformed data
+        if (systemsFilter.erp !== null && systemsFilter.erp !== undefined) {
+          transformedData = transformedData.filter(company => company.has_erp === systemsFilter.erp)
+          console.log(`Applied ERP filter: ${systemsFilter.erp}`)
+        }
+        if (systemsFilter.hris !== null && systemsFilter.hris !== undefined) {
+          transformedData = transformedData.filter(company => company.has_hris === systemsFilter.hris)
+          console.log(`Applied HRIS filter: ${systemsFilter.hris}`)
+        }
+        if (systemsFilter.accounting !== null && systemsFilter.accounting !== undefined) {
+          transformedData = transformedData.filter(company => company.has_accounting === systemsFilter.accounting)
+          console.log(`Applied Accounting filter: ${systemsFilter.accounting}`)
+        }
+        if (systemsFilter.payroll !== null && systemsFilter.payroll !== undefined) {
+          transformedData = transformedData.filter(company => company.has_payroll === systemsFilter.payroll)
+          console.log(`Applied Payroll filter: ${systemsFilter.payroll}`)
+        }
+
+        // Apply automation score filter on the transformed data
+        if (automationFilter.min !== undefined || automationFilter.max !== undefined) {
+          const automationField = automationFilter.department === 'hr' ? 'automation_hr' :
+                                  automationFilter.department === 'finance' ? 'automation_finance' :
+                                  'automation_overall'
+          
+          transformedData = transformedData.filter(company => {
+            const score = company[automationField as keyof Company] as number || 0
+            const meetsMin = automationFilter.min === undefined || score >= automationFilter.min
+            const meetsMax = automationFilter.max === undefined || score <= automationFilter.max
+            return meetsMin && meetsMax
+          })
+          
+          console.log(`Applied automation filter: ${automationField} min=${automationFilter.min} max=${automationFilter.max}`)
+        }
         
+        console.log('Filtered data length:', transformedData.length)
         return transformedData
       } catch (err) {
         console.error('Fetch error:', err)
