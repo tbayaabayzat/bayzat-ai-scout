@@ -46,18 +46,10 @@ export function useCompaniesData() {
       console.log('System filter:', systemFilter)
       
       try {
-        // Use direct Supabase query with explicit foreign key join
+        // First, let's try a simple query on companies2 without joins
         const result = await supabase
           .from('companies2')
-          .select(`
-            *,
-            company_search_flat:company_search_flat!company_search_flat_company_id_fkey(
-              has_erp,
-              has_hris,
-              has_accounting,
-              has_payroll
-            )
-          `)
+          .select('*')
           .limit(100)
 
         if (result.error) {
@@ -74,21 +66,14 @@ export function useCompaniesData() {
         console.log('Raw data received:', result.data)
         console.log('Number of records:', result.data?.length || 0)
         
-        // Transform and filter the data
+        // Transform the data - for now, we'll set all system flags to false since we don't have the relationship working
         let transformedData = result.data?.map(company => {
-          const searchFlat = (company.company_search_flat as any)?.[0] || {
+          return {
+            ...company,
             has_erp: false,
             has_hris: false,
             has_accounting: false,
-            has_payroll: false
-          }
-          
-          return {
-            ...company,
-            has_erp: searchFlat.has_erp || false,
-            has_hris: searchFlat.has_hris || false,
-            has_accounting: searchFlat.has_accounting || false,
-            has_payroll: searchFlat.has_payroll || false,
+            has_payroll: false,
           }
         }) || []
 
@@ -120,14 +105,8 @@ export function useCompaniesData() {
         
         if (activeSystemFilters.length > 0) {
           console.log('Applying system filters:', activeSystemFilters)
-          filteredData = transformedData.filter(company => {
-            return activeSystemFilters.every(([key]) => {
-              const systemKey = key as keyof SystemFilter
-              const hasSystem = company[systemKey] === true
-              console.log(`Company ${company.company_name} - ${systemKey}: ${company[systemKey]} -> ${hasSystem}`)
-              return hasSystem
-            })
-          })
+          // Since we don't have system data yet, return empty array when filters are applied
+          filteredData = []
           console.log('Filtered data count after system filters:', filteredData.length)
         }
         
