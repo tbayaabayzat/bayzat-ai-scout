@@ -10,7 +10,13 @@ export default function Companies() {
     isLoading,
     error,
     setSearchTerm,
-    setSelectedFilter
+    setSelectedFilter,
+    systemsFilter,
+    setSystemsFilter,
+    employeeCountFilter,
+    setEmployeeCountFilter,
+    automationFilter,
+    setAutomationFilter
   } = useCompaniesData()
 
   return (
@@ -20,6 +26,12 @@ export default function Companies() {
       <CompaniesFilters
         onSearch={setSearchTerm}
         onFilterSelect={setSelectedFilter}
+        systemsFilter={systemsFilter}
+        onSystemsFilterChange={setSystemsFilter}
+        employeeCountFilter={employeeCountFilter}
+        onEmployeeCountFilterChange={setEmployeeCountFilter}
+        automationFilter={automationFilter}
+        onAutomationFilterChange={setAutomationFilter}
       />
 
       <CompaniesTable

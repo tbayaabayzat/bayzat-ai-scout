@@ -14,31 +14,74 @@ export type Company = {
   ai_analysis?: any
   description?: string
   founded_year?: number
+  // Fields from company_search_flat
+  has_erp?: boolean
+  has_hris?: boolean
+  has_accounting?: boolean
+  has_payroll?: boolean
+  automation_overall?: number
+  automation_hr?: number
+  automation_finance?: number
+}
+
+export type SystemsFilter = {
+  erp?: boolean | null // null = don't filter, true = has, false = missing
+  hris?: boolean | null
+  accounting?: boolean | null
+  payroll?: boolean | null
+}
+
+export type EmployeeCountFilter = {
+  min?: number
+  max?: number
+}
+
+export type AutomationFilter = {
+  min?: number
+  max?: number
+  department?: 'overall' | 'hr' | 'finance'
 }
 
 export function useCompaniesData() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedFilter, setSelectedFilter] = useState("")
+  const [systemsFilter, setSystemsFilter] = useState<SystemsFilter>({})
+  const [employeeCountFilter, setEmployeeCountFilter] = useState<EmployeeCountFilter>({})
+  const [automationFilter, setAutomationFilter] = useState<AutomationFilter>({})
 
   const { data: companies, isLoading, error } = useQuery({
-    queryKey: ['companies', searchTerm, selectedFilter],
+    queryKey: ['companies', searchTerm, selectedFilter, systemsFilter, employeeCountFilter, automationFilter],
     queryFn: async () => {
       console.log('=== Starting companies fetch ===')
       console.log('Search term:', searchTerm)
       console.log('Selected filter:', selectedFilter)
+      console.log('Systems filter:', systemsFilter)
+      console.log('Employee count filter:', employeeCountFilter)
+      console.log('Automation filter:', automationFilter)
       
       try {
         let query = supabase
           .from('companies2')
-          .select('*')
+          .select(`
+            *,
+            company_search_flat!inner(
+              has_erp,
+              has_hris,
+              has_accounting,
+              has_payroll,
+              automation_overall,
+              automation_hr,
+              automation_finance
+            )
+          `)
 
-        // Apply search filter only if search term is provided
+        // Apply search filter
         if (searchTerm && searchTerm.trim()) {
           console.log('Applying search filter for:', searchTerm)
           query = query.or(`company_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
         }
 
-        // Apply specific filters only if a filter is actually selected
+        // Apply legacy relationship filters
         if (selectedFilter && selectedFilter.trim()) {
           console.log('Applying specific filter:', selectedFilter)
           if (selectedFilter === "Customers Only") {
@@ -48,20 +91,48 @@ export function useCompaniesData() {
           } else if (selectedFilter === "Legacy Systems") {
             query = query.lt('founded_year', 2015)
           }
-        } else {
-          console.log('No specific filter applied - showing all companies')
+        }
+
+        // Apply systems filters
+        Object.entries(systemsFilter).forEach(([system, value]) => {
+          if (value !== null && value !== undefined) {
+            const columnName = `company_search_flat.has_${system}`
+            query = query.eq(columnName, value)
+            console.log(`Applied systems filter: ${columnName} = ${value}`)
+          }
+        })
+
+        // Apply employee count filter
+        if (employeeCountFilter.min !== undefined) {
+          query = query.gte('employee_count', employeeCountFilter.min)
+          console.log(`Applied employee count min filter: ${employeeCountFilter.min}`)
+        }
+        if (employeeCountFilter.max !== undefined) {
+          query = query.lte('employee_count', employeeCountFilter.max)
+          console.log(`Applied employee count max filter: ${employeeCountFilter.max}`)
+        }
+
+        // Apply automation score filter
+        if (automationFilter.min !== undefined || automationFilter.max !== undefined) {
+          const automationColumn = automationFilter.department === 'hr' ? 'company_search_flat.automation_hr' :
+                                  automationFilter.department === 'finance' ? 'company_search_flat.automation_finance' :
+                                  'company_search_flat.automation_overall'
+          
+          if (automationFilter.min !== undefined) {
+            query = query.gte(automationColumn, automationFilter.min)
+            console.log(`Applied automation min filter: ${automationColumn} >= ${automationFilter.min}`)
+          }
+          if (automationFilter.max !== undefined) {
+            query = query.lte(automationColumn, automationFilter.max)
+            console.log(`Applied automation max filter: ${automationColumn} <= ${automationFilter.max}`)
+          }
         }
 
         console.log('Executing main query...')
         const { data, error } = await query.limit(100)
         
         if (error) {
-          console.error('Main query error details:', {
-            message: error.message,
-            details: error.details,
-            hint: error.hint,
-            code: error.code
-          })
+          console.error('Main query error details:', error)
           throw error
         }
         
@@ -69,30 +140,19 @@ export function useCompaniesData() {
         console.log('Raw data received:', data)
         console.log('Number of records:', data?.length || 0)
         
-        if (data && data.length > 0) {
-          console.log('Sample record structure:')
-          console.log('- Full record:', data[0])
-          console.log('- Company name:', data[0]?.company_name)
-          console.log('- AI analysis exists:', !!data[0]?.ai_analysis)
-          console.log('- AI analysis type:', typeof data[0]?.ai_analysis)
-          console.log('- AI analysis structure:', data[0]?.ai_analysis)
-          
-          // Check for automation data specifically with proper type checking
-          if (data[0]?.ai_analysis && typeof data[0].ai_analysis === 'object') {
-            const aiAnalysis = data[0].ai_analysis as any
-            console.log('- Automation level exists:', !!aiAnalysis?.automation_level)
-            console.log('- Automation level structure:', aiAnalysis?.automation_level)
-            console.log('- Systems inventory exists:', !!aiAnalysis?.systems)
-            console.log('- Systems inventory structure:', aiAnalysis?.systems)
-          }
-          
-          // Check relationship field
-          console.log('- Bayzat relationship:', data[0]?.bayzat_relationship)
-        } else {
-          console.log('No data returned from main query')
-        }
+        // Transform the data to flatten the joined fields
+        const transformedData = data?.map(company => ({
+          ...company,
+          has_erp: company.company_search_flat?.[0]?.has_erp,
+          has_hris: company.company_search_flat?.[0]?.has_hris,
+          has_accounting: company.company_search_flat?.[0]?.has_accounting,
+          has_payroll: company.company_search_flat?.[0]?.has_payroll,
+          automation_overall: company.company_search_flat?.[0]?.automation_overall,
+          automation_hr: company.company_search_flat?.[0]?.automation_hr,
+          automation_finance: company.company_search_flat?.[0]?.automation_finance,
+        })) || []
         
-        return data || []
+        return transformedData
       } catch (err) {
         console.error('Fetch error:', err)
         throw err
@@ -100,14 +160,12 @@ export function useCompaniesData() {
     }
   })
 
-  // Debug logging with better undefined handling
+  // Debug logging
   console.log('=== Component render state ===')
   console.log('Loading:', isLoading)
   console.log('Error:', error)
   console.log('Companies data:', companies)
   console.log('Companies length:', companies?.length)
-  console.log('Companies is undefined:', companies === undefined)
-  console.log('Companies is null:', companies === null)
 
   return {
     companies,
@@ -116,6 +174,12 @@ export function useCompaniesData() {
     searchTerm,
     setSearchTerm,
     selectedFilter,
-    setSelectedFilter
+    setSelectedFilter,
+    systemsFilter,
+    setSystemsFilter,
+    employeeCountFilter,
+    setEmployeeCountFilter,
+    automationFilter,
+    setAutomationFilter
   }
 }
