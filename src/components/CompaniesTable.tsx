@@ -7,7 +7,7 @@ import { CompanyDescriptionCell } from "@/components/CompanyDescriptionCell"
 import { AutomationScorePopover } from "@/components/AutomationScorePopover"
 import { SystemsDisplay } from "@/components/SystemsDisplay"
 import { CompanyDetailSheet } from "@/components/company-detail/CompanyDetailSheet"
-import { Company } from "@/hooks/useCompaniesData"
+import { Company } from "@/types/company"
 
 interface CompaniesTableProps {
   companies: Company[]

@@ -1,11 +1,10 @@
-
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Bot, Cpu, Database, FileSpreadsheet, Workflow } from "lucide-react"
-import { AutomationFilter } from "@/hooks/useCompaniesData"
+import { AutomationFilter } from "@/types/company"
 
 interface AutomationScoreFilterProps {
   automationFilter: AutomationFilter

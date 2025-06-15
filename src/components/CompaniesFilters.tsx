@@ -1,9 +1,8 @@
-
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AdvancedFilters } from "@/components/AdvancedFilters"
-import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/hooks/useCompaniesData"
+import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/types/company"
 
 interface CompaniesFiltersProps {
   onSearch: (term: string) => void

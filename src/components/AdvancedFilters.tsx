@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { ChevronDown, Database, Users, X, Filter } from "lucide-react"
-import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/hooks/useCompaniesData"
+import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/types/company"
 import { AutomationScoreFilter } from "@/components/AutomationScoreFilter"
 
 interface AdvancedFiltersProps {
