@@ -6,25 +6,16 @@ import { DataTable } from "@/components/ui/data-table"
 import { CompanyDescriptionCell } from "@/components/CompanyDescriptionCell"
 import { AutomationScorePopover } from "@/components/AutomationScorePopover"
 import { SystemsDisplay } from "@/components/SystemsDisplay"
-import { SystemColumnFilter } from "@/components/SystemColumnFilter"
 import { CompanyDetailSheet } from "@/components/company-detail/CompanyDetailSheet"
-import { Company, SystemFilter } from "@/hooks/useCompaniesData"
+import { Company } from "@/hooks/useCompaniesData"
 
 interface CompaniesTableProps {
   companies: Company[]
   isLoading: boolean
   error: any
-  systemFilter: SystemFilter
-  onSystemFilterChange: (filter: SystemFilter) => void
 }
 
-export function CompaniesTable({ 
-  companies, 
-  isLoading, 
-  error, 
-  systemFilter, 
-  onSystemFilterChange 
-}: CompaniesTableProps) {
+export function CompaniesTable({ companies, isLoading, error }: CompaniesTableProps) {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
 
@@ -166,15 +157,7 @@ export function CompaniesTable({
     },
     {
       id: "systems",
-      header: () => (
-        <div className="flex items-center space-x-2">
-          <span>Systems</span>
-          <SystemColumnFilter
-            systemFilter={systemFilter}
-            onSystemFilterChange={onSystemFilterChange}
-          />
-        </div>
-      ),
+      header: "Systems",
       cell: ({ row }) => {
         // Based on the schema, systems are in the systems object
         let systems = null

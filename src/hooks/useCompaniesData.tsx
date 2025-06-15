@@ -14,117 +14,85 @@ export type Company = {
   ai_analysis?: any
   description?: string
   founded_year?: number
-  has_erp?: boolean
-  has_hris?: boolean
-  has_accounting?: boolean
-  has_payroll?: boolean
-}
-
-export type SystemFilter = {
-  has_erp: boolean
-  has_hris: boolean
-  has_accounting: boolean
-  has_payroll: boolean
 }
 
 export function useCompaniesData() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedFilter, setSelectedFilter] = useState("")
-  const [systemFilter, setSystemFilter] = useState<SystemFilter>({
-    has_erp: false,
-    has_hris: false,
-    has_accounting: false,
-    has_payroll: false
-  })
 
   const { data: companies, isLoading, error } = useQuery({
-    queryKey: ['companies', searchTerm, selectedFilter, systemFilter],
+    queryKey: ['companies', searchTerm, selectedFilter],
     queryFn: async () => {
       console.log('=== Starting companies fetch ===')
       console.log('Search term:', searchTerm)
       console.log('Selected filter:', selectedFilter)
-      console.log('System filter:', systemFilter)
       
       try {
-        // Query companies2 table directly
-        const result = await supabase
+        let query = supabase
           .from('companies2')
           .select('*')
-          .limit(100)
 
-        if (result.error) {
-          console.error('Query error details:', {
-            message: result.error.message,
-            details: result.error.details,
-            hint: result.error.hint,
-            code: result.error.code
-          })
-          throw result.error
-        }
-        
-        console.log('Query successful!')
-        console.log('Raw data received:', result.data)
-        console.log('Number of records:', result.data?.length || 0)
-        
-        // Transform the data and extract system information from ai_analysis
-        let transformedData = result.data?.map(company => {
-          // Safely extract system information from ai_analysis.systems
-          let systems: any = {}
-          
-          if (company.ai_analysis && typeof company.ai_analysis === 'object' && company.ai_analysis !== null) {
-            const analysisData = company.ai_analysis as any
-            systems = analysisData.systems || {}
-          }
-          
-          return {
-            ...company,
-            has_erp: Boolean(systems.erp || systems.ERP),
-            has_hris: Boolean(systems.hris || systems.HRIS || systems.hr),
-            has_accounting: Boolean(systems.accounting || systems.finance),
-            has_payroll: Boolean(systems.payroll),
-          }
-        }) || []
-
-        console.log('Transformed data sample:', transformedData[0])
-
-        // Apply search filter client-side if needed
+        // Apply search filter only if search term is provided
         if (searchTerm && searchTerm.trim()) {
-          transformedData = transformedData.filter(company =>
-            company.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            company.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            company.industry?.toLowerCase().includes(searchTerm.toLowerCase())
-          )
+          console.log('Applying search filter for:', searchTerm)
+          query = query.or(`company_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
         }
 
-        // Apply specific filters client-side if needed
+        // Apply specific filters only if a filter is actually selected
         if (selectedFilter && selectedFilter.trim()) {
+          console.log('Applying specific filter:', selectedFilter)
           if (selectedFilter === "Customers Only") {
-            transformedData = transformedData.filter(company => company.bayzat_relationship === 'customer')
+            query = query.eq('bayzat_relationship', 'customer')
           } else if (selectedFilter === "Prospects Only") {
-            transformedData = transformedData.filter(company => company.bayzat_relationship === 'prospect')
+            query = query.eq('bayzat_relationship', 'prospect')
           } else if (selectedFilter === "Legacy Systems") {
-            transformedData = transformedData.filter(company => company.founded_year && company.founded_year < 2015)
+            query = query.lt('founded_year', 2015)
           }
+        } else {
+          console.log('No specific filter applied - showing all companies')
         }
 
-        // Apply system filters client-side
-        let filteredData = transformedData
-        const activeSystemFilters = Object.entries(systemFilter).filter(([_, value]) => value)
+        console.log('Executing main query...')
+        const { data, error } = await query.limit(100)
         
-        if (activeSystemFilters.length > 0) {
-          console.log('Applying system filters:', activeSystemFilters)
-          filteredData = transformedData.filter(company => {
-            return activeSystemFilters.every(([key]) => {
-              const systemKey = key as keyof SystemFilter
-              const hasSystem = company[systemKey] === true
-              console.log(`Company ${company.company_name} - ${systemKey}: ${company[systemKey]} -> ${hasSystem}`)
-              return hasSystem
-            })
+        if (error) {
+          console.error('Main query error details:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
           })
-          console.log('Filtered data count after system filters:', filteredData.length)
+          throw error
         }
         
-        return filteredData
+        console.log('Main query successful!')
+        console.log('Raw data received:', data)
+        console.log('Number of records:', data?.length || 0)
+        
+        if (data && data.length > 0) {
+          console.log('Sample record structure:')
+          console.log('- Full record:', data[0])
+          console.log('- Company name:', data[0]?.company_name)
+          console.log('- AI analysis exists:', !!data[0]?.ai_analysis)
+          console.log('- AI analysis type:', typeof data[0]?.ai_analysis)
+          console.log('- AI analysis structure:', data[0]?.ai_analysis)
+          
+          // Check for automation data specifically with proper type checking
+          if (data[0]?.ai_analysis && typeof data[0].ai_analysis === 'object') {
+            const aiAnalysis = data[0].ai_analysis as any
+            console.log('- Automation level exists:', !!aiAnalysis?.automation_level)
+            console.log('- Automation level structure:', aiAnalysis?.automation_level)
+            console.log('- Systems inventory exists:', !!aiAnalysis?.systems)
+            console.log('- Systems inventory structure:', aiAnalysis?.systems)
+          }
+          
+          // Check relationship field
+          console.log('- Bayzat relationship:', data[0]?.bayzat_relationship)
+        } else {
+          console.log('No data returned from main query')
+        }
+        
+        return data || []
       } catch (err) {
         console.error('Fetch error:', err)
         throw err
@@ -138,6 +106,8 @@ export function useCompaniesData() {
   console.log('Error:', error)
   console.log('Companies data:', companies)
   console.log('Companies length:', companies?.length)
+  console.log('Companies is undefined:', companies === undefined)
+  console.log('Companies is null:', companies === null)
 
   return {
     companies,
@@ -146,8 +116,6 @@ export function useCompaniesData() {
     searchTerm,
     setSearchTerm,
     selectedFilter,
-    setSelectedFilter,
-    systemFilter,
-    setSystemFilter
+    setSelectedFilter
   }
 }
