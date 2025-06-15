@@ -46,7 +46,7 @@ export function useCompaniesData() {
       console.log('System filter:', systemFilter)
       
       try {
-        // First, let's try a simple query on companies2 without joins
+        // Query companies2 table directly
         const result = await supabase
           .from('companies2')
           .select('*')
@@ -66,14 +66,17 @@ export function useCompaniesData() {
         console.log('Raw data received:', result.data)
         console.log('Number of records:', result.data?.length || 0)
         
-        // Transform the data - for now, we'll set all system flags to false since we don't have the relationship working
+        // Transform the data and extract system information from ai_analysis
         let transformedData = result.data?.map(company => {
+          // Extract system information from ai_analysis.systems
+          const systems = company.ai_analysis?.systems || {}
+          
           return {
             ...company,
-            has_erp: false,
-            has_hris: false,
-            has_accounting: false,
-            has_payroll: false,
+            has_erp: Boolean(systems.erp || systems.ERP),
+            has_hris: Boolean(systems.hris || systems.HRIS || systems.hr),
+            has_accounting: Boolean(systems.accounting || systems.finance),
+            has_payroll: Boolean(systems.payroll),
           }
         }) || []
 
@@ -105,8 +108,14 @@ export function useCompaniesData() {
         
         if (activeSystemFilters.length > 0) {
           console.log('Applying system filters:', activeSystemFilters)
-          // Since we don't have system data yet, return empty array when filters are applied
-          filteredData = []
+          filteredData = transformedData.filter(company => {
+            return activeSystemFilters.every(([key]) => {
+              const systemKey = key as keyof SystemFilter
+              const hasSystem = company[systemKey] === true
+              console.log(`Company ${company.company_name} - ${systemKey}: ${company[systemKey]} -> ${hasSystem}`)
+              return hasSystem
+            })
+          })
           console.log('Filtered data count after system filters:', filteredData.length)
         }
         
