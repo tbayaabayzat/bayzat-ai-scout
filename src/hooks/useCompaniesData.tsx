@@ -68,8 +68,13 @@ export function useCompaniesData() {
         
         // Transform the data and extract system information from ai_analysis
         let transformedData = result.data?.map(company => {
-          // Extract system information from ai_analysis.systems
-          const systems = company.ai_analysis?.systems || {}
+          // Safely extract system information from ai_analysis.systems
+          let systems: any = {}
+          
+          if (company.ai_analysis && typeof company.ai_analysis === 'object' && company.ai_analysis !== null) {
+            const analysisData = company.ai_analysis as any
+            systems = analysisData.systems || {}
+          }
           
           return {
             ...company,
