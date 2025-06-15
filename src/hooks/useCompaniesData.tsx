@@ -46,68 +46,126 @@ export function useCompaniesData() {
       console.log('System filter:', systemFilter)
       
       try {
-        let query = supabase
+        // Build the SQL query with explicit JOIN
+        let sqlQuery = `
+          SELECT 
+            c.*,
+            csf.has_erp,
+            csf.has_hris,
+            csf.has_accounting,
+            csf.has_payroll
+          FROM companies2 c
+          LEFT JOIN company_search_flat csf ON c.id = csf.company_id
+          WHERE 1=1
+        `
+        
+        const params: any[] = []
+        let paramCounter = 1
+
+        // Apply search filter
+        if (searchTerm && searchTerm.trim()) {
+          console.log('Applying search filter for:', searchTerm)
+          sqlQuery += ` AND (
+            c.company_name ILIKE $${paramCounter} OR 
+            c.description ILIKE $${paramCounter} OR 
+            c.industry ILIKE $${paramCounter}
+          )`
+          params.push(`%${searchTerm}%`)
+          paramCounter++
+        }
+
+        // Apply specific filters
+        if (selectedFilter && selectedFilter.trim()) {
+          console.log('Applying specific filter:', selectedFilter)
+          if (selectedFilter === "Customers Only") {
+            sqlQuery += ` AND c.bayzat_relationship = $${paramCounter}`
+            params.push('customer')
+            paramCounter++
+          } else if (selectedFilter === "Prospects Only") {
+            sqlQuery += ` AND c.bayzat_relationship = $${paramCounter}`
+            params.push('prospect')
+            paramCounter++
+          } else if (selectedFilter === "Legacy Systems") {
+            sqlQuery += ` AND c.founded_year < $${paramCounter}`
+            params.push(2015)
+            paramCounter++
+          }
+        }
+
+        sqlQuery += ` LIMIT 100`
+
+        console.log('Executing SQL query:', sqlQuery)
+        console.log('With params:', params)
+
+        const { data, error } = await supabase.rpc('', {}, { 
+          get: false,
+          post: true,
+          body: {
+            query: sqlQuery,
+            params: params
+          }
+        }).select('*')
+
+        // Fallback to using the SQL directly via rpc call
+        const result = await supabase
           .from('companies2')
           .select(`
             *,
-            company_search_flat(
+            company_search_flat:company_search_flat!company_search_flat_company_id_fkey(
               has_erp,
               has_hris,
               has_accounting,
               has_payroll
             )
           `)
+          .limit(100)
 
-        // Apply search filter only if search term is provided
-        if (searchTerm && searchTerm.trim()) {
-          console.log('Applying search filter for:', searchTerm)
-          query = query.or(`company_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
-        }
-
-        // Apply specific filters only if a filter is actually selected
-        if (selectedFilter && selectedFilter.trim()) {
-          console.log('Applying specific filter:', selectedFilter)
-          if (selectedFilter === "Customers Only") {
-            query = query.eq('bayzat_relationship', 'customer')
-          } else if (selectedFilter === "Prospects Only") {
-            query = query.eq('bayzat_relationship', 'prospect')
-          } else if (selectedFilter === "Legacy Systems") {
-            query = query.lt('founded_year', 2015)
-          }
-        }
-
-        console.log('Executing main query...')
-        const { data, error } = await query.limit(100)
-        
-        if (error) {
-          console.error('Main query error details:', {
-            message: error.message,
-            details: error.details,
-            hint: error.hint,
-            code: error.code
+        if (result.error) {
+          console.error('Query error details:', {
+            message: result.error.message,
+            details: result.error.details,
+            hint: result.error.hint,
+            code: result.error.code
           })
-          throw error
+          throw result.error
         }
         
-        console.log('Main query successful!')
-        console.log('Raw data received:', data)
-        console.log('Number of records:', data?.length || 0)
+        console.log('Query successful!')
+        console.log('Raw data received:', result.data)
+        console.log('Number of records:', result.data?.length || 0)
         
-        // Transform data to flatten company_search_flat fields
-        const transformedData = data?.map(company => {
-          // Get the first (and should be only) company_search_flat record
-          const searchFlat = Array.isArray(company.company_search_flat) 
-            ? company.company_search_flat[0] 
-            : company.company_search_flat
-
+        // Transform and filter the data
+        let transformedData = result.data?.map(company => {
+          const searchFlat = company.company_search_flat?.[0] || {}
+          
           return {
             ...company,
-            has_erp: searchFlat?.has_erp || false,
-            has_hris: searchFlat?.has_hris || false,
-            has_accounting: searchFlat?.has_accounting || false,
-            has_payroll: searchFlat?.has_payroll || false,
+            has_erp: searchFlat.has_erp || false,
+            has_hris: searchFlat.has_hris || false,
+            has_accounting: searchFlat.has_accounting || false,
+            has_payroll: searchFlat.has_payroll || false,
           }
         }) || []
+
+        // Apply search filter client-side if needed
+        if (searchTerm && searchTerm.trim()) {
+          transformedData = transformedData.filter(company =>
+            company.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            company.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            company.industry?.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        }
+
+        // Apply specific filters client-side if needed
+        if (selectedFilter && selectedFilter.trim()) {
+          if (selectedFilter === "Customers Only") {
+            transformedData = transformedData.filter(company => company.bayzat_relationship === 'customer')
+          } else if (selectedFilter === "Prospects Only") {
+            transformedData = transformedData.filter(company => company.bayzat_relationship === 'prospect')
+          } else if (selectedFilter === "Legacy Systems") {
+            transformedData = transformedData.filter(company => company.founded_year && company.founded_year < 2015)
+          }
+        }
 
         // Apply system filters client-side
         let filteredData = transformedData
