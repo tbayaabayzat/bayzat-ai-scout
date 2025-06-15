@@ -50,7 +50,7 @@ export function useCompaniesData() {
           .from('companies2')
           .select(`
             *,
-            company_search_flat!inner(
+            company_search_flat(
               has_erp,
               has_hris,
               has_accounting,
@@ -94,13 +94,20 @@ export function useCompaniesData() {
         console.log('Number of records:', data?.length || 0)
         
         // Transform data to flatten company_search_flat fields
-        const transformedData = data?.map(company => ({
-          ...company,
-          has_erp: company.company_search_flat?.has_erp || false,
-          has_hris: company.company_search_flat?.has_hris || false,
-          has_accounting: company.company_search_flat?.has_accounting || false,
-          has_payroll: company.company_search_flat?.has_payroll || false,
-        })) || []
+        const transformedData = data?.map(company => {
+          // Get the first (and should be only) company_search_flat record
+          const searchFlat = Array.isArray(company.company_search_flat) 
+            ? company.company_search_flat[0] 
+            : company.company_search_flat
+
+          return {
+            ...company,
+            has_erp: searchFlat?.has_erp || false,
+            has_hris: searchFlat?.has_hris || false,
+            has_accounting: searchFlat?.has_accounting || false,
+            has_payroll: searchFlat?.has_payroll || false,
+          }
+        }) || []
 
         // Apply system filters client-side
         let filteredData = transformedData
