@@ -64,7 +64,7 @@ export function useCompanyQuery({
         }
 
         console.log('Executing main query...')
-        const { data, error } = await query.limit(100)
+        const { data, error } = await query
         
         if (error) {
           console.error('Main query error details:', error)
