@@ -92,6 +92,8 @@ export function useCompaniesData() {
           }
         }) || []
 
+        console.log('Transformed data sample:', transformedData[0])
+
         // Apply search filter client-side if needed
         if (searchTerm && searchTerm.trim()) {
           transformedData = transformedData.filter(company =>
@@ -121,10 +123,12 @@ export function useCompaniesData() {
           filteredData = transformedData.filter(company => {
             return activeSystemFilters.every(([key]) => {
               const systemKey = key as keyof SystemFilter
-              return company[systemKey] === true
+              const hasSystem = company[systemKey] === true
+              console.log(`Company ${company.company_name} - ${systemKey}: ${company[systemKey]} -> ${hasSystem}`)
+              return hasSystem
             })
           })
-          console.log('Filtered data count:', filteredData.length)
+          console.log('Filtered data count after system filters:', filteredData.length)
         }
         
         return filteredData
