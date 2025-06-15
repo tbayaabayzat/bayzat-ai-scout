@@ -7,7 +7,6 @@ export function useCompaniesData() {
   
   const { data: companies, isLoading, error } = useCompanyQuery({
     searchTerm: filters.searchTerm,
-    selectedFilter: filters.selectedFilter,
     systemsFilter: filters.systemsFilter,
     employeeCountFilter: filters.employeeCountFilter,
     automationFilter: filters.automationFilter

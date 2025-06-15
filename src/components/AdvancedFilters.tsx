@@ -83,7 +83,7 @@ export function AdvancedFilters({
           >
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4" />
-              <span>Advanced Filters</span>
+              <span>Filters</span>
               {activeCount > 0 && (
                 <Badge variant="secondary" className="ml-2 text-xs">
                   {activeCount}

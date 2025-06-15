@@ -4,7 +4,6 @@ import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/types/co
 
 export function useCompanyFilters() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedFilter, setSelectedFilter] = useState("")
   const [systemsFilter, setSystemsFilter] = useState<SystemsFilter>({})
   const [employeeCountFilter, setEmployeeCountFilter] = useState<EmployeeCountFilter>({})
   const [automationFilter, setAutomationFilter] = useState<AutomationFilter>({})
@@ -12,8 +11,6 @@ export function useCompanyFilters() {
   return {
     searchTerm,
     setSearchTerm,
-    selectedFilter,
-    setSelectedFilter,
     systemsFilter,
     setSystemsFilter,
     employeeCountFilter,

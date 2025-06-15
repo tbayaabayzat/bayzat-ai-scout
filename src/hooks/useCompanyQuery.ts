@@ -6,7 +6,6 @@ import { transformCompanyData } from "@/utils/companyDataUtils"
 
 interface UseCompanyQueryParams {
   searchTerm: string
-  selectedFilter: string
   systemsFilter: SystemsFilter
   employeeCountFilter: EmployeeCountFilter
   automationFilter: AutomationFilter
@@ -14,17 +13,15 @@ interface UseCompanyQueryParams {
 
 export function useCompanyQuery({
   searchTerm,
-  selectedFilter,
   systemsFilter,
   employeeCountFilter,
   automationFilter
 }: UseCompanyQueryParams) {
   return useQuery({
-    queryKey: ['companies', searchTerm, selectedFilter, systemsFilter, employeeCountFilter, automationFilter],
+    queryKey: ['companies', searchTerm, systemsFilter, employeeCountFilter, automationFilter],
     queryFn: async () => {
       console.log('=== Starting companies fetch ===')
       console.log('Search term:', searchTerm)
-      console.log('Selected filter:', selectedFilter)
       console.log('Systems filter:', systemsFilter)
       console.log('Employee count filter:', employeeCountFilter)
       console.log('Automation filter:', automationFilter)
@@ -54,18 +51,6 @@ export function useCompanyQuery({
         if (searchTerm && searchTerm.trim()) {
           console.log('Applying search filter for:', searchTerm)
           query = query.or(`company_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%`)
-        }
-
-        // Apply legacy relationship filters
-        if (selectedFilter && selectedFilter.trim() && selectedFilter !== "all") {
-          console.log('Applying specific filter:', selectedFilter)
-          if (selectedFilter === "Customers Only") {
-            query = query.eq('bayzat_relationship', 'customer')
-          } else if (selectedFilter === "Prospects Only") {
-            query = query.eq('bayzat_relationship', 'prospect')
-          } else if (selectedFilter === "Legacy Systems") {
-            query = query.lt('founded_year', 2015)
-          }
         }
 
         // Apply employee count filter

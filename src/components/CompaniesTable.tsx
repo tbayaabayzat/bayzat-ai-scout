@@ -211,9 +211,7 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
         </div>
         <DataTable 
           columns={columns} 
-          data={safeCompanies} 
-          searchColumn="company_name"
-          searchPlaceholder="Search companies..."
+          data={safeCompanies}
         />
       </div>
 
