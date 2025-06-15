@@ -60,6 +60,7 @@ export function useCompaniesData() {
       console.log('Automation filter:', automationFilter)
       
       try {
+        // Start with base query using explicit join
         let query = supabase
           .from('companies2')
           .select(`
@@ -93,7 +94,7 @@ export function useCompaniesData() {
           }
         }
 
-        // Apply systems filters - fix type inference issue
+        // Apply systems filters - using explicit column references
         if (systemsFilter.erp !== null && systemsFilter.erp !== undefined) {
           query = query.eq('company_search_flat.has_erp', systemsFilter.erp)
           console.log(`Applied ERP filter: ${systemsFilter.erp}`)
