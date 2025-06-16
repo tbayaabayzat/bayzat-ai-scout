@@ -10578,6 +10578,19 @@ export type Database = {
           content: string
         }[]
       }
+      search_companies_vector_wrapper: {
+        Args: {
+          query_array: string
+          vector_type: string
+          threshold_distance: number
+          max_results: number
+        }
+        Returns: {
+          company_id: string
+          distance: number
+          content: string
+        }[]
+      }
       set_limit: {
         Args: { "": number }
         Returns: number
@@ -10605,6 +10618,19 @@ export type Database = {
       sync_employee_profile: {
         Args: { queue_id: string }
         Returns: undefined
+      }
+      test_array_to_vector: {
+        Args: {
+          query_array: number[]
+          vector_type: string
+          threshold_distance: number
+          max_results: number
+        }
+        Returns: {
+          company_id: string
+          distance: number
+          content: string
+        }[]
       }
       test_department_classification: {
         Args: { test_job_title: string }

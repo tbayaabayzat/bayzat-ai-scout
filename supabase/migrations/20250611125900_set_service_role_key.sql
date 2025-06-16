@@ -1,7 +1,6 @@
 
--- Set the service role key as a database setting
--- This allows the database functions to authenticate with edge functions
-ALTER DATABASE postgres SET app.supabase_service_role_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpxb3d3emRwdGFwZ2RvaGt2anhyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODMyODU0NiwiZXhwIjoyMDYzOTA0NTQ2fQ.wlnYFq1M8QFoXtVKCLsN9JI0q_5x9yfkxu3VHJ3YzZk';
+-- Remove the hardcoded service role key for security
+-- The service role key should be accessed through Supabase's environment variables instead
 
 -- Create a test function to verify the classification system
 CREATE OR REPLACE FUNCTION test_department_classification(test_job_title TEXT)
@@ -14,21 +13,10 @@ RETURNS TABLE(
 ) AS $$
 DECLARE
     function_response JSONB;
-    service_role_key TEXT;
     department_result TEXT;
     test_success BOOLEAN := false;
     test_error TEXT := '';
 BEGIN
-    -- Get the service role key
-    SELECT current_setting('app.supabase_service_role_key', true) INTO service_role_key;
-    
-    -- Check if we have the service role key
-    IF service_role_key IS NULL OR service_role_key = '' THEN
-        test_error := 'Service role key not available';
-        RETURN QUERY SELECT test_job_title, 'Other'::TEXT, '{}'::JSONB, false, test_error;
-        RETURN;
-    END IF;
-    
     BEGIN
         -- Call the edge function to classify the department
         SELECT content INTO function_response
@@ -36,9 +24,7 @@ BEGIN
             'POST',
             'https://zqowwzdptapgdohkvjxr.supabase.co/functions/v1/classify-employee-department',
             ARRAY[
-                http_header('Authorization', 'Bearer ' || service_role_key),
-                http_header('Content-Type', 'application/json'),
-                http_header('apikey', service_role_key)
+                http_header('Content-Type', 'application/json')
             ],
             'application/json',
             json_build_object('jobTitle', test_job_title)::text
