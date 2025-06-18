@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Plus, ExternalLink, Clock, CheckCircle, AlertCircle, Building2, Users, Handshake } from "lucide-react"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { Plus, Clock, CheckCircle, AlertCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useQuery } from "@tanstack/react-query"
@@ -105,26 +105,8 @@ export function CompanyRequestForm() {
     }
   }
 
-  const getRelationshipIcon = (relationship: string) => {
-    switch (relationship) {
-      case 'customer':
-        return <Users className="h-3 w-3" />
-      case 'partner':
-        return <Handshake className="h-3 w-3" />
-      default:
-        return <Building2 className="h-3 w-3" />
-    }
-  }
-
   const getRelationshipColor = (relationship: string): "default" | "secondary" | "outline" => {
-    switch (relationship) {
-      case 'customer':
-        return "default"
-      case 'partner':
-        return "secondary"
-      default:
-        return "outline"
-    }
+    return relationship === 'customer' ? "default" : "outline"
   }
 
   return (
@@ -148,44 +130,35 @@ export function CompanyRequestForm() {
             />
           </div>
 
-          <div className="space-y-3">
-            <Label>Relationship with Bayzat</Label>
-            <RadioGroup
+          <div className="flex items-center justify-between">
+            <ToggleGroup
+              type="single"
               value={bayzatRelationship}
-              onValueChange={setBayzatRelationship}
-              className="grid grid-cols-3 gap-4"
+              onValueChange={(value) => value && setBayzatRelationship(value)}
+              className="justify-start"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="prospect" id="prospect" />
-                <Label htmlFor="prospect" className="flex items-center gap-2 cursor-pointer">
-                  <Building2 className="h-4 w-4" />
-                  Prospect
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="customer" id="customer" />
-                <Label htmlFor="customer" className="flex items-center gap-2 cursor-pointer">
-                  <Users className="h-4 w-4" />
-                  Customer
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="partner" id="partner" />
-                <Label htmlFor="partner" className="flex items-center gap-2 cursor-pointer">
-                  <Handshake className="h-4 w-4" />
-                  Partner
-                </Label>
-              </div>
-            </RadioGroup>
-          </div>
+              <ToggleGroupItem 
+                value="prospect" 
+                className="text-sm px-4 py-2 data-[state=on]:bg-muted data-[state=on]:text-foreground"
+              >
+                Prospect
+              </ToggleGroupItem>
+              <ToggleGroupItem 
+                value="customer" 
+                className="text-sm px-4 py-2 data-[state=on]:bg-muted data-[state=on]:text-foreground"
+              >
+                Customer
+              </ToggleGroupItem>
+            </ToggleGroup>
 
-          <Button 
-            type="submit" 
-            disabled={isSubmitting || !linkedinUrl.trim()}
-            className="w-full"
-          >
-            {isSubmitting ? "Submitting..." : "Request Analysis"}
-          </Button>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || !linkedinUrl.trim()}
+              className="ml-auto"
+            >
+              {isSubmitting ? "Submitting..." : "Request Analysis"}
+            </Button>
+          </div>
         </form>
 
         {requests && requests.length > 0 && (
@@ -201,9 +174,8 @@ export function CompanyRequestForm() {
                   <div className="flex items-center gap-1">
                     <Badge 
                       variant={getRelationshipColor(request.bayzat_relationship)} 
-                      className="text-xs flex items-center gap-1"
+                      className="text-xs"
                     >
-                      {getRelationshipIcon(request.bayzat_relationship)}
                       {request.bayzat_relationship}
                     </Badge>
                     <Badge variant={getStatusColor(request.status)} className="text-xs">
