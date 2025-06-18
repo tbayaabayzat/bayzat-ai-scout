@@ -4,13 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Plus, ExternalLink, Clock, CheckCircle, AlertCircle } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Plus, ExternalLink, Clock, CheckCircle, AlertCircle, Building2, Users, Handshake } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useQuery } from "@tanstack/react-query"
 
 export function CompanyRequestForm() {
   const [linkedinUrl, setLinkedinUrl] = useState("")
+  const [bayzatRelationship, setBayzatRelationship] = useState("prospect")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
 
@@ -50,7 +53,8 @@ export function CompanyRequestForm() {
         .insert([
           {
             linkedin_url: linkedinUrl.trim(),
-            status: 'pending'
+            status: 'pending',
+            bayzat_relationship: bayzatRelationship
           }
         ])
 
@@ -58,10 +62,11 @@ export function CompanyRequestForm() {
 
       toast({
         title: "Request submitted!",
-        description: "We'll process this company profile and notify you when it's ready"
+        description: `We'll process this ${bayzatRelationship} profile and notify you when it's ready`
       })
 
       setLinkedinUrl("")
+      setBayzatRelationship("prospect")
       refetch()
     } catch (error) {
       toast({
@@ -100,6 +105,28 @@ export function CompanyRequestForm() {
     }
   }
 
+  const getRelationshipIcon = (relationship: string) => {
+    switch (relationship) {
+      case 'customer':
+        return <Users className="h-3 w-3" />
+      case 'partner':
+        return <Handshake className="h-3 w-3" />
+      default:
+        return <Building2 className="h-3 w-3" />
+    }
+  }
+
+  const getRelationshipColor = (relationship: string): "default" | "secondary" | "outline" => {
+    switch (relationship) {
+      case 'customer':
+        return "default"
+      case 'partner':
+        return "secondary"
+      default:
+        return "outline"
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -109,13 +136,49 @@ export function CompanyRequestForm() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <Input
-            placeholder="https://linkedin.com/company/example-company"
-            value={linkedinUrl}
-            onChange={(e) => setLinkedinUrl(e.target.value)}
-            disabled={isSubmitting}
-          />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="linkedin-url">LinkedIn Company URL</Label>
+            <Input
+              id="linkedin-url"
+              placeholder="https://linkedin.com/company/example-company"
+              value={linkedinUrl}
+              onChange={(e) => setLinkedinUrl(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Label>Relationship with Bayzat</Label>
+            <RadioGroup
+              value={bayzatRelationship}
+              onValueChange={setBayzatRelationship}
+              className="grid grid-cols-3 gap-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="prospect" id="prospect" />
+                <Label htmlFor="prospect" className="flex items-center gap-2 cursor-pointer">
+                  <Building2 className="h-4 w-4" />
+                  Prospect
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="customer" id="customer" />
+                <Label htmlFor="customer" className="flex items-center gap-2 cursor-pointer">
+                  <Users className="h-4 w-4" />
+                  Customer
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="partner" id="partner" />
+                <Label htmlFor="partner" className="flex items-center gap-2 cursor-pointer">
+                  <Handshake className="h-4 w-4" />
+                  Partner
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
           <Button 
             type="submit" 
             disabled={isSubmitting || !linkedinUrl.trim()}
@@ -135,9 +198,18 @@ export function CompanyRequestForm() {
                     {getStatusIcon(request.status)}
                     <span className="text-xs truncate">{request.linkedin_url}</span>
                   </div>
-                  <Badge variant={getStatusColor(request.status)} className="text-xs">
-                    {request.status}
-                  </Badge>
+                  <div className="flex items-center gap-1">
+                    <Badge 
+                      variant={getRelationshipColor(request.bayzat_relationship)} 
+                      className="text-xs flex items-center gap-1"
+                    >
+                      {getRelationshipIcon(request.bayzat_relationship)}
+                      {request.bayzat_relationship}
+                    </Badge>
+                    <Badge variant={getStatusColor(request.status)} className="text-xs">
+                      {request.status}
+                    </Badge>
+                  </div>
                 </div>
               ))}
             </div>

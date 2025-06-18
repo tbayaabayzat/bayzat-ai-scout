@@ -656,6 +656,7 @@ export type Database = {
       }
       linkedin_queue: {
         Row: {
+          bayzat_relationship: string | null
           created_at: string | null
           id: number
           linkedin_url: string
@@ -663,6 +664,7 @@ export type Database = {
           status: string | null
         }
         Insert: {
+          bayzat_relationship?: string | null
           created_at?: string | null
           id?: number
           linkedin_url: string
@@ -670,6 +672,7 @@ export type Database = {
           status?: string | null
         }
         Update: {
+          bayzat_relationship?: string | null
           created_at?: string | null
           id?: number
           linkedin_url?: string
