@@ -10416,6 +10416,10 @@ export type Database = {
         }
         Returns: string
       }
+      execute_readonly_query: {
+        Args: { query_text: string }
+        Returns: Json
+      }
       format_connection_count: {
         Args: { p_count: number }
         Returns: string
@@ -10619,6 +10623,10 @@ export type Database = {
         Args: { queue_id: string }
         Returns: undefined
       }
+      test_array_param: {
+        Args: { test_array: number[] }
+        Returns: Json
+      }
       test_array_to_vector: {
         Args: {
           query_array: number[]
@@ -10640,6 +10648,13 @@ export type Database = {
           response_raw: Json
           success: boolean
           error_message: string
+        }[]
+      }
+      test_embedding_format: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          test_name: string
+          result: string
         }[]
       }
       text_to_bytea: {
