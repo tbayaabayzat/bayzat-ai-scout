@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Companies from "./pages/Companies";
 import Employees from "./pages/Employees";
 import Research from "./pages/Research";
+import DevMenu from "./pages/DevMenu";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -29,6 +30,7 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
+                  <Route path="/dev" element={<DevMenu />} />
                   <Route
                     path="/dashboard"
                     element={
