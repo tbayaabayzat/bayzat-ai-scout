@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -19,6 +18,7 @@ export function CompanyRequestForm() {
   const [selectedCompany, setSelectedCompany] = useState(null)
   const [isCompanySheetOpen, setIsCompanySheetOpen] = useState(false)
   const [isLoadingCompany, setIsLoadingCompany] = useState(false)
+  const [loadingRequestId, setLoadingRequestId] = useState<number | null>(null)
   const { toast } = useToast()
 
   const { data: requests, refetch } = useQuery({
@@ -87,6 +87,7 @@ export function CompanyRequestForm() {
     if (request.status !== 'completed') return
 
     setIsLoadingCompany(true)
+    setLoadingRequestId(request.id)
     
     try {
       console.log('Looking up company for URL:', request.linkedin_url)
@@ -123,6 +124,14 @@ export function CompanyRequestForm() {
       })
     } finally {
       setIsLoadingCompany(false)
+      setLoadingRequestId(null)
+    }
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent, request: any) => {
+    if (request.status === 'completed' && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault()
+      handleRequestClick(request)
     }
   }
 
@@ -237,50 +246,70 @@ export function CompanyRequestForm() {
           </form>
 
           {requests && requests.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Recent Requests</h4>
-              <div className="space-y-2 max-h-40 overflow-y-auto">
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-foreground">Recent Requests</h4>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
                 {requests.map((request) => (
                   <div 
                     key={request.id} 
-                    className={`flex items-center justify-between p-2 border rounded-sm transition-colors ${
-                      request.status === 'completed' 
-                        ? 'cursor-pointer hover:bg-muted/50 hover:border-primary/20' 
-                        : ''
-                    }`}
+                    className={`
+                      group relative rounded-lg border transition-all duration-200
+                      ${request.status === 'completed' 
+                        ? 'cursor-pointer hover:border-primary/40 hover:bg-accent/50 hover:shadow-sm focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/20' 
+                        : 'cursor-default border-border bg-muted/20'
+                      }
+                    `}
                     onClick={() => handleRequestClick(request)}
+                    onKeyDown={(e) => handleKeyDown(e, request)}
                     role={request.status === 'completed' ? 'button' : undefined}
                     tabIndex={request.status === 'completed' ? 0 : undefined}
+                    aria-label={request.status === 'completed' ? `View company details for ${request.linkedin_url}` : undefined}
                   >
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      {isLoadingCompany && request.status === 'completed' ? (
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                      ) : (
-                        getStatusIcon(request.status)
-                      )}
-                      <span className="text-xs truncate">{request.linkedin_url}</span>
-                      {request.status === 'completed' && (
-                        <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Badge 
-                        variant={getRelationshipColor(request.bayzat_relationship)} 
-                        className="text-xs flex items-center gap-1"
-                      >
-                        {getRelationshipIcon(request.bayzat_relationship)}
-                        {request.bayzat_relationship}
-                      </Badge>
-                      <Badge variant={getStatusColor(request.status)} className="text-xs">
-                        {request.status}
-                      </Badge>
+                    <div className="flex items-center justify-between p-4">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="flex-shrink-0">
+                          {loadingRequestId === request.id ? (
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                          ) : (
+                            getStatusIcon(request.status)
+                          )}
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-foreground truncate font-medium">
+                            {request.linkedin_url}
+                          </p>
+                          {request.status === 'completed' && (
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              Click to view company details
+                            </p>
+                          )}
+                        </div>
+                        
+                        {request.status === 'completed' && (
+                          <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center gap-2 ml-3">
+                        <Badge 
+                          variant={getRelationshipColor(request.bayzat_relationship)} 
+                          className="text-xs flex items-center gap-1"
+                        >
+                          {getRelationshipIcon(request.bayzat_relationship)}
+                          {request.bayzat_relationship}
+                        </Badge>
+                        <Badge variant={getStatusColor(request.status)} className="text-xs">
+                          {request.status}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
               {requests.some(r => r.status === 'completed') && (
-                <p className="text-xs text-muted-foreground mt-2">
-                  Click on completed requests to view company details
+                <p className="text-xs text-muted-foreground mt-3 px-1">
+                  💡 Click on completed requests to view detailed company analysis
                 </p>
               )}
             </div>

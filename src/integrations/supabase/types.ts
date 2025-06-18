@@ -681,177 +681,6 @@ export type Database = {
         }
         Relationships: []
       }
-      llm_analysis_log: {
-        Row: {
-          company_id: string | null
-          company_name: string | null
-          id: number
-          input_prompt: string | null
-          llm_model: string | null
-          llm_name: string | null
-          llm_settings: Json | null
-          output_json: Json | null
-          timestamp: string | null
-        }
-        Insert: {
-          company_id?: string | null
-          company_name?: string | null
-          id?: number
-          input_prompt?: string | null
-          llm_model?: string | null
-          llm_name?: string | null
-          llm_settings?: Json | null
-          output_json?: Json | null
-          timestamp?: string | null
-        }
-        Update: {
-          company_id?: string | null
-          company_name?: string | null
-          id?: number
-          input_prompt?: string | null
-          llm_model?: string | null
-          llm_name?: string | null
-          llm_settings?: Json | null
-          output_json?: Json | null
-          timestamp?: string | null
-        }
-        Relationships: []
-      }
-      llm_analysis_results: {
-        Row: {
-          analysis_date: string | null
-          automation_score_finance: number | null
-          automation_score_hr: number | null
-          automation_score_it: number | null
-          automation_score_overall: number | null
-          batch_id: string | null
-          company_id: string | null
-          company_name: string
-          completion_tokens: number | null
-          created_at: string | null
-          enable_thinking: boolean | null
-          error_message: string | null
-          frequency_penalty: number | null
-          has_required_fields: boolean | null
-          has_valid_json: boolean | null
-          hrms_modules_mentioned: number | null
-          id: string
-          input_data_hash: string | null
-          input_data_preview: string | null
-          input_record_count: number | null
-          llm_response: Json
-          manual_indicators_count: number | null
-          max_tokens: number | null
-          model_name: string
-          model_provider: string
-          model_version: string | null
-          other_settings: Json | null
-          presence_penalty: number | null
-          processes_identified: number | null
-          prompt_tokens: number | null
-          response_time_ms: number | null
-          run_id: string
-          systems_detected: number | null
-          temperature: number | null
-          top_k: number | null
-          top_p: number | null
-          total_tokens: number | null
-        }
-        Insert: {
-          analysis_date?: string | null
-          automation_score_finance?: number | null
-          automation_score_hr?: number | null
-          automation_score_it?: number | null
-          automation_score_overall?: number | null
-          batch_id?: string | null
-          company_id?: string | null
-          company_name: string
-          completion_tokens?: number | null
-          created_at?: string | null
-          enable_thinking?: boolean | null
-          error_message?: string | null
-          frequency_penalty?: number | null
-          has_required_fields?: boolean | null
-          has_valid_json?: boolean | null
-          hrms_modules_mentioned?: number | null
-          id?: string
-          input_data_hash?: string | null
-          input_data_preview?: string | null
-          input_record_count?: number | null
-          llm_response: Json
-          manual_indicators_count?: number | null
-          max_tokens?: number | null
-          model_name: string
-          model_provider: string
-          model_version?: string | null
-          other_settings?: Json | null
-          presence_penalty?: number | null
-          processes_identified?: number | null
-          prompt_tokens?: number | null
-          response_time_ms?: number | null
-          run_id: string
-          systems_detected?: number | null
-          temperature?: number | null
-          top_k?: number | null
-          top_p?: number | null
-          total_tokens?: number | null
-        }
-        Update: {
-          analysis_date?: string | null
-          automation_score_finance?: number | null
-          automation_score_hr?: number | null
-          automation_score_it?: number | null
-          automation_score_overall?: number | null
-          batch_id?: string | null
-          company_id?: string | null
-          company_name?: string
-          completion_tokens?: number | null
-          created_at?: string | null
-          enable_thinking?: boolean | null
-          error_message?: string | null
-          frequency_penalty?: number | null
-          has_required_fields?: boolean | null
-          has_valid_json?: boolean | null
-          hrms_modules_mentioned?: number | null
-          id?: string
-          input_data_hash?: string | null
-          input_data_preview?: string | null
-          input_record_count?: number | null
-          llm_response?: Json
-          manual_indicators_count?: number | null
-          max_tokens?: number | null
-          model_name?: string
-          model_provider?: string
-          model_version?: string | null
-          other_settings?: Json | null
-          presence_penalty?: number | null
-          processes_identified?: number | null
-          prompt_tokens?: number | null
-          response_time_ms?: number | null
-          run_id?: string
-          systems_detected?: number | null
-          temperature?: number | null
-          top_k?: number | null
-          top_p?: number | null
-          total_tokens?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "llm_analysis_results_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies2"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "llm_analysis_results_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "company_search_flat"
-            referencedColumns: ["company_id"]
-          },
-        ]
-      }
       query_expansion_cache: {
         Row: {
           cache_key: string
@@ -4392,6 +4221,29 @@ export type Database = {
         ]
       }
       company_employment_view_55830b7a_8ecf_43ce_8594_aeb92d54231a: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_employment_view_560f62e7_92ec_41e0_b6bd_44e7b6861569: {
         Row: {
           company: string | null
           company_id: string | null
@@ -10353,57 +10205,6 @@ export type Database = {
           industry_v2_taxonomy: string | null
           newest_company_year: number | null
           oldest_company_year: number | null
-        }
-        Relationships: []
-      }
-      llm_results_comparison: {
-        Row: {
-          automation_score_finance: number | null
-          automation_score_hr: number | null
-          automation_score_it: number | null
-          automation_score_overall: number | null
-          company_name: string | null
-          created_at: string | null
-          max_tokens: number | null
-          model_name: string | null
-          model_provider: string | null
-          response_time_ms: number | null
-          run_id: string | null
-          systems_detected: number | null
-          temperature: number | null
-          total_tokens: number | null
-        }
-        Insert: {
-          automation_score_finance?: number | null
-          automation_score_hr?: number | null
-          automation_score_it?: number | null
-          automation_score_overall?: number | null
-          company_name?: string | null
-          created_at?: string | null
-          max_tokens?: number | null
-          model_name?: string | null
-          model_provider?: string | null
-          response_time_ms?: number | null
-          run_id?: string | null
-          systems_detected?: number | null
-          temperature?: number | null
-          total_tokens?: number | null
-        }
-        Update: {
-          automation_score_finance?: number | null
-          automation_score_hr?: number | null
-          automation_score_it?: number | null
-          automation_score_overall?: number | null
-          company_name?: string | null
-          created_at?: string | null
-          max_tokens?: number | null
-          model_name?: string | null
-          model_provider?: string | null
-          response_time_ms?: number | null
-          run_id?: string | null
-          systems_detected?: number | null
-          temperature?: number | null
-          total_tokens?: number | null
         }
         Relationships: []
       }
