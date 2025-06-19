@@ -15,8 +15,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   // Check for development bypass parameter
   const isDev = searchParams.get('dev') === 'true'
 
+  console.log('ProtectedRoute - User:', user, 'Loading:', loading, 'isDev:', isDev);
+
   useEffect(() => {
     if (!loading && !user && !isDev) {
+      console.log('User not authenticated, redirecting to auth');
       navigate("/auth")
     }
   }, [user, loading, navigate, isDev])
@@ -24,7 +27,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   if (loading && !isDev) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+          <p className="text-lg text-foreground">Authenticating...</p>
+        </div>
       </div>
     )
   }

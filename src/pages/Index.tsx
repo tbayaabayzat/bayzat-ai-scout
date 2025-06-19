@@ -9,16 +9,22 @@ const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
+  console.log('Index page - User:', user, 'Loading:', loading);
+
   useEffect(() => {
     if (!loading && user) {
+      console.log('User is authenticated, redirecting to dashboard');
       navigate("/dashboard");
     }
   }, [user, loading, navigate]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto"></div>
+          <p className="text-lg text-foreground">Loading...</p>
+        </div>
       </div>
     );
   }

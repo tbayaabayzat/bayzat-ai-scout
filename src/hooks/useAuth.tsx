@@ -20,6 +20,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast()
 
   useEffect(() => {
+    console.log('Setting up auth state listener');
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -53,6 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session);
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
@@ -62,6 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [toast])
 
   const signOut = async () => {
+    console.log('Signing out user');
     await supabase.auth.signOut()
   }
 
@@ -71,6 +75,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut,
     loading
   }
+
+  console.log('Auth context value:', { user: !!user, loading });
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
