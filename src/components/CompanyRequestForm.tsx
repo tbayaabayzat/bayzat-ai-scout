@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { CompanyDetailSheet } from "./company-detail/CompanyDetailSheet"
 import { RequestForm } from "./company-request/RequestForm"
 import { RecentRequests } from "./company-request/RecentRequests"
+import { RequestItem } from "./company-request/types"
 
 export function CompanyRequestForm() {
   const [selectedCompany, setSelectedCompany] = useState(null)
@@ -22,7 +23,13 @@ export function CompanyRequestForm() {
         .limit(5)
       
       if (error) throw error
-      return data || []
+      
+      // Type assertion to ensure compatibility with RequestItem interface
+      return (data || []).map(item => ({
+        ...item,
+        status: item.status as 'pending' | 'completed' | 'failed',
+        bayzat_relationship: item.bayzat_relationship as 'prospect' | 'customer' | 'partner'
+      })) as RequestItem[]
     }
   })
 
