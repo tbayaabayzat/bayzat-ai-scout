@@ -1,4 +1,5 @@
 
+import React from "react"
 import { Clock, CheckCircle, AlertCircle, Building2, Users, Handshake } from "lucide-react"
 
 export const getStatusIcon = (status: string) => {
