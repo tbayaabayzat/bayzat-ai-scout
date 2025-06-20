@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react"
 import { useSemanticSearch } from "@/hooks/useSemanticSearch"
 import { SemanticSearchInput } from "./semantic-search/SemanticSearchInput"
@@ -99,7 +98,22 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
   }
 
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full space-y-4">
+      {/* Enhanced Section Header */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="relative">
+          <h3 className="text-base font-semibold text-foreground bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+            AI-Powered Search
+          </h3>
+          <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-primary/60 to-transparent" />
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+          <div className="h-1 w-1 rounded-full bg-primary/60 animate-pulse animation-delay-150" />
+          <div className="h-0.5 w-0.5 rounded-full bg-primary/40 animate-pulse animation-delay-300" />
+        </div>
+      </div>
+
       {/* Main Search Bar */}
       <div className="relative">
         <SemanticSearchInput
