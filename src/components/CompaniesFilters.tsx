@@ -45,10 +45,10 @@ export function CompaniesFilters({
         />
       </div>
 
-      {/* Filters Row */}
-      <div className="flex items-center justify-between gap-4">
+      {/* Filter Trigger Row */}
+      <div className="flex items-center gap-4">
         <div className="flex-1">
-          {advancedFilters.component}
+          {advancedFilters.trigger}
         </div>
         
         {/* External Clear All Filters Button */}
@@ -64,6 +64,9 @@ export function CompaniesFilters({
           </Button>
         )}
       </div>
+
+      {/* Filter Content (Full Width Below) */}
+      {advancedFilters.content}
     </div>
   )
 }

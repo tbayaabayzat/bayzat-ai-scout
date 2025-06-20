@@ -81,26 +81,28 @@ export function AdvancedFilters({
   return {
     activeCount,
     clearAllFilters,
-    component: (
+    trigger: (
+      <CollapsibleTrigger asChild>
+        <Button 
+          variant="outline" 
+          className="w-full justify-between hover:bg-muted/50 transition-all duration-200"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4" />
+            <span>Filters</span>
+            {activeCount > 0 && (
+              <Badge variant="secondary" className="ml-2 text-xs">
+                {activeCount}
+              </Badge>
+            )}
+          </div>
+          <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        </Button>
+      </CollapsibleTrigger>
+    ),
+    content: (
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger asChild>
-          <Button 
-            variant="outline" 
-            className="w-full justify-between hover:bg-muted/50 transition-all duration-200"
-          >
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              <span>Filters</span>
-              {activeCount > 0 && (
-                <Badge variant="secondary" className="ml-2 text-xs">
-                  {activeCount}
-                </Badge>
-              )}
-            </div>
-            <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-          </Button>
-        </CollapsibleTrigger>
-        
         <CollapsibleContent className="space-y-6 pt-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
