@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown, Database, Users, Filter } from "lucide-react"
+import { ChevronDown, Database, Users, Filter, X } from "lucide-react"
 import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/types/company"
 import { AutomationScoreFilter } from "@/components/AutomationScoreFilter"
 
@@ -111,7 +111,7 @@ export function AdvancedFilters({
               onClick={clearAllFilters}
               className="gap-2 transition-all duration-200 animate-in fade-in-0 slide-in-from-right-2"
             >
-              <Filter className="h-3 w-3" />
+              <X className="h-3 w-3" />
               Clear All
             </Button>
           )}
