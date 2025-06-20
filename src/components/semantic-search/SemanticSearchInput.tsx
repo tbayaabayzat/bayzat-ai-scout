@@ -30,20 +30,11 @@ export const SemanticSearchInput = forwardRef<HTMLInputElement, SemanticSearchIn
   }, ref) => {
     return (
       <div className="relative group">
-        <div className="flex items-center gap-3 px-4 py-3 bg-background/60 backdrop-blur-sm border border-border/40 rounded-lg transition-all duration-300 focus-within:bg-background focus-within:border-primary/30 focus-within:shadow-sm focus-within:shadow-primary/10 hover:bg-background/80 hover:border-border/60 hover:scale-[1.01]">
-          {/* Enhanced AI Icon */}
-          <div className="relative">
-            <Sparkles className={`h-5 w-5 flex-shrink-0 transition-all duration-300 ${
-              isSearching 
-                ? 'text-primary animate-pulse scale-110' 
-                : value 
-                ? 'text-primary/80 scale-105' 
-                : 'text-muted-foreground/70 group-focus-within:text-primary/70 group-hover:text-primary/50'
-            }`} />
-            {isSearching && (
-              <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" />
-            )}
-          </div>
+        <div className="flex items-center gap-2 px-3 py-2.5 bg-muted/30 border border-border/60 rounded-md transition-all duration-200 focus-within:bg-background focus-within:border-primary/40 focus-within:shadow-sm hover:bg-muted/50">
+          {/* AI Icon */}
+          <Sparkles className={`h-4 w-4 text-muted-foreground flex-shrink-0 transition-colors ${
+            isSearching ? 'animate-pulse text-primary' : 'group-focus-within:text-primary/70'
+          }`} />
 
           {/* Search Input */}
           <Input
@@ -54,19 +45,19 @@ export const SemanticSearchInput = forwardRef<HTMLInputElement, SemanticSearchIn
             onFocus={onFocus}
             placeholder={placeholder}
             disabled={isSearching}
-            className="flex-1 border-none bg-transparent text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto text-base"
+            className="flex-1 border-none bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto"
           />
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {showClearButton && !isSearching && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onClear}
-                className="h-7 w-7 p-0 hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-105"
+                className="h-6 w-6 p-0 hover:bg-muted text-muted-foreground hover:text-foreground"
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="h-3 w-3" />
               </Button>
             )}
             
@@ -75,7 +66,7 @@ export const SemanticSearchInput = forwardRef<HTMLInputElement, SemanticSearchIn
                 variant="ghost"
                 size="sm"
                 onClick={onToggleExamples}
-                className="h-7 px-3 text-xs font-medium text-muted-foreground/80 hover:text-foreground hover:bg-muted/40 transition-all duration-200 hover:scale-105 border border-transparent hover:border-border/30"
+                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
               >
                 Examples
               </Button>
