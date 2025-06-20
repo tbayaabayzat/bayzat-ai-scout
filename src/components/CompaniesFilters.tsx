@@ -1,11 +1,11 @@
 
-import { Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { SemanticSearchBar } from "@/components/SemanticSearchBar"
 import { AdvancedFilters } from "@/components/AdvancedFilters"
 import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/types/company"
 
 interface CompaniesFiltersProps {
   onSearch: (term: string) => void
+  onSemanticFilter: (companyIds: string[]) => void
   systemsFilter: SystemsFilter
   onSystemsFilterChange: (filter: SystemsFilter) => void
   employeeCountFilter: EmployeeCountFilter
@@ -16,6 +16,7 @@ interface CompaniesFiltersProps {
 
 export function CompaniesFilters({
   onSearch,
+  onSemanticFilter,
   systemsFilter,
   onSystemsFilterChange,
   employeeCountFilter,
@@ -23,27 +24,43 @@ export function CompaniesFilters({
   automationFilter,
   onAutomationFilterChange
 }: CompaniesFiltersProps) {
+  const handleSemanticResults = (companyIds: string[]) => {
+    onSemanticFilter(companyIds)
+  }
+
+  const handleSemanticClear = () => {
+    onSemanticFilter([])
+  }
+
   return (
-    <div className="space-y-4">
-      {/* Search Input - Full Width */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-        <Input
-          placeholder="Search companies by name, description, or industry..."
-          className="pl-10 h-10 bg-background/50 border-border/50 focus:border-primary/50 transition-all duration-200"
-          onChange={(e) => onSearch(e.target.value)}
+    <div className="space-y-6">
+      {/* AI-Powered Semantic Search */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 mb-3">
+          <h3 className="text-sm font-medium text-foreground">AI-Powered Search</h3>
+          <div className="h-1 w-1 rounded-full bg-purple-500 animate-pulse" />
+        </div>
+        <SemanticSearchBar 
+          onResults={handleSemanticResults}
+          onClear={handleSemanticClear}
         />
       </div>
 
-      {/* Advanced Filters */}
-      <AdvancedFilters
-        systemsFilter={systemsFilter}
-        onSystemsFilterChange={onSystemsFilterChange}
-        employeeCountFilter={employeeCountFilter}
-        onEmployeeCountFilterChange={onEmployeeCountFilterChange}
-        automationFilter={automationFilter}
-        onAutomationFilterChange={onAutomationFilterChange}
-      />
+      {/* Traditional Advanced Filters */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-medium text-muted-foreground">Traditional Filters</h3>
+          <div className="flex-1 h-px bg-border" />
+        </div>
+        <AdvancedFilters
+          systemsFilter={systemsFilter}
+          onSystemsFilterChange={onSystemsFilterChange}
+          employeeCountFilter={employeeCountFilter}
+          onEmployeeCountFilterChange={onEmployeeCountFilterChange}
+          automationFilter={automationFilter}
+          onAutomationFilterChange={onAutomationFilterChange}
+        />
+      </div>
     </div>
   )
 }
