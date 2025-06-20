@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { ColumnDef, useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel, SortingState, ColumnFiltersState, VisibilityState } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
@@ -234,19 +233,16 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
   return (
     <>
       <div>
-        <div className="mb-2 flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Showing {currentPageRows} of {totalRows} companies
-          </div>
-          {safeCompanies.length === 0 && !isLoading && (
-            <div className="text-sm text-orange-600">
-              No data found. Check console for debugging info.
-            </div>
-          )}
-        </div>
         <DataTable 
           table={table}
+          currentPageRows={currentPageRows}
+          totalRows={totalRows}
         />
+        {safeCompanies.length === 0 && !isLoading && (
+          <div className="text-sm text-orange-600 mt-2">
+            No data found. Check console for debugging info.
+          </div>
+        )}
       </div>
 
       <CompanyDetailSheet

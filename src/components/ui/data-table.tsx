@@ -31,14 +31,23 @@ import {
 
 interface DataTableProps<TData, TValue> {
   table: ReactTable<TData>
+  currentPageRows?: number
+  totalRows?: number
 }
 
 export function DataTable<TData, TValue>({
   table,
+  currentPageRows,
+  totalRows,
 }: DataTableProps<TData, TValue>) {
   return (
     <div className="w-full">
-      <div className="flex items-center py-4 gap-4">
+      <div className="flex items-center justify-between py-4 gap-4">
+        {currentPageRows !== undefined && totalRows !== undefined && (
+          <div className="text-sm text-muted-foreground">
+            Showing {currentPageRows} of {totalRows} companies
+          </div>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
