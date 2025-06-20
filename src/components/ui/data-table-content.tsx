@@ -1,10 +1,10 @@
 
 import * as React from "react"
-import { ReactTable, flexRender } from "@tanstack/react-table"
+import { Table, flexRender } from "@tanstack/react-table"
 import { ArrowUp, ArrowDown } from "lucide-react"
 
 import {
-  Table,
+  Table as UITable,
   TableBody,
   TableCell,
   TableHead,
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table"
 
 interface DataTableContentProps<TData> {
-  table: ReactTable<TData>
+  table: Table<TData>
 }
 
 export function DataTableContent<TData>({
@@ -21,7 +21,7 @@ export function DataTableContent<TData>({
 }: DataTableContentProps<TData>) {
   return (
     <div className="rounded-md border">
-      <Table>
+      <UITable>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -94,7 +94,7 @@ export function DataTableContent<TData>({
             </TableRow>
           )}
         </TableBody>
-      </Table>
+      </UITable>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 
 import * as React from "react"
-import { ReactTable } from "@tanstack/react-table"
+import { Table } from "@tanstack/react-table"
 import { ChevronDown } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 interface DataTableHeaderProps<TData> {
-  table: ReactTable<TData>
+  table: Table<TData>
   currentPageRows?: number
   totalRows?: number
 }

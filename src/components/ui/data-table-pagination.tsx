@@ -1,6 +1,6 @@
 
 import * as React from "react"
-import { ReactTable } from "@tanstack/react-table"
+import { Table } from "@tanstack/react-table"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select"
 
 interface DataTablePaginationProps<TData> {
-  table: ReactTable<TData>
+  table: Table<TData>
 }
 
 export function DataTablePagination<TData>({
