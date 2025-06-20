@@ -1,7 +1,6 @@
 
-import { Search, X } from "lucide-react"
+import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { AdvancedFilters } from "@/components/AdvancedFilters"
 import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/types/company"
 
@@ -24,15 +23,6 @@ export function CompaniesFilters({
   automationFilter,
   onAutomationFilterChange
 }: CompaniesFiltersProps) {
-  const advancedFilters = AdvancedFilters({
-    systemsFilter,
-    onSystemsFilterChange,
-    employeeCountFilter,
-    onEmployeeCountFilterChange,
-    automationFilter,
-    onAutomationFilterChange
-  })
-
   return (
     <div className="space-y-4">
       {/* Search Input - Full Width */}
@@ -45,28 +35,15 @@ export function CompaniesFilters({
         />
       </div>
 
-      {/* Filter Trigger Row */}
-      <div className="flex items-center gap-4">
-        <div className="flex-1">
-          {advancedFilters.trigger}
-        </div>
-        
-        {/* External Clear All Filters Button */}
-        {advancedFilters.activeCount > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={advancedFilters.clearAllFilters}
-            className="gap-2 transition-all duration-200 animate-in fade-in-0 slide-in-from-right-2"
-          >
-            <X className="h-3 w-3" />
-            Clear All
-          </Button>
-        )}
-      </div>
-
-      {/* Filter Content (Full Width Below) */}
-      {advancedFilters.content}
+      {/* Advanced Filters */}
+      <AdvancedFilters
+        systemsFilter={systemsFilter}
+        onSystemsFilterChange={onSystemsFilterChange}
+        employeeCountFilter={employeeCountFilter}
+        onEmployeeCountFilterChange={onEmployeeCountFilterChange}
+        automationFilter={automationFilter}
+        onAutomationFilterChange={onAutomationFilterChange}
+      />
     </div>
   )
 }

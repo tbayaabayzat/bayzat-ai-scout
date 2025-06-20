@@ -78,31 +78,46 @@ export function AdvancedFilters({
 
   const activeCount = getActiveFiltersCount()
 
-  return {
-    activeCount,
-    clearAllFilters,
-    trigger: (
-      <CollapsibleTrigger asChild>
-        <Button 
-          variant="outline" 
-          className="w-full justify-between hover:bg-muted/50 transition-all duration-200"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            <span>Filters</span>
-            {activeCount > 0 && (
-              <Badge variant="secondary" className="ml-2 text-xs">
-                {activeCount}
-              </Badge>
-            )}
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div className="space-y-4">
+        {/* Filter Trigger Row */}
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
+            <CollapsibleTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="w-full justify-between hover:bg-muted/50 transition-all duration-200"
+              >
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4" />
+                  <span>Filters</span>
+                  {activeCount > 0 && (
+                    <Badge variant="secondary" className="ml-2 text-xs">
+                      {activeCount}
+                    </Badge>
+                  )}
+                </div>
+                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+              </Button>
+            </CollapsibleTrigger>
           </div>
-          <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-        </Button>
-      </CollapsibleTrigger>
-    ),
-    content: (
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          
+          {/* External Clear All Filters Button */}
+          {activeCount > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearAllFilters}
+              className="gap-2 transition-all duration-200 animate-in fade-in-0 slide-in-from-right-2"
+            >
+              <Filter className="h-3 w-3" />
+              Clear All
+            </Button>
+          )}
+        </div>
+
+        {/* Filter Content (Full Width Below) */}
         <CollapsibleContent className="space-y-6 pt-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
@@ -181,7 +196,7 @@ export function AdvancedFilters({
             />
           </div>
         </CollapsibleContent>
-      </Collapsible>
-    )
-  }
+      </div>
+    </Collapsible>
+  )
 }
