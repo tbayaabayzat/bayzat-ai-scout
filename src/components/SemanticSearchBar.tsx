@@ -18,6 +18,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
+  const searchContainerRef = useRef<HTMLDivElement>(null)
   
   const {
     isSearching,
@@ -36,6 +37,20 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
       setCurrentPlaceholder(prev => (prev + 1) % PLACEHOLDERS.length)
     }, 3000)
     return () => clearInterval(interval)
+  }, [])
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
   }, [])
 
   // Update results when search completes
@@ -100,20 +115,8 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
 
   return (
     <div className="w-full space-y-4">
-      {/* Enhanced Search Section Header */}
-      <div className="text-center space-y-2">
-        <h2 className="text-xl font-semibold text-foreground flex items-center justify-center gap-2">
-          <div className="h-2 w-2 bg-bayzat-purple rounded-full animate-pulse"></div>
-          AI-Powered Company Search
-          <div className="h-2 w-2 bg-bayzat-purple rounded-full animate-pulse"></div>
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Ask anything about companies in natural language
-        </p>
-      </div>
-
       {/* Main Search Bar */}
-      <div className="relative">
+      <div className="relative" ref={searchContainerRef}>
         <SemanticSearchInput
           ref={inputRef}
           value={query}
