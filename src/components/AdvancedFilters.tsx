@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown, Database, Users, X, Filter } from "lucide-react"
+import { ChevronDown, Database, Users, Filter } from "lucide-react"
 import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/types/company"
 import { AutomationScoreFilter } from "@/components/AutomationScoreFilter"
 
@@ -16,6 +16,7 @@ interface AdvancedFiltersProps {
   onEmployeeCountFilterChange: (filter: EmployeeCountFilter) => void
   automationFilter: AutomationFilter
   onAutomationFilterChange: (filter: AutomationFilter) => void
+  onClearAllFilters?: () => void
 }
 
 export function AdvancedFilters({
@@ -24,7 +25,8 @@ export function AdvancedFilters({
   employeeCountFilter,
   onEmployeeCountFilterChange,
   automationFilter,
-  onAutomationFilterChange
+  onAutomationFilterChange,
+  onClearAllFilters
 }: AdvancedFiltersProps) {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -54,6 +56,9 @@ export function AdvancedFilters({
     onSystemsFilterChange({})
     onEmployeeCountFilterChange({})
     onAutomationFilterChange({})
+    if (onClearAllFilters) {
+      onClearAllFilters()
+    }
   }
 
   const handleSystemToggle = (system: string, value: boolean | null) => {
@@ -73,8 +78,10 @@ export function AdvancedFilters({
 
   const activeCount = getActiveFiltersCount()
 
-  return (
-    <div className="space-y-4">
+  return {
+    activeCount,
+    clearAllFilters,
+    component: (
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger asChild>
           <Button 
@@ -171,23 +178,8 @@ export function AdvancedFilters({
               onAutomationFilterChange={onAutomationFilterChange}
             />
           </div>
-
-          {/* Action Buttons */}
-          {activeCount > 0 && (
-            <div className="flex justify-end pt-4 border-t">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={clearAllFilters}
-                className="gap-2"
-              >
-                <X className="h-3 w-3" />
-                Clear All Filters
-              </Button>
-            </div>
-          )}
         </CollapsibleContent>
       </Collapsible>
-    </div>
-  )
+    )
+  }
 }
