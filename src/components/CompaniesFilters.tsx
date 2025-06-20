@@ -1,11 +1,13 @@
 
-import { Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { SemanticSearch } from "@/components/SemanticSearch"
 import { AdvancedFilters } from "@/components/AdvancedFilters"
 import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/types/company"
 
 interface CompaniesFiltersProps {
   onSearch: (term: string) => void
+  onSemanticSearch: (query: string) => void
+  isSemanticSearchLoading?: boolean
+  onCancelSemanticSearch?: () => void
   systemsFilter: SystemsFilter
   onSystemsFilterChange: (filter: SystemsFilter) => void
   employeeCountFilter: EmployeeCountFilter
@@ -16,6 +18,9 @@ interface CompaniesFiltersProps {
 
 export function CompaniesFilters({
   onSearch,
+  onSemanticSearch,
+  isSemanticSearchLoading = false,
+  onCancelSemanticSearch,
   systemsFilter,
   onSystemsFilterChange,
   employeeCountFilter,
@@ -24,26 +29,32 @@ export function CompaniesFilters({
   onAutomationFilterChange
 }: CompaniesFiltersProps) {
   return (
-    <div className="space-y-4">
-      {/* Search Input - Full Width */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-        <Input
-          placeholder="Search companies by name, description, or industry..."
-          className="pl-10 h-10 bg-background/50 border-border/50 focus:border-primary/50 transition-all duration-200"
-          onChange={(e) => onSearch(e.target.value)}
+    <div className="space-y-6">
+      {/* AI-Powered Semantic Search */}
+      <div className="space-y-2">
+        <SemanticSearch
+          onSearch={onSemanticSearch}
+          isLoading={isSemanticSearchLoading}
+          onCancel={onCancelSemanticSearch}
         />
+        {!isSemanticSearchLoading && (
+          <p className="text-xs text-muted-foreground text-center">
+            Ask AI to find companies using natural language, or use traditional filters below
+          </p>
+        )}
       </div>
 
-      {/* Advanced Filters */}
-      <AdvancedFilters
-        systemsFilter={systemsFilter}
-        onSystemsFilterChange={onSystemsFilterChange}
-        employeeCountFilter={employeeCountFilter}
-        onEmployeeCountFilterChange={onEmployeeCountFilterChange}
-        automationFilter={automationFilter}
-        onAutomationFilterChange={onAutomationFilterChange}
-      />
+      {/* Traditional Filters - Only show when not in semantic search loading */}
+      {!isSemanticSearchLoading && (
+        <AdvancedFilters
+          systemsFilter={systemsFilter}
+          onSystemsFilterChange={onSystemsFilterChange}
+          employeeCountFilter={employeeCountFilter}
+          onEmployeeCountFilterChange={onEmployeeCountFilterChange}
+          automationFilter={automationFilter}
+          onAutomationFilterChange={onAutomationFilterChange}
+        />
+      )}
     </div>
   )
 }
