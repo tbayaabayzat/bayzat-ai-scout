@@ -74,7 +74,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    console.log('Key pressed:', e.key)
+    console.log('Key pressed:', e.key, 'Query:', query)
     if (e.key === 'Enter' && !isSearching) {
       handleSearch()
       setShowSuggestions(false)
@@ -85,22 +85,25 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('Input changed:', e.target.value)
-    setQuery(e.target.value)
+    const newValue = e.target.value
+    console.log('Input changed from:', query, 'to:', newValue)
+    setQuery(newValue)
   }
 
   const handleInputFocus = () => {
-    console.log('Input focused')
+    console.log('Input focused, current query:', query)
     setShowSuggestions(true)
   }
 
   const handleExampleClick = async (example: string) => {
+    console.log('Example clicked:', example)
     setQuery(example)
     setShowSuggestions(false)
     await searchWithSemantics(example)
   }
 
   const handleClear = () => {
+    console.log('Clear clicked')
     setQuery("")
     clearResults()
     onClear()
@@ -109,17 +112,15 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
 
   return (
     <div className="w-full space-y-4">
-      {/* Main Search Bar - Simplified */}
+      {/* Main Search Bar - Simplified Structure */}
       <div className="relative">
-        <div className="flex items-center border border-border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow duration-200 focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-400">
+        <div className="flex items-center gap-3 p-3 border border-gray-300 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow duration-200 focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-400">
           {/* AI Icon */}
-          <div className="flex items-center pl-4 pr-2">
-            <Sparkles className={`h-5 w-5 text-purple-500 ${
-              isSearching ? 'animate-pulse' : ''
-            }`} />
-          </div>
+          <Sparkles className={`h-5 w-5 text-purple-500 flex-shrink-0 ${
+            isSearching ? 'animate-pulse' : ''
+          }`} />
 
-          {/* Search Input - Simplified styling */}
+          {/* Search Input - Fixed styling */}
           <Input
             ref={inputRef}
             value={query}
@@ -128,17 +129,22 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
             onFocus={handleInputFocus}
             placeholder={placeholders[currentPlaceholder]}
             disabled={isSearching}
-            className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/70"
+            className="flex-1 border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-gray-500 px-0"
+            style={{ 
+              outline: 'none',
+              boxShadow: 'none',
+              border: 'none'
+            }}
           />
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2 pr-4">
+          <div className="flex items-center gap-2">
             {query && !isSearching && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleClear}
-                className="h-8 w-8 p-0 hover:bg-muted/50"
+                className="h-8 w-8 p-0 hover:bg-gray-100"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -149,60 +155,61 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
                 variant="ghost"
                 size="sm"
                 onClick={cancelSearch}
-                className="h-8 px-3 text-xs hover:bg-muted/50"
+                className="h-8 px-3 text-xs hover:bg-gray-100"
               >
                 Cancel
               </Button>
             ) : (
-              <DropdownMenu open={showSuggestions} onOpenChange={setShowSuggestions}>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 px-3 text-xs hover:bg-purple-50 hover:text-purple-700 transition-colors z-50"
-                  >
-                    Examples
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80 max-h-64 overflow-y-auto bg-background border border-border shadow-lg z-50">
-                  <div className="p-2">
-                    <div className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1">
-                      <Sparkles className="h-3 w-3" />
-                      Try these AI-powered searches
-                    </div>
-                    {exampleQueries.map((example, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        onClick={() => handleExampleClick(example)}
-                        className="cursor-pointer text-sm py-2 px-3 rounded-md hover:bg-purple-50/50"
-                      >
-                        {example}
-                      </DropdownMenuItem>
-                    ))}
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowSuggestions(!showSuggestions)}
+                className="h-8 px-3 text-xs hover:bg-purple-50 hover:text-purple-700 transition-colors"
+              >
+                Examples
+              </Button>
             )}
           </div>
         </div>
+
+        {/* Examples Dropdown - Positioned outside input container */}
+        {showSuggestions && !isSearching && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+            <div className="p-3">
+              <div className="text-xs font-medium text-gray-500 mb-2 flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                Try these AI-powered searches
+              </div>
+              {exampleQueries.map((example, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleExampleClick(example)}
+                  className="w-full text-left cursor-pointer text-sm py-2 px-3 rounded-md hover:bg-purple-50/80 transition-colors"
+                >
+                  {example}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Loading State */}
       {isSearching && (
-        <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin text-purple-500" />
               <span className="text-sm font-medium">AI Search in Progress</span>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-gray-500">
               {Math.round(progress)}% complete
             </div>
           </div>
           
           <Progress value={progress} className="h-2 mb-2" />
           
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-gray-500">
             {currentMessage}
           </div>
         </div>
