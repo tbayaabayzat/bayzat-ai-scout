@@ -47,20 +47,14 @@ export function CompaniesFilters({
       </div>
 
       {/* Traditional Advanced Filters */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <h3 className="text-sm font-medium text-muted-foreground">Traditional Filters</h3>
-          <div className="flex-1 h-px bg-border" />
-        </div>
-        <AdvancedFilters
-          systemsFilter={systemsFilter}
-          onSystemsFilterChange={onSystemsFilterChange}
-          employeeCountFilter={employeeCountFilter}
-          onEmployeeCountFilterChange={onEmployeeCountFilterChange}
-          automationFilter={automationFilter}
-          onAutomationFilterChange={onAutomationFilterChange}
-        />
-      </div>
+      <AdvancedFilters
+        systemsFilter={systemsFilter}
+        onSystemsFilterChange={onSystemsFilterChange}
+        employeeCountFilter={employeeCountFilter}
+        onEmployeeCountFilterChange={onEmployeeCountFilterChange}
+        automationFilter={automationFilter}
+        onAutomationFilterChange={onAutomationFilterChange}
+      />
     </div>
   )
 }
