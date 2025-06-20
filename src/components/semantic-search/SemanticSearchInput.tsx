@@ -29,47 +29,49 @@ export const SemanticSearchInput = forwardRef<HTMLInputElement, SemanticSearchIn
     showClearButton
   }, ref) => {
     return (
-      <div className="flex items-center gap-3 p-3 border border-gray-300 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow duration-200 focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-400">
-        {/* AI Icon */}
-        <Sparkles className={`h-5 w-5 text-purple-500 flex-shrink-0 ${
-          isSearching ? 'animate-pulse' : ''
-        }`} />
+      <div className="relative group">
+        <div className="flex items-center gap-2 px-3 py-2.5 bg-muted/30 border border-border/60 rounded-md transition-all duration-200 focus-within:bg-background focus-within:border-primary/40 focus-within:shadow-sm hover:bg-muted/50">
+          {/* AI Icon */}
+          <Sparkles className={`h-4 w-4 text-muted-foreground flex-shrink-0 transition-colors ${
+            isSearching ? 'animate-pulse text-primary' : 'group-focus-within:text-primary/70'
+          }`} />
 
-        {/* Search Input */}
-        <Input
-          ref={ref}
-          value={value}
-          onChange={onChange}
-          onKeyDown={onKeyDown}
-          onFocus={onFocus}
-          placeholder={placeholder}
-          disabled={isSearching}
-          className="flex-1 border-none bg-white text-gray-900 placeholder:text-gray-500 focus-visible:ring-0 focus-visible:ring-offset-0 text-base px-0"
-        />
+          {/* Search Input */}
+          <Input
+            ref={ref}
+            value={value}
+            onChange={onChange}
+            onKeyDown={onKeyDown}
+            onFocus={onFocus}
+            placeholder={placeholder}
+            disabled={isSearching}
+            className="flex-1 border-none bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto"
+          />
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2">
-          {showClearButton && !isSearching && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClear}
-              className="h-8 w-8 p-0 hover:bg-gray-100"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-          
-          {!isSearching && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggleExamples}
-              className="h-8 px-3 text-xs hover:bg-purple-50 hover:text-purple-700 transition-colors text-gray-700"
-            >
-              Examples
-            </Button>
-          )}
+          {/* Action Buttons */}
+          <div className="flex items-center gap-1">
+            {showClearButton && !isSearching && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClear}
+                className="h-6 w-6 p-0 hover:bg-muted text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
+            
+            {!isSearching && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggleExamples}
+                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              >
+                Examples
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     )

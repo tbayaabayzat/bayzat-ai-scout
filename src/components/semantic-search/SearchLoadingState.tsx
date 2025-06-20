@@ -12,20 +12,20 @@ export function SearchLoadingState({ isVisible, progress, currentMessage }: Sear
   if (!isVisible) return null
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-      <div className="flex items-center gap-3 mb-3">
+    <div className="bg-muted/30 border border-border/60 rounded-md p-3">
+      <div className="flex items-center gap-2 mb-2">
         <div className="flex items-center gap-2">
-          <Loader2 className="h-4 w-4 animate-spin text-purple-500" />
-          <span className="text-sm font-medium text-gray-900">AI Search in Progress</span>
+          <Loader2 className="h-3 w-3 animate-spin text-primary" />
+          <span className="text-sm font-medium text-foreground">AI Search</span>
         </div>
-        <div className="text-xs text-gray-500">
-          {Math.round(progress)}% complete
+        <div className="text-xs text-muted-foreground ml-auto">
+          {Math.round(progress)}%
         </div>
       </div>
       
-      <Progress value={progress} className="h-2 mb-2" />
+      <Progress value={progress} className="h-1.5 mb-2" />
       
-      <div className="text-xs text-gray-500">
+      <div className="text-xs text-muted-foreground">
         {currentMessage}
       </div>
     </div>

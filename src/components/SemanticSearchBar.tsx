@@ -99,7 +99,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
   }
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-3">
       {/* Main Search Bar */}
       <div className="relative">
         <SemanticSearchInput

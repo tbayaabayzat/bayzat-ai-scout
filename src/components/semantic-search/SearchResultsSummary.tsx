@@ -13,10 +13,10 @@ export function SearchResultsSummary({ isVisible, totalMatches, query, onClear }
   if (!isVisible) return null
 
   return (
-    <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
+    <div className="bg-green-50/50 border border-green-200/60 rounded-md p-3 flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-green-600" />
-        <span className="text-sm font-medium text-green-800">
+        <Sparkles className="h-3 w-3 text-green-600" />
+        <span className="text-sm text-green-800">
           Found {totalMatches} companies matching "{query}"
         </span>
       </div>
@@ -24,9 +24,9 @@ export function SearchResultsSummary({ isVisible, totalMatches, query, onClear }
         variant="ghost"
         size="sm"
         onClick={onClear}
-        className="h-8 text-xs text-green-700 hover:text-green-800 hover:bg-green-100/50"
+        className="h-6 text-xs text-green-700 hover:text-green-800 hover:bg-green-100/50"
       >
-        Clear Search
+        Clear
       </Button>
     </div>
   )
