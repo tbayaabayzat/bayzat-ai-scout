@@ -30,11 +30,25 @@ export const SemanticSearchInput = forwardRef<HTMLInputElement, SemanticSearchIn
   }, ref) => {
     return (
       <div className="relative group">
-        <div className="flex items-center gap-2 px-3 py-2.5 bg-muted/30 border border-border/60 rounded-md transition-all duration-200 focus-within:bg-background focus-within:border-primary/40 focus-within:shadow-sm hover:bg-muted/50">
-          {/* AI Icon */}
-          <Sparkles className={`h-4 w-4 text-muted-foreground flex-shrink-0 transition-colors ${
-            isSearching ? 'animate-pulse text-primary' : 'group-focus-within:text-primary/70'
-          }`} />
+        {/* Animated Border Container */}
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-bayzat-purple/20 via-bayzat-pink/20 to-bayzat-purple/20 rounded-lg opacity-75 group-focus-within:opacity-100 transition-opacity duration-300 animate-pulse"></div>
+        <div className="absolute -inset-0.5 rounded-lg overflow-hidden group-focus-within:animate-spin-slow">
+          <div className="absolute inset-0 bg-gradient-conic from-bayzat-purple/30 via-transparent via-transparent to-bayzat-purple/30 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
+        </div>
+        
+        {/* Main Search Container */}
+        <div className="relative flex items-center gap-2 px-3 py-2.5 bg-background/95 backdrop-blur-sm border border-border/60 rounded-lg transition-all duration-200 focus-within:bg-background focus-within:border-bayzat-purple/40 focus-within:shadow-lg focus-within:shadow-bayzat-purple/10 hover:bg-muted/30 hover:border-border/80">
+          {/* Enhanced AI Icon */}
+          <div className="relative">
+            <Sparkles className={`h-5 w-5 flex-shrink-0 transition-all duration-300 ${
+              isSearching 
+                ? 'text-bayzat-purple animate-pulse scale-110' 
+                : 'text-bayzat-purple/80 group-focus-within:text-bayzat-purple group-focus-within:scale-105'
+            }`} />
+            {isSearching && (
+              <div className="absolute inset-0 h-5 w-5 bg-bayzat-purple/20 rounded-full animate-ping"></div>
+            )}
+          </div>
 
           {/* Search Input */}
           <Input
@@ -45,7 +59,7 @@ export const SemanticSearchInput = forwardRef<HTMLInputElement, SemanticSearchIn
             onFocus={onFocus}
             placeholder={placeholder}
             disabled={isSearching}
-            className="flex-1 border-none bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto"
+            className="flex-1 border-none bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto text-base"
           />
 
           {/* Action Buttons */}
@@ -55,7 +69,7 @@ export const SemanticSearchInput = forwardRef<HTMLInputElement, SemanticSearchIn
                 variant="ghost"
                 size="sm"
                 onClick={onClear}
-                className="h-6 w-6 p-0 hover:bg-muted text-muted-foreground hover:text-foreground"
+                className="h-6 w-6 p-0 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X className="h-3 w-3" />
               </Button>
@@ -66,7 +80,7 @@ export const SemanticSearchInput = forwardRef<HTMLInputElement, SemanticSearchIn
                 variant="ghost"
                 size="sm"
                 onClick={onToggleExamples}
-                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                className="h-6 px-2 text-xs text-muted-foreground hover:text-bayzat-purple hover:bg-bayzat-purple/10 transition-colors"
               >
                 Examples
               </Button>

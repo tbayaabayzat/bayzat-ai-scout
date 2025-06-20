@@ -99,7 +99,19 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
   }
 
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full space-y-4">
+      {/* Enhanced Search Section Header */}
+      <div className="text-center space-y-2">
+        <h2 className="text-xl font-semibold text-foreground flex items-center justify-center gap-2">
+          <div className="h-2 w-2 bg-bayzat-purple rounded-full animate-pulse"></div>
+          AI-Powered Company Search
+          <div className="h-2 w-2 bg-bayzat-purple rounded-full animate-pulse"></div>
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Ask anything about companies in natural language
+        </p>
+      </div>
+
       {/* Main Search Bar */}
       <div className="relative">
         <SemanticSearchInput
