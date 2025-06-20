@@ -43,18 +43,20 @@ export function useSemanticSearch() {
         })
       }, 6000)
 
-      // TODO: Replace with actual n8n webhook URL
-      const n8nWebhookUrl = "YOUR_N8N_WEBHOOK_URL_HERE"
+      // n8n webhook URL
+      const n8nWebhookUrl = "https://automation.bayzat.com/webhook/a76a74c7-fd60-4473-8831-323924605244"
       
       const response = await fetch(n8nWebhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          query: query,
-          timestamp: new Date().toISOString()
-        })
+        body: JSON.stringify([
+          {
+            "query": query,
+            "coming_from": "company search table of the internal company software tool to prospect and find the names and details of companies based on various parameters like size, industry, processes, automation levels and employees. the final output in the user experience is a table of companies filtered based on natural language search."
+          }
+        ])
       })
 
       clearInterval(progressInterval)
