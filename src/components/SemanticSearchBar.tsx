@@ -67,12 +67,14 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
   }, [searchResults, onResults])
 
   const handleSearch = async () => {
+    console.log('Search button clicked with query:', query)
     if (query.trim()) {
       await searchWithSemantics(query)
     }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    console.log('Key pressed:', e.key)
     if (e.key === 'Enter' && !isSearching) {
       handleSearch()
       setShowSuggestions(false)
@@ -80,6 +82,16 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
     if (e.key === 'Escape') {
       setShowSuggestions(false)
     }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Input changed:', e.target.value)
+    setQuery(e.target.value)
+  }
+
+  const handleInputFocus = () => {
+    console.log('Input focused')
+    setShowSuggestions(true)
   }
 
   const handleExampleClick = async (example: string) => {
@@ -97,35 +109,26 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
 
   return (
     <div className="w-full space-y-4">
-      {/* Main Search Bar */}
-      <div className="relative group">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
-        
-        <div className="relative flex items-center bg-background/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:border-purple-300/50 focus-within:border-purple-400/60 focus-within:ring-2 focus-within:ring-purple-500/20">
+      {/* Main Search Bar - Simplified */}
+      <div className="relative">
+        <div className="flex items-center border border-border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow duration-200 focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-400">
           {/* AI Icon */}
           <div className="flex items-center pl-4 pr-2">
-            <div className="relative">
-              <Sparkles className={`h-5 w-5 text-purple-500 transition-all duration-300 ${
-                isSearching ? 'animate-pulse' : 'group-hover:text-purple-400'
-              }`} />
-              {isSearching && (
-                <div className="absolute inset-0 animate-ping">
-                  <Sparkles className="h-5 w-5 text-purple-400/60" />
-                </div>
-              )}
-            </div>
+            <Sparkles className={`h-5 w-5 text-purple-500 ${
+              isSearching ? 'animate-pulse' : ''
+            }`} />
           </div>
 
-          {/* Search Input */}
+          {/* Search Input - Simplified styling */}
           <Input
             ref={inputRef}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            onFocus={() => setShowSuggestions(true)}
+            onFocus={handleInputFocus}
             placeholder={placeholders[currentPlaceholder]}
             disabled={isSearching}
-            className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/70 placeholder:transition-colors placeholder:duration-300"
+            className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/70"
           />
 
           {/* Action Buttons */}
@@ -156,12 +159,12 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 px-3 text-xs hover:bg-purple-50 hover:text-purple-700 transition-colors"
+                    className="h-8 px-3 text-xs hover:bg-purple-50 hover:text-purple-700 transition-colors z-50"
                   >
                     Examples
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80 max-h-64 overflow-y-auto">
+                <DropdownMenuContent align="end" className="w-80 max-h-64 overflow-y-auto bg-background border border-border shadow-lg z-50">
                   <div className="p-2">
                     <div className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1">
                       <Sparkles className="h-3 w-3" />
@@ -186,7 +189,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
 
       {/* Loading State */}
       {isSearching && (
-        <div className="bg-background/95 backdrop-blur-sm border border-border/50 rounded-lg p-4 shadow-sm">
+        <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin text-purple-500" />
@@ -207,7 +210,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
 
       {/* Results Summary */}
       {searchResults && !isSearching && (
-        <div className="bg-green-50/50 border border-green-200/50 rounded-lg p-3 flex items-center justify-between">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-green-600" />
             <span className="text-sm font-medium text-green-800">
@@ -227,7 +230,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-50/50 border border-red-200/50 rounded-lg p-3 flex items-center justify-between">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <X className="h-4 w-4 text-red-500" />
             <span className="text-sm text-red-700">{error}</span>
