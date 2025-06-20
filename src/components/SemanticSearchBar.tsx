@@ -112,7 +112,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
 
   return (
     <div className="w-full space-y-4">
-      {/* Main Search Bar - Simplified Structure */}
+      {/* Main Search Bar */}
       <div className="relative">
         <div className="flex items-center gap-3 p-3 border border-gray-300 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow duration-200 focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-400">
           {/* AI Icon */}
@@ -120,7 +120,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
             isSearching ? 'animate-pulse' : ''
           }`} />
 
-          {/* Search Input - Fixed styling */}
+          {/* Search Input */}
           <Input
             ref={inputRef}
             value={query}
@@ -129,12 +129,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
             onFocus={handleInputFocus}
             placeholder={placeholders[currentPlaceholder]}
             disabled={isSearching}
-            className="flex-1 border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-gray-500 px-0"
-            style={{ 
-              outline: 'none',
-              boxShadow: 'none',
-              border: 'none'
-            }}
+            className="flex-1 border-none bg-white text-gray-900 placeholder:text-gray-500 focus-visible:ring-0 focus-visible:ring-offset-0 text-base px-0"
           />
 
           {/* Action Buttons */}
@@ -155,7 +150,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
                 variant="ghost"
                 size="sm"
                 onClick={cancelSearch}
-                className="h-8 px-3 text-xs hover:bg-gray-100"
+                className="h-8 px-3 text-xs hover:bg-gray-100 text-gray-700"
               >
                 Cancel
               </Button>
@@ -164,7 +159,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowSuggestions(!showSuggestions)}
-                className="h-8 px-3 text-xs hover:bg-purple-50 hover:text-purple-700 transition-colors"
+                className="h-8 px-3 text-xs hover:bg-purple-50 hover:text-purple-700 transition-colors text-gray-700"
               >
                 Examples
               </Button>
@@ -172,7 +167,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
           </div>
         </div>
 
-        {/* Examples Dropdown - Positioned outside input container */}
+        {/* Examples Dropdown */}
         {showSuggestions && !isSearching && (
           <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
             <div className="p-3">
@@ -184,7 +179,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
                 <button
                   key={index}
                   onClick={() => handleExampleClick(example)}
-                  className="w-full text-left cursor-pointer text-sm py-2 px-3 rounded-md hover:bg-purple-50/80 transition-colors"
+                  className="w-full text-left cursor-pointer text-sm py-2 px-3 rounded-md hover:bg-purple-50/80 transition-colors text-gray-800 hover:text-purple-700"
                 >
                   {example}
                 </button>
@@ -200,7 +195,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
           <div className="flex items-center gap-3 mb-3">
             <div className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin text-purple-500" />
-              <span className="text-sm font-medium">AI Search in Progress</span>
+              <span className="text-sm font-medium text-gray-900">AI Search in Progress</span>
             </div>
             <div className="text-xs text-gray-500">
               {Math.round(progress)}% complete
