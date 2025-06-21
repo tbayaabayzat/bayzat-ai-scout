@@ -70,17 +70,26 @@ export function useSemanticSearch() {
       const result = await response.json()
       console.log('n8n webhook response:', result)
       
+      // Handle array response format - access first element
+      if (!Array.isArray(result) || result.length === 0) {
+        console.warn('Expected array response but got:', result)
+        throw new Error('Invalid response format: expected array with at least one element')
+      }
+
+      const responseData = result[0]
+      console.log('Extracted response data:', responseData)
+      
       // Check if the response has the expected structure
-      if (!result.success) {
+      if (!responseData.success) {
         throw new Error('Search request was not successful')
       }
 
-      if (!result.data || !result.data.companies) {
-        console.warn('Unexpected response structure:', result)
+      if (!responseData.data || !responseData.data.companies) {
+        console.warn('Unexpected response structure:', responseData)
         throw new Error('Invalid response format from search service')
       }
 
-      const companies = result.data.companies
+      const companies = responseData.data.companies
       console.log('Extracted companies:', companies.length, 'companies')
       console.log('Company IDs:', companies.map((c: any) => c.id))
       
