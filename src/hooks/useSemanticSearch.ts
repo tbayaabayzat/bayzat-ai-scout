@@ -46,6 +46,8 @@ export function useSemanticSearch() {
       // n8n webhook URL
       const n8nWebhookUrl = "https://automation.bayzat.com/webhook/a76a74c7-fd60-4473-8831-323924605244"
       
+      console.log('Sending semantic search request:', query)
+      
       const response = await fetch(n8nWebhookUrl, {
         method: 'POST',
         headers: {
@@ -66,14 +68,29 @@ export function useSemanticSearch() {
       }
 
       const result = await response.json()
+      console.log('n8n webhook response:', result)
+      
+      // Check if the response has the expected structure
+      if (!result.success) {
+        throw new Error('Search request was not successful')
+      }
+
+      if (!result.data || !result.data.companies) {
+        console.warn('Unexpected response structure:', result)
+        throw new Error('Invalid response format from search service')
+      }
+
+      const companies = result.data.companies
+      console.log('Extracted companies:', companies.length, 'companies')
+      console.log('Company IDs:', companies.map((c: any) => c.id))
       
       setProgress(100)
       setCurrentMessage("Search completed!")
       
       setSearchResults({
-        companies: result.companies || [],
+        companies: companies,
         query: query,
-        totalMatches: result.totalMatches || result.companies?.length || 0
+        totalMatches: companies.length
       })
 
     } catch (err) {
