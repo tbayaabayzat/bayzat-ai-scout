@@ -1,11 +1,14 @@
 
 import { SemanticSearchBar } from "@/components/SemanticSearchBar"
+import { AIFilterBadge } from "@/components/semantic-search/AIFilterBadge"
 import { AdvancedFilters } from "@/components/AdvancedFilters"
 import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/types/company"
 
 interface CompaniesFiltersProps {
   onSearch: (term: string) => void
-  onSemanticFilter: (companyIds: string[]) => void
+  onSemanticFilter: (companyIds: string[], query?: string) => void
+  onClearSemanticFilter: () => void
+  activeSemanticQuery: string
   systemsFilter: SystemsFilter
   onSystemsFilterChange: (filter: SystemsFilter) => void
   employeeCountFilter: EmployeeCountFilter
@@ -17,6 +20,8 @@ interface CompaniesFiltersProps {
 export function CompaniesFilters({
   onSearch,
   onSemanticFilter,
+  onClearSemanticFilter,
+  activeSemanticQuery,
   systemsFilter,
   onSystemsFilterChange,
   employeeCountFilter,
@@ -24,12 +29,12 @@ export function CompaniesFilters({
   automationFilter,
   onAutomationFilterChange
 }: CompaniesFiltersProps) {
-  const handleSemanticResults = (companyIds: string[]) => {
-    onSemanticFilter(companyIds)
+  const handleSemanticResults = (companyIds: string[], query: string) => {
+    onSemanticFilter(companyIds, query)
   }
 
   const handleSemanticClear = () => {
-    onSemanticFilter([])
+    onClearSemanticFilter()
   }
 
   return (
@@ -45,6 +50,18 @@ export function CompaniesFilters({
           onClear={handleSemanticClear}
         />
       </div>
+
+      {/* Active AI Filter Badge */}
+      {activeSemanticQuery && (
+        <AIFilterBadge
+          query={activeSemanticQuery}
+          onClear={handleSemanticClear}
+          onRerun={() => {
+            // Re-trigger the same search - this could be enhanced later
+            console.log('Re-running search:', activeSemanticQuery)
+          }}
+        />
+      )}
 
       {/* Traditional Advanced Filters */}
       <AdvancedFilters

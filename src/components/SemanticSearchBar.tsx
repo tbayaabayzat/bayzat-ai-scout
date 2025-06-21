@@ -4,12 +4,11 @@ import { useSemanticSearch } from "@/hooks/useSemanticSearch"
 import { SemanticSearchInput } from "./semantic-search/SemanticSearchInput"
 import { SearchExamplesDropdown } from "./semantic-search/SearchExamplesDropdown"
 import { SearchLoadingState } from "./semantic-search/SearchLoadingState"
-import { SearchResultsSummary } from "./semantic-search/SearchResultsSummary"
 import { SearchErrorState } from "./semantic-search/SearchErrorState"
 import { PLACEHOLDERS } from "./semantic-search/types"
 
 interface SemanticSearchBarProps {
-  onResults: (companyIds: string[]) => void
+  onResults: (companyIds: string[], query: string) => void
   onClear: () => void
 }
 
@@ -57,7 +56,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
   useEffect(() => {
     if (searchResults) {
       const companyIds = searchResults.companies.map(company => company.id)
-      onResults(companyIds)
+      onResults(companyIds, searchResults.query)
     }
   }, [searchResults, onResults])
 
@@ -141,14 +140,6 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
         isVisible={isSearching}
         progress={progress}
         currentMessage={currentMessage}
-      />
-
-      {/* Results Summary */}
-      <SearchResultsSummary
-        isVisible={!!searchResults && !isSearching}
-        totalMatches={searchResults?.totalMatches || 0}
-        query={searchResults?.query || ""}
-        onClear={handleClear}
       />
 
       {/* Error State */}

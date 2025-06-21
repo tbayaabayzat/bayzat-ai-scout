@@ -7,6 +7,7 @@ import { CompaniesTable } from "@/components/CompaniesTable"
 
 export default function Companies() {
   const [semanticCompanyIds, setSemanticCompanyIds] = useState<string[]>([])
+  const [activeSemanticQuery, setActiveSemanticQuery] = useState<string>("")
   
   const {
     companies,
@@ -26,12 +27,18 @@ export default function Companies() {
     ? companies.filter(company => semanticCompanyIds.includes(company.id))
     : companies
 
-  const handleSemanticFilter = (companyIds: string[]) => {
+  const handleSemanticFilter = (companyIds: string[], query?: string) => {
     setSemanticCompanyIds(companyIds)
+    setActiveSemanticQuery(query || "")
     // Clear traditional search when using semantic search
     if (companyIds.length > 0) {
       setSearchTerm("")
     }
+  }
+
+  const handleClearSemanticFilter = () => {
+    setSemanticCompanyIds([])
+    setActiveSemanticQuery("")
   }
 
   return (
@@ -41,6 +48,8 @@ export default function Companies() {
       <CompaniesFilters
         onSearch={setSearchTerm}
         onSemanticFilter={handleSemanticFilter}
+        onClearSemanticFilter={handleClearSemanticFilter}
+        activeSemanticQuery={activeSemanticQuery}
         systemsFilter={systemsFilter}
         onSystemsFilterChange={setSystemsFilter}
         employeeCountFilter={employeeCountFilter}
