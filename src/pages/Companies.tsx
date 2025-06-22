@@ -22,10 +22,10 @@ export default function Companies() {
     setAutomationFilter
   } = useCompaniesData()
 
-  // Filter companies based on semantic search results
+  // Filter companies based on semantic search results - with safety check
   const filteredCompanies = semanticCompanyIds.length > 0 
-    ? companies.filter(company => semanticCompanyIds.includes(company.id))
-    : companies
+    ? (companies || []).filter(company => semanticCompanyIds.includes(company.id))
+    : (companies || [])
 
   const handleSemanticFilter = (companyIds: string[], query?: string) => {
     setSemanticCompanyIds(companyIds)
