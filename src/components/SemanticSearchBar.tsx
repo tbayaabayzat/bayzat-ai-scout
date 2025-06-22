@@ -5,6 +5,7 @@ import { SemanticSearchInput } from "./semantic-search/SemanticSearchInput"
 import { SearchExamplesDropdown } from "./semantic-search/SearchExamplesDropdown"
 import { SearchLoadingState } from "./semantic-search/SearchLoadingState"
 import { SearchErrorState } from "./semantic-search/SearchErrorState"
+import { SearchZeroResultsState } from "./semantic-search/SearchZeroResultsState"
 import { PLACEHOLDERS } from "./semantic-search/types"
 
 interface SemanticSearchBarProps {
@@ -23,6 +24,7 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
     isSearching,
     searchResults,
     error,
+    hasZeroResults,
     progress,
     currentMessage,
     searchWithSemantics,
@@ -140,6 +142,13 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
         isVisible={isSearching}
         progress={progress}
         currentMessage={currentMessage}
+      />
+
+      {/* Zero Results State */}
+      <SearchZeroResultsState
+        isVisible={hasZeroResults}
+        query={searchResults?.query || query}
+        onClear={handleClear}
       />
 
       {/* Error State */}

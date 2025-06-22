@@ -34,12 +34,17 @@ export default function Companies() {
     if (companyIds.length > 0) {
       setSearchTerm("")
     }
+    console.log('Semantic filter applied:', { companyIds: companyIds.length, query })
   }
 
   const handleClearSemanticFilter = () => {
     setSemanticCompanyIds([])
     setActiveSemanticQuery("")
+    console.log('Semantic filter cleared')
   }
+
+  // Check if we have an active semantic search with zero results
+  const hasActiveSemanticSearchWithZeroResults = activeSemanticQuery && semanticCompanyIds.length === 0
 
   return (
     <div className="flex-1 space-y-6 p-8 pt-6">
@@ -62,6 +67,10 @@ export default function Companies() {
         companies={filteredCompanies}
         isLoading={isLoading}
         error={error}
+        emptyStateMessage={hasActiveSemanticSearchWithZeroResults 
+          ? `Your AI search for "${activeSemanticQuery}" didn't find any matching companies.`
+          : undefined
+        }
       />
     </div>
   )

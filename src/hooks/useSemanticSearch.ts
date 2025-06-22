@@ -12,6 +12,7 @@ export function useSemanticSearch() {
   const [isSearching, setIsSearching] = useState(false)
   const [searchResults, setSearchResults] = useState<SemanticSearchResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [hasZeroResults, setHasZeroResults] = useState(false)
   const [progress, setProgress] = useState(0)
   const [currentMessage, setCurrentMessage] = useState("")
 
@@ -29,6 +30,7 @@ export function useSemanticSearch() {
 
     setIsSearching(true)
     setError(null)
+    setHasZeroResults(false)
     setProgress(0)
     setCurrentMessage(progressMessages[0])
 
@@ -84,27 +86,42 @@ export function useSemanticSearch() {
         throw new Error('Search request was not successful')
       }
 
-      if (!responseData.data || !responseData.data.companies) {
+      if (!responseData.data) {
         console.warn('Unexpected response structure:', responseData)
         throw new Error('Invalid response format from search service')
       }
 
-      const companies = responseData.data.companies
+      const companies = responseData.data.companies || []
+      const totalCount = responseData.data.total_count || companies.length
+      
       console.log('Extracted companies:', companies.length, 'companies')
+      console.log('Total count from response:', totalCount)
       console.log('Company IDs:', companies.map((c: any) => c.id))
       
       setProgress(100)
       setCurrentMessage("Search completed!")
       
-      setSearchResults({
-        companies: companies,
-        query: query,
-        totalMatches: companies.length
-      })
+      // Check for zero results
+      if (companies.length === 0 || totalCount === 0) {
+        console.log('Zero results found for query:', query)
+        setHasZeroResults(true)
+        setSearchResults({
+          companies: [],
+          query: query,
+          totalMatches: 0
+        })
+      } else {
+        setSearchResults({
+          companies: companies,
+          query: query,
+          totalMatches: totalCount
+        })
+      }
 
     } catch (err) {
       console.error('Semantic search error:', err)
       setError(err instanceof Error ? err.message : 'Search failed. Please try again.')
+      setHasZeroResults(false)
     } finally {
       setIsSearching(false)
       setTimeout(() => {
@@ -117,6 +134,7 @@ export function useSemanticSearch() {
   const clearResults = useCallback(() => {
     setSearchResults(null)
     setError(null)
+    setHasZeroResults(false)
   }, [])
 
   const cancelSearch = useCallback(() => {
@@ -124,12 +142,14 @@ export function useSemanticSearch() {
     setProgress(0)
     setCurrentMessage("")
     setError(null)
+    setHasZeroResults(false)
   }, [])
 
   return {
     isSearching,
     searchResults,
     error,
+    hasZeroResults,
     progress,
     currentMessage,
     searchWithSemantics,
