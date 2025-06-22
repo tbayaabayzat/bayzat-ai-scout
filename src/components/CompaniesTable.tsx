@@ -14,9 +14,10 @@ interface CompaniesTableProps {
   companies: Company[]
   isLoading: boolean
   error: any
+  emptyStateMessage?: string
 }
 
-export function CompaniesTable({ companies, isLoading, error }: CompaniesTableProps) {
+export function CompaniesTable({ companies, isLoading, error, emptyStateMessage }: CompaniesTableProps) {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [sorting, setSorting] = React.useState<SortingState>([])
@@ -240,7 +241,7 @@ export function CompaniesTable({ companies, isLoading, error }: CompaniesTablePr
         />
         {safeCompanies.length === 0 && !isLoading && (
           <div className="text-sm text-orange-600 mt-2">
-            No data found. Check console for debugging info.
+            {emptyStateMessage || "No data found. Check console for debugging info."}
           </div>
         )}
       </div>
