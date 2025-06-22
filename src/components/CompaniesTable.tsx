@@ -5,6 +5,9 @@ import { DataTable } from "@/components/ui/data-table"
 import { CompanyDetailSheet } from "@/components/company-detail/CompanyDetailSheet"
 import { Company } from "@/types/company"
 import { createCompaniesTableColumns } from "./companies-table/CompaniesTableColumns"
+import { LoadingState } from "./companies-table/LoadingState"
+import { ErrorState } from "./companies-table/ErrorState"
+import { EmptyState } from "./companies-table/EmptyState"
 import * as React from "react"
 
 interface CompaniesTableProps {
@@ -57,25 +60,11 @@ export function CompaniesTable({ companies, isLoading, error, emptyStateMessage 
   })
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        <span className="ml-2">Loading companies...</span>
-      </div>
-    )
+    return <LoadingState />
   }
 
   if (error) {
-    console.error('Query error:', error)
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <p className="text-red-500 mb-2">Error loading companies</p>
-          <p className="text-sm text-muted-foreground">{error.message}</p>
-          <p className="text-xs text-muted-foreground mt-2">Check browser console for details</p>
-        </div>
-      </div>
-    )
+    return <ErrorState error={error} />
   }
 
   console.log('CompaniesTable rendering with', safeCompanies.length, 'companies')
@@ -93,9 +82,7 @@ export function CompaniesTable({ companies, isLoading, error, emptyStateMessage 
           totalRows={totalRows}
         />
         {safeCompanies.length === 0 && !isLoading && (
-          <div className="text-sm text-orange-600 mt-2">
-            {emptyStateMessage || "No data found. Check console for debugging info."}
-          </div>
+          <EmptyState message={emptyStateMessage} />
         )}
       </div>
 
