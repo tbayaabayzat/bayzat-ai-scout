@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Companies from "./pages/Companies";
 import Employees from "./pages/Employees";
 import Research from "./pages/Research";
+import Chat from "./pages/Chat";
 import DevMenu from "./pages/DevMenu";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -73,6 +74,14 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <Research />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute>
+                  <Chat />
                 </ProtectedRoute>
               }
             />

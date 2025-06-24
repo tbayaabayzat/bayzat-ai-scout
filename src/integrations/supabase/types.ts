@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      chat_query_log: {
+        Row: {
+          created_at: string | null
+          execution_time_ms: number | null
+          id: string
+          query: string
+          response: string | null
+          results: Json | null
+          success: boolean | null
+          tokens_used: number | null
+          tool_calls: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          query: string
+          response?: string | null
+          results?: Json | null
+          success?: boolean | null
+          tokens_used?: number | null
+          tool_calls?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          query?: string
+          response?: string | null
+          results?: Json | null
+          success?: boolean | null
+          tokens_used?: number | null
+          tool_calls?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       companies2: {
         Row: {
           affiliated_organizations_by_employees: Json | null
@@ -770,6 +809,19 @@ export type Database = {
       }
     }
     Views: {
+      chat_analytics: {
+        Row: {
+          avg_execution_time: number | null
+          avg_tools_per_query: number | null
+          query_count: number | null
+          query_date: string | null
+          successful_queries: number | null
+          total_tokens: number | null
+          unique_queries: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       company_employment_view_00e2818e_094d_4386_a5e4_fd9e04fd6058: {
         Row: {
           company: string | null
@@ -2496,6 +2548,29 @@ export type Database = {
         ]
       }
       company_employment_view_26cce98f_5f98_4dac_a7dd_ad881e4478af: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_employment_view_277bbd3c_1d5d_4faf_a5b0_56b53429b0e2: {
         Row: {
           company: string | null
           company_id: string | null
@@ -7624,6 +7699,29 @@ export type Database = {
           },
         ]
       }
+      company_employment_view_b6c4ffc7_3274_4c5c_a624_b11b40116728: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_employment_view_b7bc41f1_07ff_4211_ab31_22a84f7d67e8: {
         Row: {
           company: string | null
@@ -10603,6 +10701,20 @@ export type Database = {
       vector_send: {
         Args: { "": string }
         Returns: string
+      }
+      vector_similarity_search: {
+        Args: {
+          query_embedding: string
+          match_table: string
+          match_threshold?: number
+          match_count?: number
+        }
+        Returns: {
+          id: string
+          content: string
+          similarity: number
+          metadata: Json
+        }[]
       }
       vector_typmod_in: {
         Args: { "": unknown[] }

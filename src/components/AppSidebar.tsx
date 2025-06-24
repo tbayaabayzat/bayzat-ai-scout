@@ -1,5 +1,5 @@
 
-import { Building2, Users, Search, Home } from "lucide-react"
+import { Building2, Users, Search, Home, MessageSquare } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -37,6 +37,11 @@ const menuItems = [
     title: "Research",
     url: "/research",
     icon: Search,
+  },
+  {
+    title: "AI Chat",
+    url: "/chat",
+    icon: MessageSquare,
   },
 ]
 
