@@ -4,6 +4,11 @@ import { Copy, Check, User, Bot, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { CompanyCards } from "./CompanyCards"
+import { ChatDataTable } from "./ChatDataTable"
+import { ChatChart } from "./ChatChart"
+import { SuggestedActions } from "./SuggestedActions"
+import { CompanyCardData, ContentSection, SuggestedAction } from "@/types/chat"
 
 interface Message {
   id: string
@@ -12,6 +17,9 @@ interface Message {
   timestamp: Date
   isStreaming?: boolean
   toolResults?: ToolResult[]
+  contentType?: 'text' | 'mixed'
+  sections?: ContentSection[]
+  suggestedActions?: SuggestedAction[]
 }
 
 interface ToolResult {
@@ -24,9 +32,11 @@ interface ToolResult {
 
 interface ChatMessageProps {
   message: Message
+  onCompanyClick?: (company: CompanyCardData) => void
+  onSuggestedActionClick?: (action: SuggestedAction) => void
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message, onCompanyClick, onSuggestedActionClick }: ChatMessageProps) {
   const [copied, setCopied] = useState(false)
   const isUser = message.role === 'user'
 
@@ -57,6 +67,42 @@ export function ChatMessage({ message }: ChatMessageProps) {
           </p>
         )
       })
+  }
+
+  const renderSection = (section: ContentSection, index: number) => {
+    switch (section.type) {
+      case 'company-cards':
+        return (
+          <CompanyCards
+            key={index}
+            companies={section.data}
+            onCompanyClick={onCompanyClick || (() => {})}
+          />
+        )
+      
+      case 'data-table':
+        return (
+          <ChatDataTable
+            key={index}
+            data={{
+              columns: section.metadata?.columns || Object.keys(section.data[0] || {}),
+              data: section.data,
+              exportable: section.metadata?.exportable
+            }}
+          />
+        )
+      
+      case 'chart':
+        return (
+          <ChatChart
+            key={index}
+            data={section.data}
+          />
+        )
+      
+      default:
+        return null
+    }
   }
 
   return (
@@ -95,8 +141,14 @@ export function ChatMessage({ message }: ChatMessageProps) {
               Thinking...
             </Badge>
           )}
+          {message.contentType === 'mixed' && (
+            <Badge variant="outline" className="text-xs">
+              Rich Content
+            </Badge>
+          )}
         </div>
 
+        {/* Text content */}
         <div className="prose prose-sm max-w-none text-foreground">
           {typeof message.content === 'string' ? (
             <div className="space-y-1">
@@ -107,6 +159,22 @@ export function ChatMessage({ message }: ChatMessageProps) {
           )}
         </div>
 
+        {/* Rich content sections */}
+        {message.sections && message.sections.length > 0 && (
+          <div className="mt-4">
+            {message.sections.map((section, index) => renderSection(section, index))}
+          </div>
+        )}
+
+        {/* Suggested actions */}
+        {message.suggestedActions && message.suggestedActions.length > 0 && (
+          <SuggestedActions
+            actions={message.suggestedActions}
+            onActionClick={onSuggestedActionClick || (() => {})}
+          />
+        )}
+
+        {/* Tool results */}
         {message.toolResults && message.toolResults.length > 0 && (
           <div className="mt-4 p-3 bg-background/50 rounded-lg border border-border/50">
             <div className="text-xs font-medium text-muted-foreground mb-2">
