@@ -88,9 +88,21 @@ export function ChatInterface() {
     setIsStreaming(true)
 
     try {
+      // Create properly formatted messages array for the API
+      const formattedMessages = messages.concat([{
+        id: crypto.randomUUID(),
+        role: 'user' as const,
+        content: userMessage,
+        timestamp: new Date()
+      }]).map(msg => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.timestamp.toISOString()
+      }))
+
       const { data, error } = await supabase.functions.invoke('chat-interface', {
         body: {
-          messages: messages.concat([{ role: 'user', content: userMessage }]),
+          messages: formattedMessages,
           stream: true,
           user_id: user?.id || 'anonymous'
         }
@@ -103,23 +115,38 @@ export function ChatInterface() {
       // Add assistant message placeholder
       addMessage('assistant', '')
 
-      // Simulate streaming for now - replace with actual streaming when edge function is ready
-      const response = data?.message || "I'm processing your request and will provide insights about your data shortly. This is a demo response until the edge function is fully implemented."
-      
-      let currentContent = ""
-      const words = response.split(" ")
-      
-      for (let i = 0; i < words.length; i++) {
-        currentContent += (i > 0 ? " " : "") + words[i]
-        updateLastMessage(currentContent)
-        await new Promise(resolve => setTimeout(resolve, 50))
+      // Handle the response
+      if (data?.message) {
+        // Simulate streaming for better UX
+        const response = data.message
+        let currentContent = ""
+        const words = response.split(" ")
+        
+        for (let i = 0; i < words.length; i++) {
+          currentContent += (i > 0 ? " " : "") + words[i]
+          updateLastMessage(currentContent)
+          await new Promise(resolve => setTimeout(resolve, 50))
+        }
+        
+        updateLastMessage(currentContent, true)
+        
+        // Add tool results if available
+        if (data.tool_results && data.tool_results.length > 0) {
+          setMessages(prev => {
+            const updated = [...prev]
+            if (updated.length > 0 && updated[updated.length - 1].role === 'assistant') {
+              updated[updated.length - 1].toolResults = data.tool_results
+            }
+            return updated
+          })
+        }
+      } else {
+        updateLastMessage('I processed your request successfully. How else can I help you?', true)
       }
-      
-      updateLastMessage(currentContent, true)
 
     } catch (error) {
       console.error('Chat error:', error)
-      addMessage('assistant', 'I apologize, but I encountered an error processing your request. Please try again.')
+      addMessage('assistant', 'I apologize, but I encountered an error processing your request. Please try again or rephrase your question.')
     } finally {
       setIsLoading(false)
       setIsStreaming(false)

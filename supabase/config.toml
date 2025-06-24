@@ -1,1 +1,88 @@
-project_id = "zqowwzdptapgdohkvjxr"
+
+project_id = "lbwxrzuaihpwfqobwhng"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[db.pooler]
+enabled = false
+port = 54329
+pool_mode = "transaction"
+default_pool_size = 20
+max_client_conn = 100
+
+[realtime]
+enabled = true
+ip_version = "ipv4"
+port = 54323
+max_header_length = 4096
+
+[studio]
+enabled = true
+port = 54324
+api_url = "http://127.0.0.1:54321"
+openai_api_key = ""
+
+[inbucket]
+enabled = true
+port = 54325
+only_local = true
+smtp_port = 54326
+pop3_port = 54327
+
+[functions.classify-employee-department]
+verify_jwt = false
+
+[functions.chat-interface]
+verify_jwt = false
+
+[auth]
+enabled = true
+port = 54326
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["https://lbwxrzuaihpwfqobwhng.supabase.co/auth/v1/callback"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+enable_email_confirmations = false
+enable_sms_confirmations = false
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+secure_email_change_enabled = false
+secure_password_change_enabled = false
+
+[auth.sms]
+enable_signup = false
+enable_confirmations = false
+template = "Your code is {{ .Code }}"
+
+[edge-runtime]
+enabled = true
+port = 54321
+inspector_port = 8083
+
+[analytics]
+enabled = false
+port = 54327
+vector_port = 54328
+backend = "postgres"
+
+[experimental]
+s3_host = "127.0.0.1"
+s3_port = 54329
+s3_access_key_id = "625729a08b95bf1b7ff351a663f3a23c"
+s3_secret_access_key = "850181e4652dd023b7a98c58ae0d2d34bd487ee0cc3254aed6eda37307425907"
+s3_region = "local"
