@@ -34,7 +34,12 @@ export function ChatMessage({
 }: ChatMessageProps) {
   return (
     <div className="flex items-start gap-4 px-6">
-      <MessageHeader role={message.role} />
+      <MessageHeader 
+        isUser={message.role === 'user'} 
+        timestamp={message.timestamp}
+        isStreaming={message.isStreaming}
+        contentType={message.contentType}
+      />
       
       <div className="flex-1 space-y-4 min-w-0">
         {message.content && (
@@ -50,7 +55,7 @@ export function ChatMessage({
         )}
         
         {message.toolResults && message.toolResults.length > 0 && (
-          <MessageToolResults results={message.toolResults} />
+          <MessageToolResults toolResults={message.toolResults} />
         )}
         
         {message.suggestedActions && message.suggestedActions.length > 0 && (
