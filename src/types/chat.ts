@@ -1,4 +1,5 @@
 
+
 export interface CompanyCardData {
   id: string
   company_name: string
@@ -40,6 +41,13 @@ export interface ChartData {
 export interface DataTableData {
   columns: string[]
   data: any[]
+  exportable?: boolean
+}
+
+export interface ContentSection {
+  type: 'text' | 'company-cards' | 'data-table' | 'chart' | 'actions'
+  data: any
+  metadata?: any
 }
 
 export interface MessageSection {
@@ -55,3 +63,4 @@ export interface ChatResponse {
   tool_results?: any[]
   suggested_actions?: SuggestedAction[]
 }
+
