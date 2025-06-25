@@ -24,12 +24,31 @@ export function useChatState() {
       }]
 
       const response = await sendChatMessage(allMessages, user?.id)
+      console.log('Full response received:', response)
+
+      // Check if we have rich content sections or other data to display
+      const hasRichContent = (response.sections && response.sections.length > 0) ||
+                            (response.tool_results && response.tool_results.length > 0) ||
+                            (response.suggested_actions && response.suggested_actions.length > 0)
+
+      // Determine the message content to display
+      let messageContent = response.message || ''
+      
+      // If no message but we have rich content, provide a helpful intro
+      if (!messageContent && hasRichContent) {
+        messageContent = "Here's what I found:"
+      }
+      
+      // If we have neither message nor rich content, use fallback
+      if (!messageContent && !hasRichContent) {
+        messageContent = 'I processed your request successfully. How else can I help you?'
+      }
 
       addMessage('assistant', '')
 
-      if (response.message) {
+      if (messageContent) {
         let currentContent = ""
-        const words = response.message.split(" ")
+        const words = messageContent.split(" ")
         
         for (let i = 0; i < words.length; i++) {
           currentContent += (i > 0 ? " " : "") + words[i]
@@ -45,7 +64,14 @@ export function useChatState() {
           suggestedActions: response.suggested_actions
         })
       } else {
-        updateLastMessage('I processed your request successfully. How else can I help you?', { isComplete: true })
+        // Handle case where we only have rich content without text
+        updateLastMessage('', {
+          isComplete: true,
+          toolResults: response.tool_results,
+          contentType: response.content_type,
+          sections: response.sections,
+          suggestedActions: response.suggested_actions
+        })
       }
 
     } catch (error) {

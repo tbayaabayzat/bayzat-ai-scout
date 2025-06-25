@@ -105,6 +105,17 @@ export function ChatMessage({ message, onCompanyClick, onSuggestedActionClick }:
     }
   }
 
+  // Check if we have any content to display
+  const hasTextContent = message.content && message.content.trim().length > 0
+  const hasRichContent = (message.sections && message.sections.length > 0) ||
+                         (message.toolResults && message.toolResults.length > 0) ||
+                         (message.suggestedActions && message.suggestedActions.length > 0)
+
+  // Don't render empty assistant messages without rich content
+  if (!isUser && !hasTextContent && !hasRichContent) {
+    return null
+  }
+
   return (
     <div className={cn(
       "group flex gap-4 px-4 py-6 rounded-2xl transition-all duration-200",
@@ -148,20 +159,18 @@ export function ChatMessage({ message, onCompanyClick, onSuggestedActionClick }:
           )}
         </div>
 
-        {/* Text content */}
-        <div className="prose prose-sm max-w-none text-foreground">
-          {typeof message.content === 'string' ? (
+        {/* Text content - only render if there's actual content */}
+        {hasTextContent && (
+          <div className="prose prose-sm max-w-none text-foreground">
             <div className="space-y-1">
               {formatContent(message.content)}
             </div>
-          ) : (
-            <p>{message.content}</p>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Rich content sections */}
         {message.sections && message.sections.length > 0 && (
-          <div className="mt-4">
+          <div className={hasTextContent ? "mt-4" : ""}>
             {message.sections.map((section, index) => renderSection(section, index))}
           </div>
         )}
@@ -210,7 +219,7 @@ export function ChatMessage({ message, onCompanyClick, onSuggestedActionClick }:
           </div>
         )}
 
-        {!isUser && (
+        {!isUser && hasTextContent && (
           <div className="flex items-center gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
               variant="ghost"
