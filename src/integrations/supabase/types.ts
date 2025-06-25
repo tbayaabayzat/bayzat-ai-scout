@@ -10574,6 +10574,10 @@ export type Database = {
         Args: { "": string } | { "": unknown } | { "": unknown }
         Returns: string
       }
+      process_linkedin_profile_to_employee: {
+        Args: { queue_id: string }
+        Returns: Json
+      }
       reclassify_employee_departments: {
         Args: { batch_size?: number }
         Returns: {

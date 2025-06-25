@@ -24,7 +24,8 @@ export function MessageSections({ sections, onCompanyClick }: MessageSectionsPro
         )
       
       case 'data-table':
-        // Handle both direct data and nested DataTable object
+        console.log('MessageSections - Processing data-table section:', section.data)
+        
         let tableData
         
         if (section.data?.DataTable) {
@@ -34,20 +35,42 @@ export function MessageSections({ sections, onCompanyClick }: MessageSectionsPro
           
           tableData = {
             columns: dataTableObj.columns || [],
-            data: dataTableObj.topRows || [],
-            exportable: section.metadata?.exportable || true
+            data: dataTableObj.topRows || dataTableObj.data || [],
+            exportable: section.metadata?.exportable !== false
+          }
+        } else if (section.data?.columns && section.data?.data) {
+          // Direct structure with columns and data properties
+          console.log('MessageSections - Found direct columns/data structure')
+          tableData = {
+            columns: section.data.columns,
+            data: section.data.data,
+            exportable: section.metadata?.exportable !== false
+          }
+        } else if (Array.isArray(section.data)) {
+          // Data is a direct array - infer columns from first item
+          console.log('MessageSections - Data is direct array, inferring columns')
+          const columns = section.data.length > 0 ? Object.keys(section.data[0]) : []
+          tableData = {
+            columns: columns,
+            data: section.data,
+            exportable: section.metadata?.exportable !== false
           }
         } else {
-          // Data is direct
-          console.log('MessageSections - Using direct data for table:', section.data)
+          // Fallback - try to extract from metadata or use empty structure
+          console.log('MessageSections - Using fallback structure')
           tableData = {
-            columns: section.metadata?.columns || Object.keys(section.data[0] || {}),
-            data: Array.isArray(section.data) ? section.data : [],
-            exportable: section.metadata?.exportable
+            columns: section.metadata?.columns || [],
+            data: [],
+            exportable: section.metadata?.exportable !== false
           }
         }
         
-        console.log('MessageSections - Final table data:', tableData)
+        console.log('MessageSections - Final table data:', {
+          columnsCount: tableData.columns?.length || 0,
+          dataCount: tableData.data?.length || 0,
+          columns: tableData.columns,
+          firstRow: tableData.data?.[0]
+        })
         
         return (
           <ChatDataTable
