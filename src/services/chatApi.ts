@@ -7,11 +7,23 @@ export async function sendChatMessage(
   messages: Message[],
   userId: string = 'anonymous'
 ): Promise<ChatApiResponse> {
+  console.log('🚀 sendChatMessage called with:', {
+    messagesCount: messages.length,
+    userId,
+    lastMessage: messages[messages.length - 1]?.content
+  })
+
   const formattedMessages = messages.map(msg => ({
     role: msg.role,
     content: msg.content,
     timestamp: msg.timestamp.toISOString()
   }))
+
+  console.log('📤 Sending to edge function:', {
+    messages: formattedMessages,
+    stream: true,
+    user_id: userId
+  })
 
   const { data, error } = await supabase.functions.invoke('chat-interface', {
     body: {
@@ -22,10 +34,11 @@ export async function sendChatMessage(
   })
 
   if (error) {
+    console.error('❌ Edge function error:', error)
     throw error
   }
 
-  console.log('Raw edge function response:', data)
+  console.log('📥 Raw edge function response:', data)
 
   // Handle the wrapped response structure from edge function
   if (data && data.success) {
@@ -51,9 +64,11 @@ export async function sendChatMessage(
       suggested_actions: data.suggested_actions
     }
   } else if (data && data.success === false) {
+    console.error('❌ Edge function returned error:', data.error)
     throw new Error(data.error || 'Chat request failed')
   }
 
+  console.log('⚠️ Unexpected response format, using fallback')
   // Fallback for direct response structure (backwards compatibility)
   return data || {}
 }

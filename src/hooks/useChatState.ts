@@ -11,6 +11,8 @@ export function useChatState() {
   const { messages, addMessage, updateLastMessage, clearMessages } = useMessages()
 
   const sendMessage = async (userMessage: string) => {
+    console.log('🎯 useChatState.sendMessage called with:', userMessage)
+    
     addMessage('user', userMessage)
     setIsLoading(true)
     setIsStreaming(true)
@@ -22,6 +24,8 @@ export function useChatState() {
         content: userMessage,
         timestamp: new Date()
       }]
+
+      console.log('📨 Calling sendChatMessage with all messages:', allMessages.length)
 
       const response = await sendChatMessage(allMessages, user?.id)
       console.log('🎯 Processed response in useChatState:', response)
@@ -51,6 +55,8 @@ export function useChatState() {
       if (!messageContent && !hasRichContent) {
         messageContent = 'I processed your request successfully. How else can I help you?'
       }
+
+      console.log('💬 Final message content:', messageContent)
 
       // Add the assistant message first
       addMessage('assistant', '')
