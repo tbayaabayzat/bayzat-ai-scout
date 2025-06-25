@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { ChatHeader } from "./ChatHeader"
@@ -17,6 +16,7 @@ export function ChatInterface() {
   const { messages, isLoading, isStreaming, sendMessage, clearChat } = useChatState()
 
   const handleCompanyClick = (company: CompanyCardData) => {
+    // Pass the complete company data including ai_analysis
     const companyData = {
       id: company.id,
       company_name: company.company_name,
@@ -26,6 +26,21 @@ export function ChatInterface() {
       website_url: company.website_url,
       bayzat_relationship: company.bayzat_relationship,
       description: company.description,
+      ai_analysis: company.ai_analysis, // Include ai_analysis data
+      tagline: company.tagline,
+      founded_year: company.founded_year,
+      headquarter: company.headquarter,
+      // Include any other fields that might be needed
+      has_erp: company.has_erp,
+      has_hris: company.has_hris,
+      has_accounting: company.has_accounting,
+      has_payroll: company.has_payroll,
+      automation_overall: company.automation_overall,
+      automation_hr: company.automation_hr,
+      automation_finance: company.automation_finance,
+      automation_operations: company.automation_operations,
+      automation_sales: company.automation_sales,
+      location: company.location
     }
     
     setSelectedCompany(companyData)
