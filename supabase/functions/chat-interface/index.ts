@@ -8,8 +8,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// OpenAI API key - will be set via environment variables
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+// Claude API key - will be set via environment variables
+const claudeApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
 // Initialize Supabase client
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -63,6 +63,10 @@ function analyzeQueryIntent(query: string): {
   needsDataTable: boolean;
   chartType?: 'bar' | 'pie' | 'line' | 'scatter';
   companyMentions: string[];
+  industryFilter?: string;
+  automationFilter?: { min?: number; max?: number };
+  employeeCountFilter?: { min?: number; max?: number };
+  systemFilters?: { missing?: string[]; has?: string[] };
 } {
   const lowerQuery = query.toLowerCase();
   
@@ -87,6 +91,62 @@ function analyzeQueryIntent(query: string): {
   const needsDataTable = tableKeywords.some(keyword => lowerQuery.includes(keyword)) || 
                          lowerQuery.includes('show all') || lowerQuery.includes('list all');
   
+  // Industry detection
+  let industryFilter: string | undefined;
+  const industryKeywords = {
+    'restaurant': ['restaurant', 'food service', 'dining', 'catering', 'food'],
+    'technology': ['tech', 'software', 'saas', 'it services'],
+    'healthcare': ['healthcare', 'medical', 'hospital', 'clinic'],
+    'retail': ['retail', 'e-commerce', 'shopping'],
+    'finance': ['finance', 'banking', 'fintech', 'investment']
+  };
+  
+  for (const [industry, keywords] of Object.entries(industryKeywords)) {
+    if (keywords.some(keyword => lowerQuery.includes(keyword))) {
+      industryFilter = industry;
+      break;
+    }
+  }
+  
+  // Automation level detection
+  let automationFilter: { min?: number; max?: number } | undefined;
+  if (lowerQuery.includes('low automation') || lowerQuery.includes('poor automation')) {
+    automationFilter = { max: 30 };
+  } else if (lowerQuery.includes('high automation') || lowerQuery.includes('well automated')) {
+    automationFilter = { min: 70 };
+  } else if (lowerQuery.includes('medium automation')) {
+    automationFilter = { min: 30, max: 70 };
+  }
+  
+  // Employee count detection
+  let employeeCountFilter: { min?: number; max?: number } | undefined;
+  const employeeMatch = lowerQuery.match(/(\d+)\s*(?:to|-)\s*(\d+)\s*employee/);
+  if (employeeMatch) {
+    const min = parseInt(employeeMatch[1]);
+    const max = parseInt(employeeMatch[2]);
+    employeeCountFilter = { min, max };
+  } else if (lowerQuery.includes('small companies') || lowerQuery.includes('small business')) {
+    employeeCountFilter = { max: 50 };
+  } else if (lowerQuery.includes('large companies') || lowerQuery.includes('enterprise')) {
+    employeeCountFilter = { min: 200 };
+  }
+  
+  // System detection
+  let systemFilters: { missing?: string[]; has?: string[] } | undefined;
+  const missing: string[] = [];
+  const has: string[] = [];
+  
+  if (lowerQuery.includes('no hr') || lowerQuery.includes('missing hr')) missing.push('hris');
+  if (lowerQuery.includes('no erp') || lowerQuery.includes('missing erp')) missing.push('erp');
+  if (lowerQuery.includes('using netsuite') || lowerQuery.includes('has netsuite')) has.push('netsuite');
+  if (lowerQuery.includes('using sap') || lowerQuery.includes('has sap')) has.push('sap');
+  
+  if (missing.length > 0 || has.length > 0) {
+    systemFilters = {};
+    if (missing.length > 0) systemFilters.missing = missing;
+    if (has.length > 0) systemFilters.has = has;
+  }
+  
   // Extract potential company mentions (basic implementation)
   const companyMentions: string[] = [];
   const commonCompanyTerms = ['bayzat', 'netsuite', 'oracle', 'sap', 'microsoft'];
@@ -101,13 +161,17 @@ function analyzeQueryIntent(query: string): {
     needsCompanyCards,
     needsDataTable,
     chartType,
-    companyMentions
+    companyMentions,
+    industryFilter,
+    automationFilter,
+    employeeCountFilter,
+    systemFilters
   };
 }
 
-// Enhanced company data fetching with logo and detailed info
-async function fetchCompaniesWithDetails(filters: any, limit = 20): Promise<any[]> {
-  const { data, error } = await supabase
+// Enhanced company data fetching with smart filtering
+async function fetchCompaniesWithFilters(intent: ReturnType<typeof analyzeQueryIntent>, limit = 20): Promise<any[]> {
+  let query = supabase
     .from('companies2')
     .select(`
       id,
@@ -122,13 +186,66 @@ async function fetchCompaniesWithDetails(filters: any, limit = 20): Promise<any[
       tagline,
       ai_analysis,
       headquarter
-    `)
-    .limit(limit);
+    `);
+  
+  // Apply industry filter
+  if (intent.industryFilter) {
+    query = query.ilike('industry', `%${intent.industryFilter}%`);
+  }
+  
+  // Apply employee count filter
+  if (intent.employeeCountFilter) {
+    if (intent.employeeCountFilter.min) {
+      query = query.gte('employee_count', intent.employeeCountFilter.min);
+    }
+    if (intent.employeeCountFilter.max) {
+      query = query.lte('employee_count', intent.employeeCountFilter.max);
+    }
+  }
+  
+  query = query.limit(limit);
+  
+  const { data, error } = await query;
   
   if (error) throw error;
   
-  // Enhance with automation scores and other computed fields
-  return data?.map(company => ({
+  let filteredData = data || [];
+  
+  // Apply automation filter (post-processing since it's in JSON)
+  if (intent.automationFilter && filteredData.length > 0) {
+    filteredData = filteredData.filter(company => {
+      const automationScore = company.ai_analysis?.automation_scores?.overall || 0;
+      if (intent.automationFilter!.min && automationScore < intent.automationFilter!.min) return false;
+      if (intent.automationFilter!.max && automationScore > intent.automationFilter!.max) return false;
+      return true;
+    });
+  }
+  
+  // Apply system filters (post-processing since it's in JSON)
+  if (intent.systemFilters && filteredData.length > 0) {
+    filteredData = filteredData.filter(company => {
+      const systems = company.ai_analysis?.systems || {};
+      
+      // Check missing systems
+      if (intent.systemFilters!.missing) {
+        for (const system of intent.systemFilters!.missing) {
+          if (systems[system] === true) return false; // System exists, but we want missing
+        }
+      }
+      
+      // Check required systems
+      if (intent.systemFilters!.has) {
+        for (const system of intent.systemFilters!.has) {
+          if (systems[system] !== true) return false; // System doesn't exist, but we need it
+        }
+      }
+      
+      return true;
+    });
+  }
+  
+  // Enhance with computed fields
+  return filteredData.map(company => ({
     ...company,
     has_erp: company.ai_analysis?.systems?.erp || false,
     has_hris: company.ai_analysis?.systems?.hris || false,
@@ -138,7 +255,7 @@ async function fetchCompaniesWithDetails(filters: any, limit = 20): Promise<any[
     automation_hr: company.ai_analysis?.automation_scores?.hr || 0,
     automation_finance: company.ai_analysis?.automation_scores?.finance || 0,
     location: company.headquarter?.city || 'Unknown'
-  })) || [];
+  }));
 }
 
 // Generate chart data based on query intent
@@ -159,24 +276,22 @@ function generateChartData(companies: any[], chartType: string): any {
       };
       
     case 'bar':
-      // Employee count ranges
-      const ranges = companies.reduce((acc, company) => {
-        const count = company.employee_count || 0;
-        let range;
-        if (count < 50) range = '1-49';
-        else if (count < 200) range = '50-199';
-        else if (count < 500) range = '200-499';
-        else if (count < 1000) range = '500-999';
-        else range = '1000+';
-        
-        acc[range] = (acc[range] || 0) + 1;
+      // Automation scores by industry
+      const automationByIndustry = companies.reduce((acc, company) => {
+        const industry = company.industry || 'Unknown';
+        if (!acc[industry]) acc[industry] = { total: 0, count: 0 };
+        acc[industry].total += company.automation_overall || 0;
+        acc[industry].count += 1;
         return acc;
       }, {});
       
       return {
         type: 'bar',
-        data: Object.entries(ranges).map(([range, count]) => ({ range, count })),
-        title: 'Companies by Employee Count'
+        data: Object.entries(automationByIndustry).map(([industry, data]: [string, any]) => ({
+          industry,
+          automation: Math.round(data.total / data.count)
+        })),
+        title: 'Average Automation Score by Industry'
       };
       
     case 'scatter':
@@ -197,70 +312,57 @@ function generateChartData(companies: any[], chartType: string): any {
 }
 
 // Generate smart action suggestions based on context
-function generateSuggestedActions(companies: any[], query: string): SuggestedAction[] {
+function generateSuggestedActions(companies: any[], query: string, intent: ReturnType<typeof analyzeQueryIntent>): SuggestedAction[] {
   const actions: SuggestedAction[] = [];
   
   if (companies.length > 0) {
-    // Industry-based suggestions
-    const industries = [...new Set(companies.map(c => c.industry).filter(Boolean))];
-    if (industries.length > 1) {
+    // Industry-specific suggestions
+    if (intent.industryFilter === 'restaurant') {
       actions.push({
-        label: `Compare ${industries[0]} vs ${industries[1]} companies`,
-        query: `Compare automation scores between ${industries[0]} and ${industries[1]} companies`,
+        label: 'Find restaurants with low HR automation',
+        query: 'Show me restaurants with poor HR automation that need Bayzat services',
+        type: 'query'
+      });
+      
+      actions.push({
+        label: 'Compare restaurant automation levels',
+        query: 'Create a chart showing automation levels across different restaurant sizes',
         type: 'query'
       });
     }
     
-    // Size-based suggestions
-    const hasLargeCompanies = companies.some(c => (c.employee_count || 0) > 500);
-    const hasSmallCompanies = companies.some(c => (c.employee_count || 0) < 100);
-    
-    if (hasLargeCompanies && hasSmallCompanies) {
-      actions.push({
-        label: 'Compare large vs small companies',
-        query: 'Compare automation levels between companies with 500+ employees vs under 100 employees',
-        type: 'query'
-      });
-    }
-    
-    // System-based suggestions
+    // Automation-based suggestions
     const lowAutomation = companies.filter(c => (c.automation_overall || 0) < 30);
     if (lowAutomation.length > 0) {
       actions.push({
-        label: 'Find prospects with low automation',
-        query: 'Show companies with automation scores below 30%',
+        label: `Target ${lowAutomation.length} low-automation prospects`,
+        query: 'Show detailed profiles of companies with automation scores below 30%',
         type: 'filter'
       });
     }
     
-    // Employee suggestions
-    if (companies.length <= 5) {
+    // System-based suggestions
+    const noHRIS = companies.filter(c => !c.has_hris);
+    if (noHRIS.length > 0) {
       actions.push({
-        label: 'Find key employees at these companies',
-        query: `Find HR managers and decision makers at ${companies.slice(0, 3).map(c => c.company_name).join(', ')}`,
-        type: 'query'
+        label: `${noHRIS.length} companies need HR systems`,
+        query: 'Show companies without HRIS that are perfect Bayzat prospects',
+        type: 'action'
       });
     }
   }
   
-  // General suggestions
-  actions.push(
-    {
-      label: 'Show automation trends by industry',
-      query: 'Create a chart showing automation scores by industry',
-      type: 'query'
-    },
-    {
-      label: 'Find rapidly growing companies',
-      query: 'Show companies founded after 2015 with 50+ employees',
-      type: 'filter'
-    }
-  );
+  // General business development suggestions
+  actions.push({
+    label: 'Find high-growth prospects',
+    query: 'Show me companies founded after 2018 with 50+ employees and low automation',
+    type: 'query'
+  });
   
   return actions.slice(0, 4); // Limit to 4 suggestions
 }
 
-// Enhanced data query execution with rich response generation
+// Enhanced data query execution with intelligent filtering
 async function executeEnhancedDataQuery(query: string): Promise<{ toolResults: ToolResult[], response: EnhancedChatResponse }> {
   const startTime = Date.now();
   const intent = analyzeQueryIntent(query);
@@ -268,17 +370,19 @@ async function executeEnhancedDataQuery(query: string): Promise<{ toolResults: T
   const sections: ContentSection[] = [];
   
   try {
-    console.log('Enhanced query analysis:', intent);
+    console.log('🎯 Enhanced query analysis:', intent);
     
-    // Fetch relevant data based on query
-    const companies = await fetchCompaniesWithDetails({}, intent.needsDataTable ? 50 : 20);
+    // Fetch filtered data based on intelligent intent detection
+    const companies = await fetchCompaniesWithFilters(intent, intent.needsDataTable ? 50 : 20);
     
     toolResults.push({
-      tool: 'enhanced_company_search',
+      tool: 'intelligent_company_search',
       success: true,
       data: companies,
       execution_time_ms: Date.now() - startTime
     });
+    
+    console.log(`📊 Found ${companies.length} companies matching criteria`);
     
     let message = '';
     
@@ -287,9 +391,24 @@ async function executeEnhancedDataQuery(query: string): Promise<{ toolResults: T
       sections.push({
         type: 'company-cards',
         data: companies.slice(0, 8), // Limit to 8 cards for UI
-        metadata: { total: companies.length }
+        metadata: { total: companies.length, filters: intent }
       });
-      message += `Found ${companies.length} companies. Here are the top matches:\n\n`;
+      
+      const filterDescription = [];
+      if (intent.industryFilter) filterDescription.push(`in ${intent.industryFilter}`);
+      if (intent.employeeCountFilter) {
+        const { min, max } = intent.employeeCountFilter;
+        if (min && max) filterDescription.push(`with ${min}-${max} employees`);
+        else if (min) filterDescription.push(`with ${min}+ employees`);
+        else if (max) filterDescription.push(`with under ${max} employees`);
+      }
+      if (intent.automationFilter) {
+        const { min, max } = intent.automationFilter;
+        if (max && max <= 30) filterDescription.push('with low automation');
+        else if (min && min >= 70) filterDescription.push('with high automation');
+      }
+      
+      message += `Found ${companies.length} companies ${filterDescription.join(' ')}. Here are the top matches:\n\n`;
     }
     
     // Generate data table if requested
@@ -299,10 +418,10 @@ async function executeEnhancedDataQuery(query: string): Promise<{ toolResults: T
         data: companies,
         metadata: {
           columns: ['company_name', 'industry', 'employee_count', 'automation_overall', 'bayzat_relationship'],
-          exportable: true
+          exportable: true,
+          filters: intent
         }
       });
-      message += `Detailed data table with ${companies.length} companies:\n\n`;
     }
     
     // Generate chart if visualization is requested
@@ -312,35 +431,16 @@ async function executeEnhancedDataQuery(query: string): Promise<{ toolResults: T
         sections.push({
           type: 'chart',
           data: chartData,
-          metadata: { exportable: true }
+          metadata: { exportable: true, filters: intent }
         });
-        message += `${chartData.title} visualization:\n\n`;
-      }
-    }
-    
-    // Add text content if no rich content was generated
-    if (sections.length === 0) {
-      if (companies.length > 0) {
-        message = `I found ${companies.length} companies matching your criteria:\n\n`;
-        companies.slice(0, 5).forEach(company => {
-          message += `• **${company.company_name}** (${company.industry || 'Unknown industry'})\n`;
-          message += `  - ${company.employee_count || 'Unknown'} employees\n`;
-          message += `  - Automation score: ${company.automation_overall || 0}%\n\n`;
-        });
-        
-        if (companies.length > 5) {
-          message += `... and ${companies.length - 5} more companies.`;
-        }
-      } else {
-        message = "I couldn't find any companies matching your criteria. Try adjusting your search parameters.";
       }
     }
     
     // Generate suggested actions
-    const suggestedActions = generateSuggestedActions(companies, query);
+    const suggestedActions = generateSuggestedActions(companies, query, intent);
     
     const response: EnhancedChatResponse = {
-      message,
+      message: message || `I found ${companies.length} companies matching your criteria.`,
       content_type: sections.length > 0 ? 'mixed' : 'text',
       sections,
       tool_results: toolResults,
@@ -350,7 +450,7 @@ async function executeEnhancedDataQuery(query: string): Promise<{ toolResults: T
     return { toolResults, response };
     
   } catch (error) {
-    console.error('Enhanced query execution error:', error);
+    console.error('❌ Enhanced query execution error:', error);
     toolResults.push({
       tool: 'enhanced_data_query',
       success: false,
@@ -369,23 +469,31 @@ async function executeEnhancedDataQuery(query: string): Promise<{ toolResults: T
   }
 }
 
-// Enhanced AI response generation
+// Enhanced AI response generation using Claude
 async function generateEnhancedAIResponse(messages: ChatMessage[], enhancedResponse: EnhancedChatResponse): Promise<string> {
-  if (!openAIApiKey) {
-    return enhancedResponse.message || "I'm sorry, but I need an OpenAI API key to generate intelligent responses.";
+  if (!claudeApiKey) {
+    console.log('⚠️ No Claude API key found, using fallback response');
+    return enhancedResponse.message || "I'm sorry, but I need an Anthropic API key to generate intelligent responses.";
   }
   
   try {
-    // Prepare context with enhanced data
-    let systemMessage = `You are an AI data assistant for Bayzat, specialized in helping analyze company and employee data. 
-    You have access to a database of companies and their employee profiles. 
-    Provide helpful, accurate insights based on the data provided.
-    
-    When presenting data, format it clearly and highlight key insights.
-    Focus on actionable business intelligence and opportunities.
-    
-    The system has already prepared rich content sections for the user including:
-    ${enhancedResponse.sections.map(s => `- ${s.type}: ${JSON.stringify(s.metadata || {})}`).join('\n')}`;
+    // Prepare system message for Claude
+    let systemMessage = `You are an AI business intelligence assistant for Bayzat, a leading HR and payroll platform in the Middle East. You specialize in analyzing company data to identify sales prospects and business opportunities.
+
+Your role is to help sales and business development teams by:
+- Analyzing company automation levels and identifying gaps
+- Finding prospects who need HR, payroll, or business management solutions
+- Providing actionable business intelligence and market insights
+- Highlighting opportunities for Bayzat's services
+
+When analyzing data, focus on:
+- Companies with low automation scores (potential prospects)
+- Businesses missing key HR/payroll systems
+- Industry-specific challenges and opportunities
+- Growth patterns and market trends
+
+The system has prepared rich content including:
+${enhancedResponse.sections.map(s => `- ${s.type}: ${JSON.stringify(s.metadata || {})}`).join('\n')}`;
     
     if (enhancedResponse.tool_results && enhancedResponse.tool_results.length > 0) {
       systemMessage += `\n\nData context:\n`;
@@ -393,46 +501,56 @@ async function generateEnhancedAIResponse(messages: ChatMessage[], enhancedRespo
         if (result.success && result.data) {
           systemMessage += `\n${result.tool} (${result.execution_time_ms}ms):\n`;
           if (Array.isArray(result.data)) {
-            systemMessage += `Found ${result.data.length} records\n`;
+            systemMessage += `Found ${result.data.length} companies\n`;
             // Include sample data for context
             if (result.data.length > 0) {
-              systemMessage += `Sample: ${JSON.stringify(result.data[0], null, 2)}\n`;
+              const sample = result.data[0];
+              systemMessage += `Sample company: ${sample.company_name} - ${sample.industry} - ${sample.employee_count} employees - ${sample.automation_overall}% automation\n`;
             }
-          } else {
-            systemMessage += `${JSON.stringify(result.data, null, 2)}\n`;
           }
         }
       });
     }
     
-    const apiMessages = [
-      { role: 'system', content: systemMessage },
-      ...messages.slice(-5) // Keep last 5 messages for context
-    ];
+    // Prepare messages for Claude (exclude system messages from the array)
+    const claudeMessages = messages
+      .filter(msg => msg.role !== 'system')
+      .slice(-5) // Keep last 5 messages for context
+      .map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
     
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    console.log('🤖 Calling Claude API with system message length:', systemMessage.length);
+    
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'x-api-key': claudeApiKey,
         'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: apiMessages,
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 1000,
-        temperature: 0.7,
+        system: systemMessage,
+        messages: claudeMessages
       }),
     });
     
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('❌ Claude API error:', response.status, errorText);
+      throw new Error(`Claude API error: ${response.status}`);
     }
     
     const data = await response.json();
-    return data.choices[0]?.message?.content || enhancedResponse.message;
+    console.log('✅ Claude API response received');
+    
+    return data.content[0]?.text || enhancedResponse.message;
     
   } catch (error) {
-    console.error('OpenAI API error:', error);
+    console.error('❌ Claude API error:', error);
     return enhancedResponse.message || `I encountered an error while generating a response: ${error.message}`;
   }
 }
@@ -444,7 +562,7 @@ serve(async (req) => {
   }
   
   try {
-    console.log('Enhanced chat interface request received');
+    console.log('🚀 Enhanced chat interface request received');
     
     const { messages, stream, user_id }: ChatRequest = await req.json();
     
@@ -458,12 +576,12 @@ serve(async (req) => {
       throw new Error('Latest message must be from user');
     }
     
-    console.log('Processing enhanced user query:', latestMessage.content);
+    console.log('📝 Processing user query:', latestMessage.content);
     
-    // Execute enhanced data processing
+    // Execute enhanced data processing with intelligent filtering
     const { toolResults, response: enhancedResponse } = await executeEnhancedDataQuery(latestMessage.content);
     
-    // Generate AI response with enhanced context
+    // Generate AI response with Claude and enhanced context
     const aiResponse = await generateEnhancedAIResponse(messages, enhancedResponse);
     
     // Create final response structure
@@ -488,17 +606,17 @@ serve(async (req) => {
         success: true
       });
     } catch (logError) {
-      console.error('Failed to log enhanced query:', logError);
+      console.error('⚠️ Failed to log query:', logError);
     }
     
-    console.log('Sending enhanced response with', enhancedResponse.sections.length, 'rich sections');
+    console.log('✅ Sending enhanced response with', enhancedResponse.sections.length, 'rich sections');
     
     return new Response(JSON.stringify(finalResponse), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
     
   } catch (error) {
-    console.error('Error in enhanced chat-interface function:', error);
+    console.error('❌ Error in enhanced chat-interface function:', error);
     
     const errorResponse = {
       success: false,
