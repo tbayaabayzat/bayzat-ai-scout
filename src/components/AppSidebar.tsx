@@ -32,7 +32,7 @@ const menuItems = [
     comingSoon: false,
   },
   {
-    title: "Employee Profiles",
+    title: "People",
     url: "/employees",
     icon: Users,
     comingSoon: true,

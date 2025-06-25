@@ -138,7 +138,7 @@ export function EmployeesSection({ company, onEmployeeClick }: EmployeesSectionP
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Users className="h-5 w-5 text-muted-foreground" />
-          <h3 className="text-xl font-semibold">Current Employees</h3>
+          <h3 className="text-xl font-semibold">Current People</h3>
           <span className="text-sm text-muted-foreground">{getEmployeeCountDisplay()}</span>
         </div>
       </div>
@@ -146,8 +146,8 @@ export function EmployeesSection({ company, onEmployeeClick }: EmployeesSectionP
       {employees.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <h3 className="text-lg font-medium mb-2">No Employee Data Available</h3>
-          <p className="text-sm">No current employees found for this company.</p>
+          <h3 className="text-lg font-medium mb-2">No People Data Available</h3>
+          <p className="text-sm">No current people found for this company.</p>
           <p className="text-xs mt-2">Searched with Company ID: {companyId}</p>
         </div>
       ) : (
@@ -156,7 +156,7 @@ export function EmployeesSection({ company, onEmployeeClick }: EmployeesSectionP
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search employees by name or role..."
+              placeholder="Search people by name or role..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
@@ -175,7 +175,7 @@ export function EmployeesSection({ company, onEmployeeClick }: EmployeesSectionP
           {filteredEmployees.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Users className="h-8 w-8 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">No employees match your search criteria</p>
+              <p className="text-sm">No people match your search criteria</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

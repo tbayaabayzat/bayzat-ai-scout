@@ -81,7 +81,7 @@ export default function Employees() {
     <div className="flex-1 space-y-6 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Employee Profiles</h2>
+          <h2 className="text-3xl font-bold tracking-tight">People</h2>
           <p className="text-muted-foreground">
             Find and connect with key decision makers and influencers
           </p>
@@ -209,7 +209,7 @@ export default function Employees() {
       {employees && employees.length === 0 && (
         <div className="text-center py-12">
           <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium">No employees found</h3>
+          <h3 className="text-lg font-medium">No people found</h3>
           <p className="text-muted-foreground">
             Try adjusting your search terms or filters.
           </p>
