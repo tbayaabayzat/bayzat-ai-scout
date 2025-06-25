@@ -18,6 +18,8 @@ interface ChatDataTableProps {
 }
 
 export function ChatDataTable({ data, onExport }: ChatDataTableProps) {
+  console.log('ChatDataTable - Received data:', data)
+
   // Add validation to ensure data.data is an array
   if (!data || !Array.isArray(data.data)) {
     console.error('ChatDataTable: Invalid data structure', data)
