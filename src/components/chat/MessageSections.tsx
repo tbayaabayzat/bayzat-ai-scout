@@ -22,14 +22,17 @@ export function MessageSections({ sections, onCompanyClick }: MessageSectionsPro
         )
       
       case 'data-table':
+        // Ensure data structure is correct for ChatDataTable
+        const tableData = {
+          columns: section.metadata?.columns || Object.keys(section.data[0] || {}),
+          data: Array.isArray(section.data) ? section.data : [],
+          exportable: section.metadata?.exportable
+        }
+        
         return (
           <ChatDataTable
             key={index}
-            data={{
-              columns: section.metadata?.columns || Object.keys(section.data[0] || {}),
-              data: section.data,
-              exportable: section.metadata?.exportable
-            }}
+            data={tableData}
           />
         )
       

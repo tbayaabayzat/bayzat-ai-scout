@@ -18,6 +18,16 @@ interface ChatDataTableProps {
 }
 
 export function ChatDataTable({ data, onExport }: ChatDataTableProps) {
+  // Add validation to ensure data.data is an array
+  if (!data || !Array.isArray(data.data)) {
+    console.error('ChatDataTable: Invalid data structure', data)
+    return (
+      <div className="my-4 border rounded-lg p-4">
+        <p className="text-muted-foreground">No data available to display</p>
+      </div>
+    )
+  }
+
   const formatCellValue = (value: any, column: string): React.ReactNode => {
     if (value === null || value === undefined) return '-'
     
