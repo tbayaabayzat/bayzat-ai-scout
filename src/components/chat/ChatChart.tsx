@@ -32,10 +32,10 @@ export function ChatChart({ data, onExport }: ChatChartProps) {
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="range" />
+              <XAxis dataKey="industry" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="count" fill="#0088FE" />
+              <Bar dataKey="automation" fill="#0088FE" />
             </BarChart>
           </ResponsiveContainer>
         )

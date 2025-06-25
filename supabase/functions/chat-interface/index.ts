@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
@@ -109,14 +108,14 @@ function analyzeQueryIntent(query: string): {
     }
   }
   
-  // Automation level detection
+  // Automation level detection - using automation_level scale (1-5)
   let automationFilter: { min?: number; max?: number } | undefined;
   if (lowerQuery.includes('low automation') || lowerQuery.includes('poor automation') || lowerQuery.includes('low hr automation')) {
-    automationFilter = { max: 30 };
+    automationFilter = { max: 2 }; // 1-2 on 5-point scale
   } else if (lowerQuery.includes('high automation') || lowerQuery.includes('well automated')) {
-    automationFilter = { min: 70 };
+    automationFilter = { min: 4 }; // 4-5 on 5-point scale
   } else if (lowerQuery.includes('medium automation')) {
-    automationFilter = { min: 30, max: 70 };
+    automationFilter = { min: 2, max: 4 }; // 2-4 on 5-point scale
   }
   
   // Employee count detection
@@ -216,10 +215,10 @@ async function fetchCompaniesWithFilters(intent: ReturnType<typeof analyzeQueryI
   
   let filteredData = data || [];
   
-  // Apply automation filter (post-processing since it's in JSON)
+  // Apply automation filter (post-processing since it's in JSON) - using automation_level.overall
   if (intent.automationFilter && filteredData.length > 0) {
     filteredData = filteredData.filter(company => {
-      const automationScore = company.ai_analysis?.automation_scores?.overall || 0;
+      const automationScore = company.ai_analysis?.automation_level?.overall || 0;
       if (intent.automationFilter!.min && automationScore < intent.automationFilter!.min) return false;
       if (intent.automationFilter!.max && automationScore > intent.automationFilter!.max) return false;
       return true;
@@ -249,16 +248,18 @@ async function fetchCompaniesWithFilters(intent: ReturnType<typeof analyzeQueryI
     });
   }
   
-  // Enhance with computed fields
+  // Enhance with computed fields - using automation_level instead of automation_scores
   return filteredData.map(company => ({
     ...company,
     has_erp: company.ai_analysis?.systems?.erp || false,
     has_hris: company.ai_analysis?.systems?.hris || false,
     has_accounting: company.ai_analysis?.systems?.accounting || false,
     has_payroll: company.ai_analysis?.systems?.payroll || false,
-    automation_overall: company.ai_analysis?.automation_scores?.overall || 0,
-    automation_hr: company.ai_analysis?.automation_scores?.hr || 0,
-    automation_finance: company.ai_analysis?.automation_scores?.finance || 0,
+    automation_overall: company.ai_analysis?.automation_level?.overall || 0,
+    automation_hr: company.ai_analysis?.automation_level?.hr || 0,
+    automation_finance: company.ai_analysis?.automation_level?.finance || 0,
+    automation_operations: company.ai_analysis?.automation_level?.operations || 0,
+    automation_sales: company.ai_analysis?.automation_level?.sales_marketing || 0,
     location: company.headquarter?.city || 'Unknown'
   }));
 }
@@ -336,12 +337,12 @@ function generateSuggestedActions(companies: any[], query: string, intent: Retur
       });
     }
     
-    // Automation-based suggestions
-    const lowAutomation = companies.filter(c => (c.automation_overall || 0) < 30);
+    // Automation-based suggestions - using 1-5 scale
+    const lowAutomation = companies.filter(c => (c.automation_overall || 0) < 2);
     if (lowAutomation.length > 0) {
       actions.push({
         label: `Target ${lowAutomation.length} low-automation prospects`,
-        query: 'Show detailed profiles of companies with automation scores below 30%',
+        query: 'Show detailed profiles of companies with automation scores below 2',
         type: 'filter'
       });
     }
@@ -409,8 +410,8 @@ async function executeEnhancedDataQuery(query: string): Promise<{ toolResults: T
       }
       if (intent.automationFilter) {
         const { min, max } = intent.automationFilter;
-        if (max && max <= 30) filterDescription.push('with low automation');
-        else if (min && min >= 70) filterDescription.push('with high automation');
+        if (max && max <= 2) filterDescription.push('with low automation');
+        else if (min && min >= 4) filterDescription.push('with high automation');
       }
       
       message += `Found ${companies.length} companies ${filterDescription.join(' ')}. Here are the top matches:\n\n`;
@@ -530,7 +531,7 @@ ${enhancedResponse.sections.map(s => `- ${s.type}: ${JSON.stringify(s.metadata |
             // Include sample data for context
             if (result.data.length > 0) {
               const sample = result.data[0];
-              systemMessage += `Sample company: ${sample.company_name} - ${sample.industry} - ${sample.employee_count} employees - ${sample.automation_overall}% automation\n`;
+              systemMessage += `Sample company: ${sample.company_name} - ${sample.industry} - ${sample.employee_count} employees - ${sample.automation_overall}/5 automation\n`;
             }
           }
         }
