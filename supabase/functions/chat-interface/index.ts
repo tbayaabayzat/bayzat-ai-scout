@@ -36,7 +36,7 @@ interface ToolResult {
 }
 
 interface ContentSection {
-  type: 'text' | 'company-cards' | 'data-table' | 'chart' | 'actions';
+  type: 'text' | 'company-cards' | 'data-table' | 'chart' | 'actions' | 'employee-cards';
   data: any;
   metadata?: any;
 }
@@ -60,18 +60,28 @@ function analyzeQueryIntent(query: string): {
   needsVisualization: boolean;
   needsCompanyCards: boolean;
   needsDataTable: boolean;
+  needsEmployeeSearch: boolean;
   chartType?: 'bar' | 'pie' | 'line' | 'scatter';
   companyMentions: string[];
   industryFilter?: string;
   automationFilter?: { min?: number; max?: number };
   employeeCountFilter?: { min?: number; max?: number };
   systemFilters?: { missing?: string[]; has?: string[] };
+  employeeFilters?: {
+    department?: string;
+    keywords?: string[];
+    title?: string;
+  };
 } {
   const lowerQuery = query.toLowerCase();
   
+  // Employee search detection
+  const employeeKeywords = ['employee', 'employees', 'people', 'person', 'professional', 'professionals', 'manager', 'managers', 'director', 'specialist', 'hr', 'human resources', 'staff', 'team member'];
+  const needsEmployeeSearch = employeeKeywords.some(keyword => lowerQuery.includes(keyword));
+  
   // Chart/visualization keywords
   const chartKeywords = ['chart', 'graph', 'visualize', 'plot', 'distribution', 'trend'];
-  const needsVisualization = chartKeywords.some(keyword => lowerQuery.includes(keyword));
+  const needsVisualization = chartKeywords.some(keyword => lowerQuery.includes(keyword)) && !needsEmployeeSearch;
   
   // Chart type detection
   let chartType: 'bar' | 'pie' | 'line' | 'scatter' | undefined;
@@ -80,71 +90,134 @@ function analyzeQueryIntent(query: string): {
   else if (lowerQuery.includes('scatter') || lowerQuery.includes('correlation')) chartType = 'scatter';
   else if (needsVisualization) chartType = 'bar';
   
-  // Company card detection
+  // Company card detection - only if not searching for employees
   const companyKeywords = ['company', 'companies', 'show me', 'list'];
   const needsCompanyCards = companyKeywords.some(keyword => lowerQuery.includes(keyword)) && 
-                           !lowerQuery.includes('count') && !lowerQuery.includes('how many');
+                           !lowerQuery.includes('count') && !lowerQuery.includes('how many') && !needsEmployeeSearch;
   
   // Data table detection - for law firms query, default to true
   const tableKeywords = ['table', 'export', 'detailed', 'breakdown', 'all data', 'law firms'];
-  const needsDataTable = tableKeywords.some(keyword => lowerQuery.includes(keyword)) || 
-                         lowerQuery.includes('show all') || lowerQuery.includes('list all');
+  const needsDataTable = (tableKeywords.some(keyword => lowerQuery.includes(keyword)) || 
+                         lowerQuery.includes('show all') || lowerQuery.includes('list all')) && !needsEmployeeSearch;
   
-  // Industry detection
+  // Employee filters
+  let employeeFilters: { department?: string; keywords?: string[]; title?: string } | undefined;
+  
+  if (needsEmployeeSearch) {
+    employeeFilters = {};
+    
+    // Department detection
+    const departmentKeywords = {
+      'HR': ['hr', 'human resources', 'people', 'talent'],
+      'Technology': ['tech', 'technology', 'developer', 'engineer', 'it'],
+      'Sales': ['sales', 'business development', 'account'],
+      'Marketing': ['marketing', 'brand', 'content'],
+      'Finance': ['finance', 'accounting', 'financial'],
+      'Operations': ['operations', 'ops', 'logistics']
+    };
+    
+    for (const [dept, keywords] of Object.entries(departmentKeywords)) {
+      if (keywords.some(keyword => lowerQuery.includes(keyword))) {
+        employeeFilters.department = dept;
+        break;
+      }
+    }
+    
+    // Title detection
+    if (lowerQuery.includes('manager')) employeeFilters.title = 'manager';
+    if (lowerQuery.includes('director')) employeeFilters.title = 'director';
+    if (lowerQuery.includes('specialist')) employeeFilters.title = 'specialist';
+    
+    // Keywords extraction for interests/expertise
+    const interestKeywords = [];
+    if (lowerQuery.includes('wellness') || lowerQuery.includes('wellbeing') || lowerQuery.includes('health')) {
+      interestKeywords.push('wellness', 'wellbeing', 'health');
+      if (lowerQuery.includes('employee')) interestKeywords.push('employee wellness');
+    }
+    if (lowerQuery.includes('culture')) {
+      interestKeywords.push('culture', 'employee culture', 'workplace culture');
+    }
+    if (lowerQuery.includes('automation')) {
+      interestKeywords.push('automation', 'process automation', 'digital transformation');
+    }
+    if (lowerQuery.includes('engagement')) {
+      interestKeywords.push('engagement', 'employee engagement');
+    }
+    if (lowerQuery.includes('diversity')) {
+      interestKeywords.push('diversity', 'inclusion', 'dei');
+    }
+    if (lowerQuery.includes('training') || lowerQuery.includes('development')) {
+      interestKeywords.push('training', 'development', 'learning');
+    }
+    
+    if (interestKeywords.length > 0) {
+      employeeFilters.keywords = interestKeywords;
+    }
+  }
+  
+  // Industry detection - only for company searches
   let industryFilter: string | undefined;
-  const industryKeywords = {
-    'restaurant': ['restaurant', 'food service', 'dining', 'catering', 'food'],
-    'technology': ['tech', 'software', 'saas', 'it services'],
-    'healthcare': ['healthcare', 'medical', 'hospital', 'clinic'],
-    'retail': ['retail', 'e-commerce', 'shopping'],
-    'finance': ['finance', 'banking', 'fintech', 'investment'],
-    'legal': ['law', 'legal', 'attorney', 'lawyer', 'law firm', 'law firms']
-  };
-  
-  for (const [industry, keywords] of Object.entries(industryKeywords)) {
-    if (keywords.some(keyword => lowerQuery.includes(keyword))) {
-      industryFilter = industry;
-      break;
+  if (!needsEmployeeSearch) {
+    const industryKeywords = {
+      'restaurant': ['restaurant', 'food service', 'dining', 'catering', 'food'],
+      'technology': ['tech', 'software', 'saas', 'it services'],
+      'healthcare': ['healthcare', 'medical', 'hospital', 'clinic'],
+      'retail': ['retail', 'e-commerce', 'shopping'],
+      'finance': ['finance', 'banking', 'fintech', 'investment'],
+      'legal': ['law', 'legal', 'attorney', 'lawyer', 'law firm', 'law firms']
+    };
+    
+    for (const [industry, keywords] of Object.entries(industryKeywords)) {
+      if (keywords.some(keyword => lowerQuery.includes(keyword))) {
+        industryFilter = industry;
+        break;
+      }
     }
   }
   
   // Automation level detection - using automation_level scale (1-5)
   let automationFilter: { min?: number; max?: number } | undefined;
-  if (lowerQuery.includes('low automation') || lowerQuery.includes('poor automation') || lowerQuery.includes('low hr automation')) {
-    automationFilter = { max: 2 }; // 1-2 on 5-point scale
-  } else if (lowerQuery.includes('high automation') || lowerQuery.includes('well automated')) {
-    automationFilter = { min: 4 }; // 4-5 on 5-point scale
-  } else if (lowerQuery.includes('medium automation')) {
-    automationFilter = { min: 2, max: 4 }; // 2-4 on 5-point scale
+  if (!needsEmployeeSearch) {
+    if (lowerQuery.includes('low automation') || lowerQuery.includes('poor automation') || lowerQuery.includes('low hr automation')) {
+      automationFilter = { max: 2 }; // 1-2 on 5-point scale
+    } else if (lowerQuery.includes('high automation') || lowerQuery.includes('well automated')) {
+      automationFilter = { min: 4 }; // 4-5 on 5-point scale
+    } else if (lowerQuery.includes('medium automation')) {
+      automationFilter = { min: 2, max: 4 }; // 2-4 on 5-point scale
+    }
   }
   
-  // Employee count detection
+  // Employee count detection - only for company searches
   let employeeCountFilter: { min?: number; max?: number } | undefined;
-  const employeeMatch = lowerQuery.match(/(\d+)\s*(?:to|-)\s*(\d+)\s*employee/);
-  if (employeeMatch) {
-    const min = parseInt(employeeMatch[1]);
-    const max = parseInt(employeeMatch[2]);
-    employeeCountFilter = { min, max };
-  } else if (lowerQuery.includes('small companies') || lowerQuery.includes('small business')) {
-    employeeCountFilter = { max: 50 };
-  } else if (lowerQuery.includes('large companies') || lowerQuery.includes('enterprise')) {
-    employeeCountFilter = { min: 200 };
+  if (!needsEmployeeSearch) {
+    const employeeMatch = lowerQuery.match(/(\d+)\s*(?:to|-)\s*(\d+)\s*employee/);
+    if (employeeMatch) {
+      const min = parseInt(employeeMatch[1]);
+      const max = parseInt(employeeMatch[2]);
+      employeeCountFilter = { min, max };
+    } else if (lowerQuery.includes('small companies') || lowerQuery.includes('small business')) {
+      employeeCountFilter = { max: 50 };
+    } else if (lowerQuery.includes('large companies') || lowerQuery.includes('enterprise')) {
+      employeeCountFilter = { min: 200 };
+    }
   }
   
-  // System detection
+  // System detection - only for company searches
   let systemFilters: { missing?: string[]; has?: string[] } | undefined;
-  const missing: string[] = [];
-  const has: string[] = [];
-  
-  if (lowerQuery.includes('no hr') || lowerQuery.includes('missing hr')) missing.push('hris');
-  if (lowerQuery.includes('no erp') || lowerQuery.includes('missing erp')) missing.push('erp');
-  if (lowerQuery.includes('using netsuite') || lowerQuery.includes('has netsuite')) has.push('netsuite');
-  if (lowerQuery.includes('using sap') || lowerQuery.includes('has sap')) has.push('sap');
-  
-  if (missing.length > 0 || has.length > 0) {
-    systemFilters = {};
-    if (missing.length > 0) systemFilters.missing = missing;
-    if (has.length > 0) systemFilters.has = has;
+  if (!needsEmployeeSearch) {
+    const missing: string[] = [];
+    const has: string[] = [];
+    
+    if (lowerQuery.includes('no hr') || lowerQuery.includes('missing hr')) missing.push('hris');
+    if (lowerQuery.includes('no erp') || lowerQuery.includes('missing erp')) missing.push('erp');
+    if (lowerQuery.includes('using netsuite') || lowerQuery.includes('has netsuite')) has.push('netsuite');
+    if (lowerQuery.includes('using sap') || lowerQuery.includes('has sap')) has.push('sap');
+    
+    if (missing.length > 0 || has.length > 0) {
+      systemFilters = {};
+      if (missing.length > 0) systemFilters.missing = missing;
+      if (has.length > 0) systemFilters.has = has;
+    }
   }
   
   // Extract potential company mentions (basic implementation)
@@ -156,17 +229,184 @@ function analyzeQueryIntent(query: string): {
     }
   });
   
-  return {
+  console.log('Query intent:', {
     needsVisualization,
     needsCompanyCards,
     needsDataTable,
+    needsEmployeeSearch,
     chartType,
     companyMentions,
     industryFilter,
     automationFilter,
     employeeCountFilter,
-    systemFilters
+    systemFilters,
+    employeeFilters
+  });
+  
+  return {
+    needsVisualization,
+    needsCompanyCards,
+    needsDataTable,
+    needsEmployeeSearch,
+    chartType,
+    companyMentions,
+    industryFilter,
+    automationFilter,
+    employeeCountFilter,
+    systemFilters,
+    employeeFilters
   };
+}
+
+// Enhanced employee search with semantic vectors
+async function searchEmployeesWithFilters(intent: ReturnType<typeof analyzeQueryIntent>, limit = 20): Promise<any[]> {
+  if (!intent.needsEmployeeSearch || !intent.employeeFilters) {
+    return [];
+  }
+  
+  console.log('🔍 Using semantic search for employees with keywords:', intent.employeeFilters.keywords);
+  
+  try {
+    // Use semantic search if keywords are provided
+    if (intent.employeeFilters.keywords && intent.employeeFilters.keywords.length > 0) {
+      console.log('🎯 Searching in "about" vectors for wellness/interests...');
+      
+      // Generate embeddings for the search keywords
+      const searchText = intent.employeeFilters.keywords.join(' ');
+      
+      // Call OpenAI for embeddings
+      const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          input: searchText,
+          model: 'text-embedding-3-small'
+        }),
+      });
+      
+      if (!embeddingResponse.ok) {
+        console.error('OpenAI embedding error:', await embeddingResponse.text());
+        throw new Error('Failed to generate embeddings');
+      }
+      
+      const embeddingData = await embeddingResponse.json();
+      const queryVector = embeddingData.data[0].embedding;
+      
+      // Perform vector search
+      const { data: vectorResults, error: vectorError } = await supabase.rpc('search_employee_vectors', {
+        query_vector: queryVector,
+        similarity_threshold: 0.7,
+        max_results: limit * 2 // Get more results to filter
+      });
+      
+      if (vectorError) {
+        console.error('Vector search error:', vectorError);
+        throw vectorError;
+      }
+      
+      console.log(`✅ Found ${vectorResults?.length || 0} vector search results`);
+      
+      if (vectorResults && vectorResults.length > 0) {
+        // Get full employee data for the vector search results
+        const employeeIds = vectorResults.map((r: any) => r.employee_id);
+        
+        let query = supabase
+          .from('employees')
+          .select(`
+            id,
+            full_name,
+            headline,
+            about,
+            profile_picture_url,
+            location_full,
+            years_of_experience,
+            current_company_name,
+            current_company_urn,
+            profile_url,
+            department,
+            engagement_level,
+            profile_activity_status,
+            response_rate,
+            connection_count,
+            linkedin_data
+          `)
+          .in('id', employeeIds);
+        
+        // Apply additional filters
+        if (intent.employeeFilters.department) {
+          query = query.eq('department', intent.employeeFilters.department);
+        }
+        
+        if (intent.employeeFilters.title) {
+          query = query.ilike('headline', `%${intent.employeeFilters.title}%`);
+        }
+        
+        const { data: employees, error: employeeError } = await query.limit(limit);
+        
+        if (employeeError) {
+          console.error('Employee fetch error:', employeeError);
+          throw employeeError;
+        }
+        
+        return employees || [];
+      }
+    }
+    
+    // Fallback to regular database search if no semantic results
+    let query = supabase
+      .from('employees')
+      .select(`
+        id,
+        full_name,
+        headline,
+        about,
+        profile_picture_url,
+        location_full,
+        years_of_experience,
+        current_company_name,
+        current_company_urn,
+        profile_url,
+        department,
+        engagement_level,
+        profile_activity_status,
+        response_rate,
+        connection_count,
+        linkedin_data
+      `);
+    
+    // Apply filters
+    if (intent.employeeFilters.department) {
+      query = query.eq('department', intent.employeeFilters.department);
+    }
+    
+    if (intent.employeeFilters.title) {
+      query = query.ilike('headline', `%${intent.employeeFilters.title}%`);
+    }
+    
+    if (intent.employeeFilters.keywords) {
+      // Search in about field for keywords
+      const keywordFilter = intent.employeeFilters.keywords.map(k => `about.ilike.%${k}%`).join(',');
+      query = query.or(keywordFilter);
+    }
+    
+    query = query.limit(limit);
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Employee search error:', error);
+      throw error;
+    }
+    
+    return data || [];
+    
+  } catch (error) {
+    console.error('Employee search failed:', error);
+    return [];
+  }
 }
 
 // Enhanced company data fetching with smart filtering
@@ -368,54 +608,50 @@ function generateChartData(companies: any[], chartType: string): any {
 }
 
 // Generate smart action suggestions based on context
-function generateSuggestedActions(companies: any[], query: string, intent: ReturnType<typeof analyzeQueryIntent>): SuggestedAction[] {
+function generateSuggestedActions(intent: ReturnType<typeof analyzeQueryIntent>): SuggestedAction[] {
   const actions: SuggestedAction[] = [];
   
-  if (companies.length > 0) {
-    // Industry-specific suggestions
-    if (intent.industryFilter === 'legal') {
-      actions.push({
-        label: 'Find law firms with manual processes',
-        query: 'Show me law firms with manual HR and payroll processes that need automation',
-        type: 'query'
-      });
-      
-      actions.push({
-        label: 'Compare legal industry automation',
-        query: 'Create a chart showing automation levels across different law firm sizes',
-        type: 'query'
-      });
-    }
+  if (intent.needsEmployeeSearch) {
+    // Employee-specific suggestions
+    actions.push({
+      label: 'Find HR managers focused on wellness',
+      query: 'hr managers who are interested in employee wellness',
+      type: 'query'
+    });
     
-    // Automation-based suggestions - using 1-5 scale
-    const lowAutomation = companies.filter(c => (c.automation_overall || 0) < 2);
-    if (lowAutomation.length > 0) {
-      actions.push({
-        label: `Target ${lowAutomation.length} low-automation prospects`,
-        query: 'Show detailed profiles of companies with automation scores below 2',
-        type: 'filter'
-      });
-    }
+    actions.push({
+      label: 'Search for culture champions',
+      query: 'employees who care about company culture and employee engagement',
+      type: 'query'
+    });
     
-    // System-based suggestions
-    const noHRIS = companies.filter(c => !c.has_hris);
-    if (noHRIS.length > 0) {
-      actions.push({
-        label: `${noHRIS.length} companies need HR systems`,
-        query: 'Show companies without HRIS that are perfect Bayzat prospects',
-        type: 'action'
-      });
-    }
+    actions.push({
+      label: 'Find automation advocates',
+      query: 'professionals interested in process automation and digital transformation',
+      type: 'query'
+    });
+    
+    actions.push({
+      label: 'Browse diversity & inclusion leaders',
+      query: 'hr professionals focused on diversity, inclusion, and belonging',
+      type: 'query'
+    });
+  } else {
+    // Company-specific suggestions (existing logic)
+    actions.push({
+      label: 'Find high-growth prospects',
+      query: 'Show me companies founded after 2018 with 50+ employees and low automation',
+      type: 'query'
+    });
+    
+    actions.push({
+      label: 'Target companies needing HR systems',
+      query: 'Show companies without HRIS that are perfect Bayzat prospects',
+      type: 'action'
+    });
   }
   
-  // General business development suggestions
-  actions.push({
-    label: 'Find high-growth prospects',
-    query: 'Show me companies founded after 2018 with 50+ employees and low automation',
-    type: 'query'
-  });
-  
-  return actions.slice(0, 4); // Limit to 4 suggestions
+  return actions.slice(0, 4);
 }
 
 // Enhanced data query execution with intelligent filtering
@@ -426,97 +662,142 @@ async function executeEnhancedDataQuery(query: string): Promise<{ toolResults: T
   const sections: ContentSection[] = [];
   
   try {
-    console.log('🎯 Enhanced query analysis:', intent);
-    
-    // Fetch filtered data based on intelligent intent detection
-    const companies = await fetchCompaniesWithFilters(intent, intent.needsDataTable ? 50 : 20);
-    
-    toolResults.push({
-      tool: 'intelligent_company_search',
-      success: true,
-      data: companies,
-      execution_time_ms: Date.now() - startTime
-    });
-    
-    console.log(`📊 Found ${companies.length} companies matching criteria`);
+    console.log('Processing query:', query);
     
     let message = '';
     
-    // Generate company cards if requested
-    if (intent.needsCompanyCards && companies.length > 0) {
-      sections.push({
-        type: 'company-cards',
-        data: companies.slice(0, 8), // Limit to 8 cards for UI
-        metadata: { total: companies.length, filters: intent }
+    // Handle employee searches
+    if (intent.needsEmployeeSearch) {
+      console.log('⏱️ Starting employee search...');
+      const employeeStartTime = Date.now();
+      
+      const employees = await searchEmployeesWithFilters(intent);
+      
+      const employeeSearchTime = Date.now() - employeeStartTime;
+      console.log(`⏱️ Employee search completed in ${employeeSearchTime}ms, found ${employees.length} results`);
+      
+      toolResults.push({
+        tool: 'semantic_employee_search',
+        success: true,
+        data: employees,
+        execution_time_ms: employeeSearchTime
       });
       
-      const filterDescription = [];
-      if (intent.industryFilter) filterDescription.push(`in ${intent.industryFilter}`);
-      if (intent.employeeCountFilter) {
-        const { min, max } = intent.employeeCountFilter;
-        if (min && max) filterDescription.push(`with ${min}-${max} employees`);
-        else if (min) filterDescription.push(`with ${min}+ employees`);
-        else if (max) filterDescription.push(`with under ${max} employees`);
-      }
-      if (intent.automationFilter) {
-        const { min, max } = intent.automationFilter;
-        if (max && max <= 2) filterDescription.push('with low automation');
-        else if (min && min >= 4) filterDescription.push('with high automation');
-      }
-      
-      message += `Found ${companies.length} companies ${filterDescription.join(' ')}. Here are the top matches:\n\n`;
-    }
-    
-    // Generate data table if requested
-    if (intent.needsDataTable && companies.length > 0) {
-      console.log('🔄 Creating data table section with companies:', companies.length);
-      
-      sections.push({
-        type: 'data-table',
-        data: {
-          columns: ['company_name', 'industry', 'employee_count', 'automation_overall', 'bayzat_relationship'],
-          data: companies.map(company => ({
-            company_name: company.company_name,
-            industry: company.industry,
-            employee_count: company.employee_count,
-            automation_overall: company.automation_overall,
-            bayzat_relationship: company.bayzat_relationship
-          }))
-        },
-        metadata: {
-          exportable: true,
-          filters: intent
-        }
-      });
-      
-      console.log('✅ Data table section created');
-    }
-    
-    // Generate chart if visualization is requested or if we have automation data
-    if ((intent.needsVisualization && intent.chartType) || (companies.length > 0 && intent.automationFilter)) {
-      const chartType = intent.chartType || 'bar';
-      const chartData = generateChartData(companies, chartType);
-      
-      if (chartData) {
-        console.log('🔄 Creating chart section:', chartData);
-        
+      if (employees.length > 0) {
+        // Add employee cards section
         sections.push({
-          type: 'chart',
-          data: chartData,
-          metadata: { exportable: true, filters: intent }
+          type: 'employee-cards',
+          data: employees,
+          metadata: { 
+            total: employees.length, 
+            filters: intent.employeeFilters,
+            search_type: 'semantic'
+          }
         });
         
-        console.log('✅ Chart section created');
+        // Create descriptive message
+        const filterDescription = [];
+        if (intent.employeeFilters?.department) filterDescription.push(`in ${intent.employeeFilters.department}`);
+        if (intent.employeeFilters?.title) filterDescription.push(`with "${intent.employeeFilters.title}" roles`);
+        if (intent.employeeFilters?.keywords) filterDescription.push(`interested in ${intent.employeeFilters.keywords.join(', ')}`);
+        
+        message = `Found ${employees.length} professionals ${filterDescription.join(' ')}. Here are the matching profiles:`;
+      } else {
+        message = 'I couldn\'t find any employees matching your criteria. Try adjusting your search terms or being more specific about the role or interests you\'re looking for.';
+      }
+    } else {
+      // Handle company searches (existing logic)
+      const companies = await fetchCompaniesWithFilters(intent, intent.needsDataTable ? 50 : 20);
+      
+      toolResults.push({
+        tool: 'intelligent_company_search',
+        success: true,
+        data: companies,
+        execution_time_ms: Date.now() - startTime
+      });
+      
+      console.log(`📊 Found ${companies.length} companies matching criteria`);
+      
+      // Generate company cards if requested
+      if (intent.needsCompanyCards && companies.length > 0) {
+        sections.push({
+          type: 'company-cards',
+          data: companies.slice(0, 8),
+          metadata: { total: companies.length, filters: intent }
+        });
+        
+        const filterDescription = [];
+        if (intent.industryFilter) filterDescription.push(`in ${intent.industryFilter}`);
+        if (intent.employeeCountFilter) {
+          const { min, max } = intent.employeeCountFilter;
+          if (min && max) filterDescription.push(`with ${min}-${max} employees`);
+          else if (min) filterDescription.push(`with ${min}+ employees`);
+          else if (max) filterDescription.push(`with under ${max} employees`);
+        }
+        if (intent.automationFilter) {
+          const { min, max } = intent.automationFilter;
+          if (max && max <= 2) filterDescription.push('with low automation');
+          else if (min && min >= 4) filterDescription.push('with high automation');
+        }
+        
+        message += `Found ${companies.length} companies ${filterDescription.join(' ')}. Here are the top matches:\n\n`;
+      }
+      
+      // Generate data table if requested
+      if (intent.needsDataTable && companies.length > 0) {
+        console.log('🔄 Creating data table section with companies:', companies.length);
+        
+        sections.push({
+          type: 'data-table',
+          data: {
+            columns: ['company_name', 'industry', 'employee_count', 'automation_overall', 'bayzat_relationship'],
+            data: companies.map(company => ({
+              company_name: company.company_name,
+              industry: company.industry,
+              employee_count: company.employee_count,
+              automation_overall: company.automation_overall,
+              bayzat_relationship: company.bayzat_relationship
+            }))
+          },
+          metadata: {
+            exportable: true,
+            filters: intent
+          }
+        });
+        
+        console.log('✅ Data table section created');
+      }
+      
+      // Generate chart if visualization is requested
+      if ((intent.needsVisualization && intent.chartType) || (companies.length > 0 && intent.automationFilter)) {
+        const chartType = intent.chartType || 'bar';
+        const chartData = generateChartData(companies, chartType);
+        
+        if (chartData) {
+          console.log('🔄 Creating chart section:', chartData);
+          
+          sections.push({
+            type: 'chart',
+            data: chartData,
+            metadata: { exportable: true, filters: intent }
+          });
+          
+          console.log('✅ Chart section created');
+        }
+      }
+      
+      if (!message) {
+        message = `I found ${companies.length} companies matching your criteria.`;
       }
     }
     
     // Generate suggested actions
-    const suggestedActions = generateSuggestedActions(companies, query, intent);
+    const suggestedActions = generateSuggestedActions(intent);
     
     console.log('🎯 Final sections array:', sections.map(s => ({ type: s.type, dataKeys: Object.keys(s.data || {}) })));
     
     const response: EnhancedChatResponse = {
-      message: message || `I found ${companies.length} companies matching your criteria.`,
+      message: message || `I processed your request successfully.`,
       content_type: sections.length > 0 ? 'mixed' : 'text',
       sections,
       tool_results: toolResults,

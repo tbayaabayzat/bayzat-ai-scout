@@ -1,5 +1,3 @@
-
-
 export interface CompanyCardData {
   id: string
   company_name: string
@@ -45,7 +43,7 @@ export interface DataTableData {
 }
 
 export interface ContentSection {
-  type: 'text' | 'company-cards' | 'data-table' | 'chart' | 'actions'
+  type: 'text' | 'company-cards' | 'data-table' | 'chart' | 'actions' | 'employee-cards'
   data: any
   metadata?: any
 }
@@ -63,4 +61,3 @@ export interface ChatResponse {
   tool_results?: any[]
   suggested_actions?: SuggestedAction[]
 }
-

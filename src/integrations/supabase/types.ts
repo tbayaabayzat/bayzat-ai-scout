@@ -10616,6 +10616,27 @@ export type Database = {
           content: string
         }[]
       }
+      search_employee_vectors: {
+        Args: {
+          query_vector: string
+          vector_type: string
+          department_filter?: string
+          limit_count?: number
+        }
+        Returns: {
+          profile_id: string
+          employee_name: string
+          current_title: string
+          current_company: string
+          department: string
+          headline: string
+          location_full: string
+          years_of_experience: number
+          content: string
+          similarity_score: number
+          profile_url: string
+        }[]
+      }
       set_limit: {
         Args: { "": number }
         Returns: number

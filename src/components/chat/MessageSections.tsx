@@ -1,15 +1,17 @@
-
 import { CompanyCards } from "./CompanyCards"
+import { EmployeeCards } from "./EmployeeCards"
 import { ChatDataTable } from "./ChatDataTable"
 import { ChatChart } from "./ChatChart"
 import { ContentSection, CompanyCardData } from "@/types/chat"
+import { EmployeeWithDepartment } from "@/types/employee"
 
 interface MessageSectionsProps {
   sections: ContentSection[]
   onCompanyClick?: (company: CompanyCardData) => void
+  onEmployeeClick?: (employee: EmployeeWithDepartment) => void
 }
 
-export function MessageSections({ sections, onCompanyClick }: MessageSectionsProps) {
+export function MessageSections({ sections, onCompanyClick, onEmployeeClick }: MessageSectionsProps) {
   const renderSection = (section: ContentSection, index: number) => {
     console.log('MessageSections - Processing section:', section.type, section)
 
@@ -20,6 +22,15 @@ export function MessageSections({ sections, onCompanyClick }: MessageSectionsPro
             key={index}
             companies={section.data}
             onCompanyClick={onCompanyClick || (() => {})}
+          />
+        )
+      
+      case 'employee-cards':
+        return (
+          <EmployeeCards
+            key={index}
+            employees={section.data}
+            onEmployeeClick={onEmployeeClick || (() => {})}
           />
         )
       

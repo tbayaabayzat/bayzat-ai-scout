@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChatMessage } from "./ChatMessage"
 import { CompanyCardData, ContentSection, SuggestedAction } from "@/types/chat"
+import { EmployeeWithDepartment } from "@/types/employee"
 
 interface Message {
   id: string
@@ -21,13 +22,15 @@ interface ChatMessageListProps {
   messages: Message[]
   isStreaming: boolean
   onCompanyClick: (company: CompanyCardData) => void
+  onEmployeeClick: (employee: EmployeeWithDepartment) => void
   onSuggestedActionClick: (action: SuggestedAction) => void
 }
 
 export function ChatMessageList({ 
   messages, 
   isStreaming, 
-  onCompanyClick, 
+  onCompanyClick,
+  onEmployeeClick, 
   onSuggestedActionClick 
 }: ChatMessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -48,6 +51,7 @@ export function ChatMessageList({
             key={message.id} 
             message={message}
             onCompanyClick={onCompanyClick}
+            onEmployeeClick={onEmployeeClick}
             onSuggestedActionClick={onSuggestedActionClick}
           />
         ))}

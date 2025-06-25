@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { ChatHeader } from "./ChatHeader"
@@ -5,12 +6,16 @@ import { ChatEmptyState } from "./ChatEmptyState"
 import { ChatMessageList } from "./ChatMessageList"
 import { ChatInputForm } from "./ChatInputForm"
 import { CompanyDetailSheet } from "../company-detail/CompanyDetailSheet"
+import { EmployeeDetailSheet } from "../employee-detail/EmployeeDetailSheet"
 import { CompanyCardData, SuggestedAction } from "@/types/chat"
+import { EmployeeWithDepartment } from "@/types/employee"
 import { useChatState } from "@/hooks/useChatState"
 
 export function ChatInterface() {
   const [selectedCompany, setSelectedCompany] = useState<any>(null)
+  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithDepartment | null>(null)
   const [isCompanySheetOpen, setIsCompanySheetOpen] = useState(false)
+  const [isEmployeeSheetOpen, setIsEmployeeSheetOpen] = useState(false)
   const [input, setInput] = useState("")
   
   const { messages, isLoading, isStreaming, sendMessage, clearChat } = useChatState()
@@ -47,6 +52,11 @@ export function ChatInterface() {
     setIsCompanySheetOpen(true)
   }
 
+  const handleEmployeeClick = (employee: EmployeeWithDepartment) => {
+    setSelectedEmployee(employee)
+    setIsEmployeeSheetOpen(true)
+  }
+
   const handleSuggestedActionClick = (action: SuggestedAction) => {
     setInput(action.query)
   }
@@ -74,6 +84,7 @@ export function ChatInterface() {
               messages={messages}
               isStreaming={isStreaming}
               onCompanyClick={handleCompanyClick}
+              onEmployeeClick={handleEmployeeClick}
               onSuggestedActionClick={handleSuggestedActionClick}
             />
           )}
@@ -91,6 +102,12 @@ export function ChatInterface() {
         company={selectedCompany}
         open={isCompanySheetOpen}
         onOpenChange={setIsCompanySheetOpen}
+      />
+
+      <EmployeeDetailSheet
+        employee={selectedEmployee}
+        open={isEmployeeSheetOpen}
+        onOpenChange={setIsEmployeeSheetOpen}
       />
     </>
   )

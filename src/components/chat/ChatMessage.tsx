@@ -1,12 +1,11 @@
 
-import { cn } from "@/lib/utils"
 import { MessageHeader } from "./MessageHeader"
 import { MessageContent } from "./MessageContent"
 import { MessageSections } from "./MessageSections"
 import { MessageToolResults } from "./MessageToolResults"
-import { MessageActions } from "./MessageActions"
 import { SuggestedActions } from "./SuggestedActions"
-import { CompanyCardData, ContentSection, SuggestedAction } from "@/types/chat"
+import { CompanyCardData, SuggestedAction } from "@/types/chat"
+import { EmployeeWithDepartment } from "@/types/employee"
 
 interface Message {
   id: string
@@ -14,90 +13,51 @@ interface Message {
   content: string
   timestamp: Date
   isStreaming?: boolean
-  toolResults?: ToolResult[]
+  toolResults?: any[]
   contentType?: 'text' | 'mixed'
-  sections?: ContentSection[]
+  sections?: any[]
   suggestedActions?: SuggestedAction[]
-}
-
-interface ToolResult {
-  tool: string
-  success: boolean
-  data?: any
-  error?: string
-  execution_time_ms: number
 }
 
 interface ChatMessageProps {
   message: Message
-  onCompanyClick?: (company: CompanyCardData) => void
-  onSuggestedActionClick?: (action: SuggestedAction) => void
+  onCompanyClick: (company: CompanyCardData) => void
+  onEmployeeClick: (employee: EmployeeWithDepartment) => void
+  onSuggestedActionClick: (action: SuggestedAction) => void
 }
 
-export function ChatMessage({ message, onCompanyClick, onSuggestedActionClick }: ChatMessageProps) {
-  const isUser = message.role === 'user'
-
-  // Check if we have any content to display
-  const hasTextContent = message.content && message.content.trim().length > 0
-  const hasRichContent = (message.sections && message.sections.length > 0) ||
-                         (message.toolResults && message.toolResults.length > 0) ||
-                         (message.suggestedActions && message.suggestedActions.length > 0)
-
-  // Don't render empty assistant messages without rich content
-  if (!isUser && !hasTextContent && !hasRichContent) {
-    return null
-  }
-
+export function ChatMessage({ 
+  message, 
+  onCompanyClick,
+  onEmployeeClick, 
+  onSuggestedActionClick 
+}: ChatMessageProps) {
   return (
-    <div className={cn(
-      "group flex gap-4 px-6 py-6 rounded-2xl transition-all duration-200 w-full",
-      isUser 
-        ? "bg-primary/5" 
-        : "bg-muted/30 hover:bg-muted/40"
-    )}>
-      {/* Compact avatar column */}
-      <div className="flex-shrink-0 w-10">
-        <MessageHeader
-          isUser={isUser}
-          timestamp={message.timestamp}
-          isStreaming={message.isStreaming}
-          contentType={message.contentType}
-        />
-      </div>
-
-      {/* Full-width content column */}
-      <div className="flex-1 min-w-0 max-w-none">
-        {/* Text content - only render if there's actual content */}
-        {hasTextContent && (
+    <div className="flex items-start gap-4 px-6">
+      <MessageHeader role={message.role} />
+      
+      <div className="flex-1 space-y-4 min-w-0">
+        {message.content && (
           <MessageContent content={message.content} />
         )}
-
-        {/* Rich content sections */}
+        
         {message.sections && message.sections.length > 0 && (
-          <div className={hasTextContent ? "mt-4" : ""}>
-            <MessageSections 
-              sections={message.sections}
-              onCompanyClick={onCompanyClick}
-            />
-          </div>
-        )}
-
-        {/* Suggested actions */}
-        {message.suggestedActions && message.suggestedActions.length > 0 && (
-          <SuggestedActions
-            actions={message.suggestedActions}
-            onActionClick={onSuggestedActionClick || (() => {})}
+          <MessageSections 
+            sections={message.sections} 
+            onCompanyClick={onCompanyClick}
+            onEmployeeClick={onEmployeeClick}
           />
         )}
-
-        {/* Tool results */}
+        
         {message.toolResults && message.toolResults.length > 0 && (
-          <MessageToolResults toolResults={message.toolResults} />
+          <MessageToolResults results={message.toolResults} />
         )}
-
-        {/* Message actions */}
-        {!isUser && hasTextContent && (
-          <MessageActions content={message.content} />
+        
+        {message.suggestedActions && message.suggestedActions.length > 0 && (
+          <SuggestedActions 
+            actions={message.suggestedActions}
+            onActionClick={onSuggestedActionClick}
+          />
         )}
       </div>
     </div>
