@@ -24,12 +24,17 @@ export function useChatState() {
       }]
 
       const response = await sendChatMessage(allMessages, user?.id)
-      console.log('Full response received:', response)
+      console.log('Processed response in useChatState:', response)
 
       // Check if we have rich content sections or other data to display
       const hasRichContent = (response.sections && response.sections.length > 0) ||
                             (response.tool_results && response.tool_results.length > 0) ||
                             (response.suggested_actions && response.suggested_actions.length > 0)
+
+      console.log('Has rich content:', hasRichContent)
+      console.log('Sections:', response.sections)
+      console.log('Tool results:', response.tool_results)
+      console.log('Suggested actions:', response.suggested_actions)
 
       // Determine the message content to display
       let messageContent = response.message || ''
