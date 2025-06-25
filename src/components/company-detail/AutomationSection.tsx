@@ -9,7 +9,17 @@ interface AutomationSectionProps {
 }
 
 export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
-  console.log('AutomationSection - aiAnalysis:', aiAnalysis)
+  console.log('AutomationSection - Full aiAnalysis structure:', JSON.stringify(aiAnalysis, null, 2))
+  
+  // Handle the case where aiAnalysis might be null, undefined, or have different structure
+  if (!aiAnalysis) {
+    console.log('AutomationSection - No aiAnalysis data available')
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">No automation analysis data available</p>
+      </div>
+    )
+  }
 
   const getAutomationScoreColor = (score: number) => {
     if (score >= 4) return "bg-bayzat-pink"
@@ -23,10 +33,18 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
     return "Low"
   }
 
+  // Access the automation_level from the aiAnalysis
+  const automationLevel = aiAnalysis.automation_level
+  console.log('AutomationSection - automation_level:', automationLevel)
+
+  // Get overall automation score
+  const overallScore = automationLevel?.overall || 0
+  console.log('AutomationSection - overall score:', overallScore)
+
   // Filter out non-department fields from automation_level and format/sort departments
-  const departmentScores = aiAnalysis?.automation_level ? 
+  const departmentScores = automationLevel ? 
     sortDepartments(
-      Object.entries(aiAnalysis.automation_level)
+      Object.entries(automationLevel)
         .filter(([key]) => !['overall', 'evidence', 'automation_rationale'].includes(key))
         .map(([department, score]: [string, any]) => ({
           department: formatDepartmentName(department),
@@ -34,8 +52,11 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
         }))
     ) : []
 
-  // Get automation rationale from the correct path
-  const automationRationale = aiAnalysis?.automation_level?.automation_rationale
+  console.log('AutomationSection - department scores:', departmentScores)
+
+  // Get automation rationale
+  const automationRationale = automationLevel?.automation_rationale
+  console.log('AutomationSection - rationale:', automationRationale)
 
   return (
     <div className="space-y-8">
@@ -44,18 +65,18 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
         <h3 className="text-xl font-semibold">Automation Scores</h3>
         
         {/* Overall Score */}
-        {aiAnalysis?.automation_level?.overall && (
+        {overallScore > 0 && (
           <div className="p-6 border rounded-lg bg-card">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <h4 className="text-lg font-semibold">Overall Automation Score</h4>
               </div>
-              <Badge className={`${getAutomationScoreColor(aiAnalysis.automation_level.overall)} text-white px-3 py-1`}>
-                {getAutomationLabel(aiAnalysis.automation_level.overall)} ({aiAnalysis.automation_level.overall}/5)
+              <Badge className={`${getAutomationScoreColor(overallScore)} text-white px-3 py-1`}>
+                {getAutomationLabel(overallScore)} ({overallScore}/5)
               </Badge>
             </div>
             <Progress 
-              value={aiAnalysis.automation_level.overall * 20} 
+              value={overallScore * 20} 
               className="h-4"
             />
           </div>
@@ -105,6 +126,13 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
             </div>
           )}
         </div>
+
+        {/* Show message if no automation data */}
+        {!overallScore && departmentScores.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">No automation scoring data available</p>
+          </div>
+        )}
       </div>
 
       {/* Systems Inventory Section */}

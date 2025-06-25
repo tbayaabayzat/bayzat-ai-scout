@@ -37,11 +37,8 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
   console.log('AutomationScorePopover - analysis:', analysis)
   console.log('AutomationScorePopover - score:', score)
 
-  // Access the correct nested structure for automation scores based on the schema
-  let automationLevel = null
-  if (analysis && typeof analysis === 'object' && analysis.automation_level) {
-    automationLevel = analysis.automation_level
-  }
+  // Access the correct nested structure for automation scores
+  const automationLevel = analysis?.automation_level
   console.log('AutomationScorePopover - automationLevel:', automationLevel)
 
   return (
@@ -134,10 +131,10 @@ export function AutomationScorePopover({ score, analysis }: AutomationScorePopov
             </div>
           </div>
           
-          {analysis?.automation_rationale && (
+          {automationLevel?.automation_rationale && (
             <div>
               <h5 className="font-medium text-sm mb-2">Rationale</h5>
-              <p className="text-sm text-muted-foreground">{analysis.automation_rationale}</p>
+              <p className="text-sm text-muted-foreground">{automationLevel.automation_rationale}</p>
             </div>
           )}
           

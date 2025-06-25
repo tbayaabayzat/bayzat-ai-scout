@@ -8,9 +8,10 @@ interface SystemsInventoryProps {
 }
 
 export function SystemsInventory({ systems }: SystemsInventoryProps) {
-  console.log('SystemsInventory - systems:', systems)
+  console.log('SystemsInventory - Full systems data:', JSON.stringify(systems, null, 2))
 
   if (!systems) {
+    console.log('SystemsInventory - No systems data provided')
     return (
       <div className="text-center py-8">
         <p className="text-muted-foreground">No systems data available</p>
@@ -41,6 +42,9 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
     !mainSystems.includes(key) && key !== 'Other_Software' && systems[key]?.name && systems[key].name !== 'None'
   )
 
+  console.log('SystemsInventory - Main systems data:', mainSystems.map(sys => ({ [sys]: systems[sys] })))
+  console.log('SystemsInventory - Other system types:', otherSystemTypes)
+
   return (
     <div className="space-y-6">
       {/* Main Systems Grid */}
@@ -49,6 +53,8 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
           const system = systems[systemType]
           const SystemIcon = getSystemIcon(systemType)
           const hasSystem = system?.name && system.name !== 'None'
+          
+          console.log(`SystemsInventory - ${systemType}:`, system, 'hasSystem:', hasSystem)
           
           return (
             <Card key={systemType} className={`${hasSystem ? 'border-primary/20' : 'border-muted'}`}>
