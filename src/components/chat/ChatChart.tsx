@@ -12,6 +12,8 @@ interface ChatChartProps {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF7C7C']
 
 export function ChatChart({ data, onExport }: ChatChartProps) {
+  console.log('🎯 ChatChart rendering with data:', data);
+  
   const exportChart = () => {
     // Simple export - could be enhanced to export as image
     const chartData = JSON.stringify(data, null, 2)
@@ -26,6 +28,8 @@ export function ChatChart({ data, onExport }: ChatChartProps) {
   }
 
   const renderChart = () => {
+    console.log('🔄 Rendering chart type:', data.type, 'with data:', data.data);
+    
     switch (data.type) {
       case 'bar':
         return (
@@ -33,8 +37,8 @@ export function ChatChart({ data, onExport }: ChatChartProps) {
             <BarChart data={data.data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="industry" />
-              <YAxis />
-              <Tooltip />
+              <YAxis domain={[0, 5]} />
+              <Tooltip formatter={(value) => [`${value}/5`, 'Automation Score']} />
               <Bar dataKey="automation" fill="#0088FE" />
             </BarChart>
           </ResponsiveContainer>
@@ -82,7 +86,7 @@ export function ChatChart({ data, onExport }: ChatChartProps) {
             <ScatterChart data={data.data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="x" name="Employee Count" />
-              <YAxis dataKey="y" name="Automation Score" />
+              <YAxis dataKey="y" name="Automation Score" domain={[0, 5]} />
               <Tooltip cursor={{ strokeDasharray: '3 3' }} />
               <Scatter dataKey="y" fill="#0088FE" />
             </ScatterChart>
@@ -90,8 +94,21 @@ export function ChatChart({ data, onExport }: ChatChartProps) {
         )
       
       default:
-        return <div className="text-center text-muted-foreground">Unsupported chart type</div>
+        console.log('❌ Unsupported chart type:', data.type);
+        return <div className="text-center text-muted-foreground">Unsupported chart type: {data.type}</div>
     }
+  }
+
+  // Validate data before rendering
+  if (!data || !data.data || !Array.isArray(data.data) || data.data.length === 0) {
+    console.log('❌ Invalid chart data:', data);
+    return (
+      <div className="my-4 border rounded-lg bg-background">
+        <div className="p-4 text-center text-muted-foreground">
+          No data available for chart
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -100,7 +117,7 @@ export function ChatChart({ data, onExport }: ChatChartProps) {
         <div>
           <h3 className="font-medium">{data.title}</h3>
           <p className="text-sm text-muted-foreground">
-            {data.type.charAt(0).toUpperCase() + data.type.slice(1)} chart
+            {data.type.charAt(0).toUpperCase() + data.type.slice(1)} chart ({data.data.length} data points)
           </p>
         </div>
         <Button 
