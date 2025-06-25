@@ -86,8 +86,8 @@ function analyzeQueryIntent(query: string): {
   const needsCompanyCards = companyKeywords.some(keyword => lowerQuery.includes(keyword)) && 
                            !lowerQuery.includes('count') && !lowerQuery.includes('how many');
   
-  // Data table detection
-  const tableKeywords = ['table', 'export', 'detailed', 'breakdown', 'all data'];
+  // Data table detection - for law firms query, default to true
+  const tableKeywords = ['table', 'export', 'detailed', 'breakdown', 'all data', 'law firms'];
   const needsDataTable = tableKeywords.some(keyword => lowerQuery.includes(keyword)) || 
                          lowerQuery.includes('show all') || lowerQuery.includes('list all');
   
@@ -98,7 +98,8 @@ function analyzeQueryIntent(query: string): {
     'technology': ['tech', 'software', 'saas', 'it services'],
     'healthcare': ['healthcare', 'medical', 'hospital', 'clinic'],
     'retail': ['retail', 'e-commerce', 'shopping'],
-    'finance': ['finance', 'banking', 'fintech', 'investment']
+    'finance': ['finance', 'banking', 'fintech', 'investment'],
+    'legal': ['law', 'legal', 'attorney', 'lawyer', 'law firm', 'law firms']
   };
   
   for (const [industry, keywords] of Object.entries(industryKeywords)) {
@@ -110,7 +111,7 @@ function analyzeQueryIntent(query: string): {
   
   // Automation level detection
   let automationFilter: { min?: number; max?: number } | undefined;
-  if (lowerQuery.includes('low automation') || lowerQuery.includes('poor automation')) {
+  if (lowerQuery.includes('low automation') || lowerQuery.includes('poor automation') || lowerQuery.includes('low hr automation')) {
     automationFilter = { max: 30 };
   } else if (lowerQuery.includes('high automation') || lowerQuery.includes('well automated')) {
     automationFilter = { min: 70 };
@@ -190,7 +191,11 @@ async function fetchCompaniesWithFilters(intent: ReturnType<typeof analyzeQueryI
   
   // Apply industry filter
   if (intent.industryFilter) {
-    query = query.ilike('industry', `%${intent.industryFilter}%`);
+    if (intent.industryFilter === 'legal') {
+      query = query.or('industry.ilike.%law%,industry.ilike.%legal%,industry.ilike.%attorney%,industry.ilike.%lawyer%');
+    } else {
+      query = query.ilike('industry', `%${intent.industryFilter}%`);
+    }
   }
   
   // Apply employee count filter
@@ -317,16 +322,16 @@ function generateSuggestedActions(companies: any[], query: string, intent: Retur
   
   if (companies.length > 0) {
     // Industry-specific suggestions
-    if (intent.industryFilter === 'restaurant') {
+    if (intent.industryFilter === 'legal') {
       actions.push({
-        label: 'Find restaurants with low HR automation',
-        query: 'Show me restaurants with poor HR automation that need Bayzat services',
+        label: 'Find law firms with manual processes',
+        query: 'Show me law firms with manual HR and payroll processes that need automation',
         type: 'query'
       });
       
       actions.push({
-        label: 'Compare restaurant automation levels',
-        query: 'Create a chart showing automation levels across different restaurant sizes',
+        label: 'Compare legal industry automation',
+        query: 'Create a chart showing automation levels across different law firm sizes',
         type: 'query'
       });
     }
@@ -412,32 +417,52 @@ async function executeEnhancedDataQuery(query: string): Promise<{ toolResults: T
     }
     
     // Generate data table if requested
-    if (intent.needsDataTable) {
+    if (intent.needsDataTable && companies.length > 0) {
+      console.log('🔄 Creating data table section with companies:', companies.length);
+      
       sections.push({
         type: 'data-table',
-        data: companies,
-        metadata: {
+        data: {
           columns: ['company_name', 'industry', 'employee_count', 'automation_overall', 'bayzat_relationship'],
+          data: companies.map(company => ({
+            company_name: company.company_name,
+            industry: company.industry,
+            employee_count: company.employee_count,
+            automation_overall: company.automation_overall,
+            bayzat_relationship: company.bayzat_relationship
+          }))
+        },
+        metadata: {
           exportable: true,
           filters: intent
         }
       });
+      
+      console.log('✅ Data table section created');
     }
     
-    // Generate chart if visualization is requested
-    if (intent.needsVisualization && intent.chartType) {
-      const chartData = generateChartData(companies, intent.chartType);
+    // Generate chart if visualization is requested or if we have automation data
+    if ((intent.needsVisualization && intent.chartType) || (companies.length > 0 && intent.automationFilter)) {
+      const chartType = intent.chartType || 'bar';
+      const chartData = generateChartData(companies, chartType);
+      
       if (chartData) {
+        console.log('🔄 Creating chart section:', chartData);
+        
         sections.push({
           type: 'chart',
           data: chartData,
           metadata: { exportable: true, filters: intent }
         });
+        
+        console.log('✅ Chart section created');
       }
     }
     
     // Generate suggested actions
     const suggestedActions = generateSuggestedActions(companies, query, intent);
+    
+    console.log('🎯 Final sections array:', sections.map(s => ({ type: s.type, dataKeys: Object.keys(s.data || {}) })));
     
     const response: EnhancedChatResponse = {
       message: message || `I found ${companies.length} companies matching your criteria.`,
@@ -593,6 +618,20 @@ serve(async (req) => {
       tool_results: toolResults.filter(r => r.success && r.data),
       suggested_actions: enhancedResponse.suggested_actions
     };
+    
+    console.log('🎯 Final response structure:');
+    console.log('- Message length:', finalResponse.message?.length || 0);
+    console.log('- Content type:', finalResponse.content_type);
+    console.log('- Sections count:', finalResponse.sections?.length || 0);
+    console.log('- Tool results count:', finalResponse.tool_results?.length || 0);
+    console.log('- Suggested actions count:', finalResponse.suggested_actions?.length || 0);
+    
+    if (finalResponse.sections && finalResponse.sections.length > 0) {
+      console.log('📋 Sections breakdown:');
+      finalResponse.sections.forEach((section, index) => {
+        console.log(`  ${index + 1}. Type: ${section.type}, Data keys: ${Object.keys(section.data || {}).join(', ')}`);
+      });
+    }
     
     // Log the query for analytics
     try {
