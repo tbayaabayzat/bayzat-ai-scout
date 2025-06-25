@@ -41,8 +41,8 @@ export function ChatMessageList({
   }, [messages])
 
   return (
-    <ScrollArea className="flex-1 px-6">
-      <div className="space-y-6 py-6">
+    <ScrollArea className="flex-1">
+      <div className="space-y-4 py-6 px-2 max-w-full">
         {messages.map((message) => (
           <ChatMessage 
             key={message.id} 
@@ -52,7 +52,7 @@ export function ChatMessageList({
           />
         ))}
         {isStreaming && (
-          <div className="flex items-center gap-3 text-muted-foreground">
+          <div className="flex items-center gap-3 text-muted-foreground px-6">
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
               <Loader2 className="w-4 h-4 animate-spin text-primary" />
             </div>

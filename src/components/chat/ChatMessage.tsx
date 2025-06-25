@@ -50,19 +50,23 @@ export function ChatMessage({ message, onCompanyClick, onSuggestedActionClick }:
 
   return (
     <div className={cn(
-      "group flex gap-4 px-4 py-6 rounded-2xl transition-all duration-200",
+      "group flex gap-4 px-6 py-6 rounded-2xl transition-all duration-200 w-full",
       isUser 
-        ? "bg-primary/5 ml-12" 
+        ? "bg-primary/5" 
         : "bg-muted/30 hover:bg-muted/40"
     )}>
-      <MessageHeader
-        isUser={isUser}
-        timestamp={message.timestamp}
-        isStreaming={message.isStreaming}
-        contentType={message.contentType}
-      />
+      {/* Compact avatar column */}
+      <div className="flex-shrink-0 w-10">
+        <MessageHeader
+          isUser={isUser}
+          timestamp={message.timestamp}
+          isStreaming={message.isStreaming}
+          contentType={message.contentType}
+        />
+      </div>
 
-      <div className="flex-1 min-w-0">
+      {/* Full-width content column */}
+      <div className="flex-1 min-w-0 max-w-none">
         {/* Text content - only render if there's actual content */}
         {hasTextContent && (
           <MessageContent content={message.content} />

@@ -12,7 +12,8 @@ interface MessageHeaderProps {
 
 export function MessageHeader({ isUser, timestamp, isStreaming, contentType }: MessageHeaderProps) {
   return (
-    <>
+    <div className="flex flex-col items-center gap-2">
+      {/* Avatar */}
       <div className={cn(
         "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
         isUser 
@@ -26,29 +27,28 @@ export function MessageHeader({ isUser, timestamp, isStreaming, contentType }: M
         )}
       </div>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="font-medium text-sm">
-            {isUser ? 'You' : 'Assistant'}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            {timestamp.toLocaleTimeString([], { 
-              hour: '2-digit', 
-              minute: '2-digit' 
-            })}
-          </span>
-          {isStreaming && (
-            <Badge variant="secondary" className="text-xs">
-              Thinking...
-            </Badge>
-          )}
-          {contentType === 'mixed' && (
-            <Badge variant="outline" className="text-xs">
-              Rich Content
-            </Badge>
-          )}
-        </div>
+      {/* Metadata stack */}
+      <div className="flex flex-col items-center gap-1 text-center">
+        <span className="font-medium text-xs">
+          {isUser ? 'You' : 'AI'}
+        </span>
+        <span className="text-xs text-muted-foreground">
+          {timestamp.toLocaleTimeString([], { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          })}
+        </span>
+        {isStreaming && (
+          <Badge variant="secondary" className="text-xs">
+            Thinking...
+          </Badge>
+        )}
+        {contentType === 'mixed' && (
+          <Badge variant="outline" className="text-xs">
+            Rich
+          </Badge>
+        )}
       </div>
-    </>
+    </div>
   )
 }
