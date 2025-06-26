@@ -11,12 +11,14 @@ import { PLACEHOLDERS } from "./semantic-search/types"
 interface SemanticSearchBarProps {
   onResults: (companyIds: string[], query: string) => void
   onClear: () => void
+  clearTrigger?: number // Add a trigger to clear internal state
 }
 
-export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps) {
+export function SemanticSearchBar({ onResults, onClear, clearTrigger }: SemanticSearchBarProps) {
   const [query, setQuery] = useState("")
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0)
+  const [lastClearTrigger, setLastClearTrigger] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const searchContainerRef = useRef<HTMLDivElement>(null)
   
@@ -31,6 +33,16 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
     clearResults,
     cancelSearch
   } = useSemanticSearch()
+
+  // Clear internal state when parent triggers clear
+  useEffect(() => {
+    if (clearTrigger && clearTrigger !== lastClearTrigger) {
+      console.log('Received clear trigger, clearing internal state')
+      setQuery("")
+      clearResults()
+      setLastClearTrigger(clearTrigger)
+    }
+  }, [clearTrigger, lastClearTrigger, clearResults])
 
   // Rotate placeholders
   useEffect(() => {
@@ -54,9 +66,9 @@ export function SemanticSearchBar({ onResults, onClear }: SemanticSearchBarProps
     }
   }, [])
 
-  // Update results when search completes
+  // Update results when search completes - but only if we have results
   useEffect(() => {
-    if (searchResults) {
+    if (searchResults && searchResults.companies.length > 0) {
       const companyIds = searchResults.companies.map(company => company.id)
       onResults(companyIds, searchResults.query)
     }

@@ -3,6 +3,7 @@ import { SemanticSearchBar } from "@/components/SemanticSearchBar"
 import { AIFilterBadge } from "@/components/semantic-search/AIFilterBadge"
 import { AdvancedFilters } from "@/components/AdvancedFilters"
 import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/types/company"
+import { useState } from "react"
 
 interface CompaniesFiltersProps {
   onSearch: (term: string) => void
@@ -29,12 +30,16 @@ export function CompaniesFilters({
   automationFilter,
   onAutomationFilterChange
 }: CompaniesFiltersProps) {
+  const [clearTrigger, setClearTrigger] = useState(0)
+
   const handleSemanticResults = (companyIds: string[], query: string) => {
     onSemanticFilter(companyIds, query)
   }
 
   const handleSemanticClear = () => {
     onClearSemanticFilter()
+    // Trigger clear in SemanticSearchBar
+    setClearTrigger(prev => prev + 1)
   }
 
   return (
@@ -48,6 +53,7 @@ export function CompaniesFilters({
         <SemanticSearchBar 
           onResults={handleSemanticResults}
           onClear={handleSemanticClear}
+          clearTrigger={clearTrigger}
         />
       </div>
 
