@@ -1,4 +1,3 @@
-
 import { Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,6 +20,7 @@ interface ChatDataTableProps {
 
 export function ChatDataTable({ data, onExport, onCompanyClick }: ChatDataTableProps) {
   console.log('ChatDataTable - Received data:', data)
+  console.log('ChatDataTable - onCompanyClick handler:', !!onCompanyClick)
 
   // Add validation to ensure data.data is an array
   if (!data || !Array.isArray(data.data)) {
@@ -50,31 +50,43 @@ export function ChatDataTable({ data, onExport, onCompanyClick }: ChatDataTableP
 
   const handleRowClick = (row: any) => {
     if (isCompanyTable && onCompanyClick && row.company_name) {
-      // Transform row data to CompanyCardData format
-      const companyData: CompanyCardData = {
-        id: row.id || row.company_id || '',
-        company_name: row.company_name,
-        industry: row.industry,
-        employee_count: row.employee_count,
-        logo_url: row.logo_url,
-        website_url: row.website_url,
-        bayzat_relationship: row.bayzat_relationship,
-        description: row.description,
-        tagline: row.tagline,
-        founded_year: row.founded_year,
-        headquarter: row.headquarter,
-        ai_analysis: row.ai_analysis,
-        has_erp: row.has_erp,
-        has_hris: row.has_hris,
-        has_accounting: row.has_accounting,
-        has_payroll: row.has_payroll,
-        automation_overall: row.automation_overall,
-        automation_hr: row.automation_hr,
-        automation_finance: row.automation_finance,
-        automation_operations: row.automation_operations,
-        automation_sales: row.automation_sales,
-        location: row.location
+      console.log('ChatDataTable - Row clicked:', row)
+      
+      // Helper function to safely extract value from various formats
+      const safeExtract = (value: any): string | number | boolean | undefined => {
+        if (value === null || value === undefined) return undefined
+        if (typeof value === 'object' && value._type === 'undefined') return undefined
+        if (typeof value === 'object' && value.value !== undefined) return value.value
+        return value
       }
+
+      // Transform row data to CompanyCardData format with proper data extraction
+      const companyData: CompanyCardData = {
+        id: safeExtract(row.id) || safeExtract(row.company_id) || String(Math.random()),
+        company_name: safeExtract(row.company_name) as string,
+        industry: safeExtract(row.industry) as string,
+        employee_count: safeExtract(row.employee_count) as number,
+        logo_url: safeExtract(row.logo_url) as string,
+        website_url: safeExtract(row.website_url) as string,
+        bayzat_relationship: safeExtract(row.bayzat_relationship) as string,
+        description: safeExtract(row.description) as string,
+        tagline: safeExtract(row.tagline) as string,
+        founded_year: safeExtract(row.founded_year) as number,
+        headquarter: safeExtract(row.headquarter),
+        ai_analysis: safeExtract(row.ai_analysis),
+        has_erp: safeExtract(row.has_erp) as boolean,
+        has_hris: safeExtract(row.has_hris) as boolean,
+        has_accounting: safeExtract(row.has_accounting) as boolean,
+        has_payroll: safeExtract(row.has_payroll) as boolean,
+        automation_overall: safeExtract(row.automation_overall) as number,
+        automation_hr: safeExtract(row.automation_hr) as number,
+        automation_finance: safeExtract(row.automation_finance) as number,
+        automation_operations: safeExtract(row.automation_operations) as number,
+        automation_sales: safeExtract(row.automation_sales) as number,
+        location: safeExtract(row.location) as string
+      }
+      
+      console.log('ChatDataTable - Transformed company data:', companyData)
       onCompanyClick(companyData)
     }
   }

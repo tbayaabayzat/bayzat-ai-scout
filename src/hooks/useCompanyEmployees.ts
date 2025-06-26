@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
@@ -16,11 +15,20 @@ export function useCompanyEmployees(companyId: string | number | null | undefine
 
       console.log('Fetching employees for company ID:', companyId)
       
-      const { data, error } = await supabase
-        .from('employee_profiles')
-        .select('*')
-        .eq('current_company_urn', companyId.toString())
-        .limit(50)
+      let query = supabase.from('employee_profiles').select('*')
+      
+      // Try different lookup strategies based on the type of company identifier
+      if (typeof companyId === 'string' && !companyId.match(/^\d+$/)) {
+        // If it's a string that's not just numbers, try company name lookup
+        console.log('Looking up by company name:', companyId)
+        query = query.eq('current_company_name', companyId)
+      } else {
+        // Otherwise, try URN lookup
+        console.log('Looking up by company URN:', companyId)
+        query = query.eq('current_company_urn', companyId.toString())
+      }
+      
+      const { data, error } = await query.limit(50)
 
       if (error) {
         console.error('Error fetching employees:', error)

@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react"
 import { Input } from "@/components/ui/input"
 import { Users, Search } from "lucide-react"
@@ -22,9 +21,17 @@ export function EmployeesSection({ company, onEmployeeClick }: EmployeesSectionP
   console.log('Available company fields:', Object.keys(company || {}))
   console.log('company.id:', company?.id)
   console.log('company.company_id:', company?.company_id)
+  console.log('company.company_name:', company?.company_name)
   
-  // Try to get the correct company identifier
-  const companyId = company?.company_id || company?.id
+  // Try to get the correct company identifier - use company_name as fallback for lookup
+  let companyId = company?.company_id || company?.id
+  
+  // If no numeric ID is available, try using company name for lookup
+  if (!companyId || companyId === '' || companyId === 'undefined') {
+    companyId = company?.company_name
+    console.log('EmployeesSection - Using company name for lookup:', companyId)
+  }
+  
   console.log('Using company ID for employee lookup:', companyId)
   
   const { employees, isLoading, error } = useCompanyEmployees(companyId)
