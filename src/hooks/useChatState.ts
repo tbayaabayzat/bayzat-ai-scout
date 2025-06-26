@@ -13,6 +13,11 @@ export function useChatState() {
   const sendMessage = async (userMessage: string) => {
     console.log('🎯 useChatState.sendMessage called with:', userMessage)
     
+    if (!userMessage || !userMessage.trim()) {
+      console.error('❌ Empty message provided to sendMessage')
+      return
+    }
+    
     addMessage('user', userMessage)
     setIsLoading(true)
     setIsStreaming(true)
@@ -21,11 +26,12 @@ export function useChatState() {
       const allMessages = [...messages, {
         id: crypto.randomUUID(),
         role: 'user' as const,
-        content: userMessage,
+        content: userMessage.trim(), // Ensure we trim the message
         timestamp: new Date()
       }]
 
       console.log('📨 Calling sendChatMessage with all messages:', allMessages.length)
+      console.log('📨 Last message content:', allMessages[allMessages.length - 1].content)
 
       const response = await sendChatMessage(allMessages, user?.id)
       console.log('🎯 Processed response in useChatState:', response)

@@ -13,16 +13,26 @@ export async function sendChatMessage(
     lastMessage: messages[messages.length - 1]?.content
   })
 
+  if (!messages || messages.length === 0) {
+    throw new Error('No messages provided')
+  }
+
+  const lastMessage = messages[messages.length - 1]
+  if (!lastMessage || !lastMessage.content || !lastMessage.content.trim()) {
+    throw new Error('Last message is empty or invalid')
+  }
+
   const formattedMessages = messages.map(msg => ({
     role: msg.role,
-    content: msg.content,
+    content: msg.content.trim(), // Ensure content is trimmed
     timestamp: msg.timestamp.toISOString()
   }))
 
   console.log('📤 Sending to edge function:', {
     messages: formattedMessages,
     stream: true,
-    user_id: userId
+    user_id: userId,
+    lastMessageContent: formattedMessages[formattedMessages.length - 1].content
   })
 
   const { data, error } = await supabase.functions.invoke('chat-interface', {
