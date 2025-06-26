@@ -20,11 +20,16 @@ export function CompanyCards({ companies, onCompanyClick }: CompanyCardsProps) {
     }
   }
 
-  const getAutomationColor = (score?: number) => {
-    if (!score) return 'bg-gray-100 text-gray-800'
-    if (score >= 70) return 'bg-green-100 text-green-800'
-    if (score >= 40) return 'bg-yellow-100 text-yellow-800'
-    return 'bg-red-100 text-red-800'
+  const getAutomationScoreColor = (score: number) => {
+    if (score >= 4) return "bg-bayzat-pink"
+    if (score >= 3) return "bg-bayzat-purple"
+    return "bg-bayzat-dark-purple"
+  }
+
+  const getAutomationLabel = (score: number) => {
+    if (score >= 4) return "High"
+    if (score >= 3) return "Medium"
+    return "Low"
   }
 
   return (
@@ -77,8 +82,8 @@ export function CompanyCards({ companies, onCompanyClick }: CompanyCardsProps) {
                   <Zap className="w-4 h-4 flex-shrink-0" />
                   <span>Automation</span>
                 </div>
-                <Badge className={`text-xs ${getAutomationColor(company.automation_overall)}`}>
-                  {company.automation_overall}%
+                <Badge className={`text-xs ${getAutomationScoreColor(company.automation_overall)} text-white`}>
+                  {getAutomationLabel(company.automation_overall)} ({company.automation_overall.toFixed(1)})
                 </Badge>
               </div>
             )}
