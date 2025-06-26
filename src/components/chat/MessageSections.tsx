@@ -1,3 +1,4 @@
+
 import { CompanyCards } from "./CompanyCards"
 import { EmployeeCards } from "./EmployeeCards"
 import { ChatDataTable } from "./ChatDataTable"
@@ -12,6 +13,8 @@ interface MessageSectionsProps {
 }
 
 export function MessageSections({ sections, onCompanyClick, onEmployeeClick }: MessageSectionsProps) {
+  console.log('MessageSections - Rendering with onCompanyClick:', !!onCompanyClick)
+  
   const renderSection = (section: ContentSection, index: number) => {
     console.log('MessageSections - Processing section:', section.type, section)
 
@@ -36,6 +39,7 @@ export function MessageSections({ sections, onCompanyClick, onEmployeeClick }: M
       
       case 'data-table':
         console.log('MessageSections - Processing data-table section:', section.data)
+        console.log('MessageSections - onCompanyClick for data-table:', !!onCompanyClick)
         
         let tableData
         
@@ -87,6 +91,7 @@ export function MessageSections({ sections, onCompanyClick, onEmployeeClick }: M
           <ChatDataTable
             key={index}
             data={tableData}
+            onCompanyClick={onCompanyClick}
           />
         )
       

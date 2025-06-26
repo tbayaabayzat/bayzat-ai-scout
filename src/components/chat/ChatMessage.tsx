@@ -32,6 +32,8 @@ export function ChatMessage({
   onEmployeeClick, 
   onSuggestedActionClick 
 }: ChatMessageProps) {
+  console.log('ChatMessage - Rendering with onCompanyClick:', !!onCompanyClick)
+  
   return (
     <div className="flex items-start gap-4 px-6">
       <MessageHeader 
