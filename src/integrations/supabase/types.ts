@@ -205,6 +205,13 @@ export type Database = {
             foreignKeyName: "company_vectors_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "company_current_employees"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "company_vectors_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "company_search_flat"
             referencedColumns: ["company_id"]
           },
@@ -263,6 +270,13 @@ export type Database = {
           years_of_experience?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "employee_profile_vectors_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "company_current_employees"
+            referencedColumns: ["employee_id"]
+          },
           {
             foreignKeyName: "employee_profile_vectors_profile_id_fkey"
             columns: ["profile_id"]
@@ -573,6 +587,13 @@ export type Database = {
             foreignKeyName: "employment_stints_matched_company_id_fkey"
             columns: ["matched_company_id"]
             isOneToOne: false
+            referencedRelation: "company_current_employees"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "employment_stints_matched_company_id_fkey"
+            columns: ["matched_company_id"]
+            isOneToOne: false
             referencedRelation: "company_search_flat"
             referencedColumns: ["company_id"]
           },
@@ -683,6 +704,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies2"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_profiles_queue_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_current_employees"
+            referencedColumns: ["company_id"]
           },
           {
             foreignKeyName: "linkedin_profiles_queue_company_id_fkey"
@@ -819,6 +847,20 @@ export type Database = {
           total_tokens: number | null
           unique_queries: number | null
           user_id: string | null
+        }
+        Relationships: []
+      }
+      company_current_employees: {
+        Row: {
+          about: string | null
+          company_id: string | null
+          company_name: string | null
+          current_title: string | null
+          department: string | null
+          employee_id: string | null
+          full_name: string | null
+          headline: string | null
+          profile_url: string | null
         }
         Relationships: []
       }
@@ -10267,6 +10309,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies2"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_vectors_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_current_employees"
+            referencedColumns: ["company_id"]
           },
           {
             foreignKeyName: "company_vectors_company_id_fkey"

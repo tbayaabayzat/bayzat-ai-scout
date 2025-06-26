@@ -14,6 +14,28 @@ interface RequestItemProps {
 export function RequestItem({ request, isLoading, onClick, onKeyDown }: RequestItemProps) {
   const isClickable = request.status === 'completed'
 
+  const handleClick = () => {
+    console.log('🖱️ RequestItem clicked:', {
+      id: request.id,
+      status: request.status,
+      isClickable,
+      url: request.linkedin_url
+    })
+    
+    if (isClickable) {
+      onClick(request)
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    console.log('⌨️ RequestItem key pressed:', {
+      key: e.key,
+      isClickable,
+      status: request.status
+    })
+    onKeyDown(e, request)
+  }
+
   return (
     <div 
       className={`
@@ -23,8 +45,8 @@ export function RequestItem({ request, isLoading, onClick, onKeyDown }: RequestI
           : 'cursor-default border-border bg-muted/20'
         }
       `}
-      onClick={() => onClick(request)}
-      onKeyDown={(e) => onKeyDown(e, request)}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
       role={isClickable ? 'button' : undefined}
       tabIndex={isClickable ? 0 : undefined}
       aria-label={isClickable ? `View company details for ${request.linkedin_url}` : undefined}

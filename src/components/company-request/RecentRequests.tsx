@@ -22,31 +22,57 @@ export function RecentRequests({ requests, onCompanySelected }: RecentRequestsPr
     setLoadingRequestId(request.id)
     
     try {
-      console.log('Looking up company for URL:', request.linkedin_url)
+      console.log('🔍 Looking up company for URL:', request.linkedin_url)
       
-      const { data: companies, error } = await supabase
+      // First try direct URL match
+      let { data: companies, error } = await supabase
         .from('companies2')
         .select('*')
         .eq('url', request.linkedin_url)
         .limit(1)
 
       if (error) {
-        console.error('Error fetching company:', error)
+        console.error('❌ Error fetching company by URL:', error)
         throw error
       }
 
+      // If no exact match, try fuzzy matching with company name containing "eatx"
+      if (!companies || companies.length === 0) {
+        console.log('🔍 No exact URL match, trying fuzzy search for company name containing keywords...')
+        
+        // Extract potential company name from URL
+        const urlParts = request.linkedin_url.split('/')
+        const companySlug = urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2]
+        
+        if (companySlug) {
+          const { data: fuzzyCompanies, error: fuzzyError } = await supabase
+            .from('companies2')
+            .select('*')
+            .or(`company_name.ilike.%${companySlug}%,universal_name.ilike.%${companySlug}%`)
+            .limit(5)
+
+          if (fuzzyError) {
+            console.error('❌ Error in fuzzy search:', fuzzyError)
+          } else if (fuzzyCompanies && fuzzyCompanies.length > 0) {
+            console.log('✅ Found fuzzy matches:', fuzzyCompanies.map(c => c.company_name))
+            companies = fuzzyCompanies
+          }
+        }
+      }
+
       if (companies && companies.length > 0) {
-        console.log('Found company:', companies[0])
+        console.log('✅ Found company:', companies[0].company_name)
         onCompanySelected(companies[0])
       } else {
+        console.log('❌ No company found for URL:', request.linkedin_url)
         toast({
           title: "Company not found",
-          description: "The company data is not available in our database yet.",
+          description: `No company data found for ${request.linkedin_url}. The analysis may still be processing or the company may not be in our database yet.`,
           variant: "destructive"
         })
       }
     } catch (error) {
-      console.error('Error looking up company:', error)
+      console.error('❌ Error looking up company:', error)
       toast({
         title: "Error loading company",
         description: "Failed to load company details. Please try again.",
