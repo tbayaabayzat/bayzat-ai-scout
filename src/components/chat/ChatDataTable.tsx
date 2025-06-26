@@ -52,38 +52,53 @@ export function ChatDataTable({ data, onExport, onCompanyClick }: ChatDataTableP
     if (isCompanyTable && onCompanyClick && row.company_name) {
       console.log('ChatDataTable - Row clicked:', row)
       
-      // Helper function to safely extract value from various formats
-      const safeExtract = (value: any): string | number | boolean | undefined => {
+      // Helper function to safely extract value from various formats and convert to appropriate types
+      const safeExtractString = (value: any): string | undefined => {
         if (value === null || value === undefined) return undefined
         if (typeof value === 'object' && value._type === 'undefined') return undefined
-        if (typeof value === 'object' && value.value !== undefined) return value.value
-        return value
+        if (typeof value === 'object' && value.value !== undefined) return String(value.value)
+        return String(value)
       }
 
-      // Transform row data to CompanyCardData format with proper data extraction
+      const safeExtractNumber = (value: any): number | undefined => {
+        if (value === null || value === undefined) return undefined
+        if (typeof value === 'object' && value._type === 'undefined') return undefined
+        if (typeof value === 'object' && value.value !== undefined) return Number(value.value)
+        const num = Number(value)
+        return isNaN(num) ? undefined : num
+      }
+
+      const safeExtractBoolean = (value: any): boolean | undefined => {
+        if (value === null || value === undefined) return undefined
+        if (typeof value === 'object' && value._type === 'undefined') return undefined
+        if (typeof value === 'object' && value.value !== undefined) return Boolean(value.value)
+        return Boolean(value)
+      }
+
+      // Transform row data to CompanyCardData format with proper data extraction and type conversion
       const companyData: CompanyCardData = {
-        id: safeExtract(row.id) || safeExtract(row.company_id) || String(Math.random()),
-        company_name: safeExtract(row.company_name) as string,
-        industry: safeExtract(row.industry) as string,
-        employee_count: safeExtract(row.employee_count) as number,
-        logo_url: safeExtract(row.logo_url) as string,
-        website_url: safeExtract(row.website_url) as string,
-        bayzat_relationship: safeExtract(row.bayzat_relationship) as string,
-        description: safeExtract(row.description) as string,
-        tagline: safeExtract(row.tagline) as string,
-        founded_year: safeExtract(row.founded_year) as number,
-        headquarter: safeExtract(row.headquarter),
-        ai_analysis: safeExtract(row.ai_analysis),
-        has_erp: safeExtract(row.has_erp) as boolean,
-        has_hris: safeExtract(row.has_hris) as boolean,
-        has_accounting: safeExtract(row.has_accounting) as boolean,
-        has_payroll: safeExtract(row.has_payroll) as boolean,
-        automation_overall: safeExtract(row.automation_overall) as number,
-        automation_hr: safeExtract(row.automation_hr) as number,
-        automation_finance: safeExtract(row.automation_finance) as number,
-        automation_operations: safeExtract(row.automation_operations) as number,
-        automation_sales: safeExtract(row.automation_sales) as number,
-        location: safeExtract(row.location) as string
+        id: safeExtractString(row.id) || safeExtractString(row.company_id) || String(Math.random()),
+        company_name: safeExtractString(row.company_name) || '',
+        industry: safeExtractString(row.industry),
+        employee_count: safeExtractNumber(row.employee_count),
+        logo_url: safeExtractString(row.logo_url),
+        website_url: safeExtractString(row.website_url),
+        bayzat_relationship: safeExtractString(row.bayzat_relationship),
+        description: safeExtractString(row.description),
+        tagline: safeExtractString(row.tagline),
+        founded_year: safeExtractNumber(row.founded_year),
+        headquarter: row.headquarter,
+        ai_analysis: row.ai_analysis,
+        has_erp: safeExtractBoolean(row.has_erp),
+        has_hris: safeExtractBoolean(row.has_hris),
+        has_accounting: safeExtractBoolean(row.has_accounting),
+        has_payroll: safeExtractBoolean(row.has_payroll),
+        automation_overall: safeExtractNumber(row.automation_overall),
+        automation_hr: safeExtractNumber(row.automation_hr),
+        automation_finance: safeExtractNumber(row.automation_finance),
+        automation_operations: safeExtractNumber(row.automation_operations),
+        automation_sales: safeExtractNumber(row.automation_sales),
+        location: safeExtractString(row.location)
       }
       
       console.log('ChatDataTable - Transformed company data:', companyData)
