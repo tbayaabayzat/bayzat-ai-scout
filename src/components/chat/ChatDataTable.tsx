@@ -11,13 +11,15 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { DataTableData } from "@/types/chat"
+import { CompanyCardData } from "@/types/chat"
 
 interface ChatDataTableProps {
   data: DataTableData
   onExport?: (format: 'csv' | 'json') => void
+  onCompanyClick?: (company: CompanyCardData) => void
 }
 
-export function ChatDataTable({ data, onExport }: ChatDataTableProps) {
+export function ChatDataTable({ data, onExport, onCompanyClick }: ChatDataTableProps) {
   console.log('ChatDataTable - Received data:', data)
 
   // Add validation to ensure data.data is an array
@@ -28,6 +30,53 @@ export function ChatDataTable({ data, onExport }: ChatDataTableProps) {
         <p className="text-muted-foreground">No data available to display</p>
       </div>
     )
+  }
+
+  const getAutomationScoreColor = (score: number) => {
+    if (score >= 4) return "bg-bayzat-pink"
+    if (score >= 3) return "bg-bayzat-purple"
+    return "bg-bayzat-dark-purple"
+  }
+
+  const getAutomationLabel = (score: number) => {
+    if (score >= 4) return "High"
+    if (score >= 3) return "Medium"
+    return "Low"
+  }
+
+  const isCompanyTable = data.columns.some(col => 
+    ['company_name', 'id', 'industry', 'employee_count'].includes(col)
+  )
+
+  const handleRowClick = (row: any) => {
+    if (isCompanyTable && onCompanyClick && row.company_name) {
+      // Transform row data to CompanyCardData format
+      const companyData: CompanyCardData = {
+        id: row.id || row.company_id || '',
+        company_name: row.company_name,
+        industry: row.industry,
+        employee_count: row.employee_count,
+        logo_url: row.logo_url,
+        website_url: row.website_url,
+        bayzat_relationship: row.bayzat_relationship,
+        description: row.description,
+        tagline: row.tagline,
+        founded_year: row.founded_year,
+        headquarter: row.headquarter,
+        ai_analysis: row.ai_analysis,
+        has_erp: row.has_erp,
+        has_hris: row.has_hris,
+        has_accounting: row.has_accounting,
+        has_payroll: row.has_payroll,
+        automation_overall: row.automation_overall,
+        automation_hr: row.automation_hr,
+        automation_finance: row.automation_finance,
+        automation_operations: row.automation_operations,
+        automation_sales: row.automation_sales,
+        location: row.location
+      }
+      onCompanyClick(companyData)
+    }
   }
 
   const formatCellValue = (value: any, column: string): React.ReactNode => {
@@ -50,9 +99,15 @@ export function ChatDataTable({ data, onExport }: ChatDataTableProps) {
       case 'automation_overall':
       case 'automation_hr':
       case 'automation_finance':
-        const score = parseInt(value)
-        const scoreColor = score >= 70 ? 'text-green-600' : score >= 40 ? 'text-yellow-600' : 'text-red-600'
-        return <span className={`font-medium ${scoreColor}`}>{score}%</span>
+      case 'automation_operations':
+      case 'automation_sales':
+        const score = typeof value === 'number' ? value : parseFloat(value)
+        if (isNaN(score)) return '-'
+        return (
+          <Badge className={`${getAutomationScoreColor(score)} text-white text-xs`}>
+            {getAutomationLabel(score)} ({score.toFixed(1)})
+          </Badge>
+        )
       
       case 'employee_count':
         return typeof value === 'number' ? value.toLocaleString() : value
@@ -64,6 +119,7 @@ export function ChatDataTable({ data, onExport }: ChatDataTableProps) {
             target="_blank" 
             rel="noopener noreferrer"
             className="text-blue-600 hover:underline truncate max-w-[200px] inline-block"
+            onClick={(e) => e.stopPropagation()}
           >
             {value}
           </a>
@@ -123,6 +179,7 @@ export function ChatDataTable({ data, onExport }: ChatDataTableProps) {
           <h3 className="font-medium">Data Table</h3>
           <p className="text-sm text-muted-foreground">
             Showing {data.data.length} records
+            {isCompanyTable && ' • Click rows to view details'}
           </p>
         </div>
         {data.exportable && (
@@ -160,7 +217,11 @@ export function ChatDataTable({ data, onExport }: ChatDataTableProps) {
           </TableHeader>
           <TableBody>
             {data.data.map((row, index) => (
-              <TableRow key={index}>
+              <TableRow 
+                key={index}
+                className={isCompanyTable && onCompanyClick ? 'cursor-pointer hover:bg-muted/50' : ''}
+                onClick={() => handleRowClick(row)}
+              >
                 {data.columns.map((column) => (
                   <TableCell key={column} className="py-2">
                     {formatCellValue(row[column], column)}
