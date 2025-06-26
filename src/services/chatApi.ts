@@ -3,6 +3,13 @@ import { supabase } from "@/integrations/supabase/client"
 import { Message } from "@/types/message"
 import { ChatApiResponse } from "@/types/message"
 
+interface StructuredChatRequest {
+  query: string
+  mode?: 'company' | 'employee' | 'analytics' | 'smart'
+  limit?: number
+  user_id?: string
+}
+
 export async function sendChatMessage(
   messages: Message[],
   userId: string = 'anonymous'
@@ -24,7 +31,7 @@ export async function sendChatMessage(
 
   const formattedMessages = messages.map(msg => ({
     role: msg.role,
-    content: msg.content.trim(), // Ensure content is trimmed
+    content: msg.content.trim(),
     timestamp: msg.timestamp.toISOString()
   }))
 
@@ -80,5 +87,33 @@ export async function sendChatMessage(
 
   console.log('⚠️ Unexpected response format, using fallback')
   // Fallback for direct response structure (backwards compatibility)
+  return data || {}
+}
+
+// New structured query function for direct searches
+export async function sendStructuredQuery(
+  query: string,
+  mode: 'company' | 'employee' | 'analytics' | 'smart' = 'smart',
+  limit: number = 20,
+  userId: string = 'anonymous'
+): Promise<ChatApiResponse> {
+  console.log('🔍 sendStructuredQuery called:', { query, mode, limit })
+
+  const requestBody: StructuredChatRequest = {
+    query: query.trim(),
+    mode,
+    limit,
+    user_id: userId
+  }
+
+  const { data, error } = await supabase.functions.invoke('chat-interface', {
+    body: requestBody
+  })
+
+  if (error) {
+    console.error('❌ Structured query error:', error)
+    throw error
+  }
+
   return data || {}
 }

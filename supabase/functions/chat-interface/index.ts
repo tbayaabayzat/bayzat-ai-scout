@@ -22,7 +22,10 @@ interface ChatMessage {
 }
 
 interface ChatRequest {
-  messages: ChatMessage[];
+  messages?: ChatMessage[];
+  query?: string;
+  mode?: 'company' | 'employee' | 'analytics' | 'smart';
+  limit?: number;
   stream?: boolean;
   user_id?: string;
 }
@@ -53,10 +56,11 @@ interface EnhancedChatResponse {
   sections: ContentSection[];
   tool_results: ToolResult[];
   suggested_actions?: SuggestedAction[];
+  intent?: any;
 }
 
 // Enhanced query processing to detect intent and content types
-function analyzeQueryIntent(query: string): {
+function analyzeQueryIntent(query: string, mode?: string): {
   needsVisualization: boolean;
   needsCompanyCards: boolean;
   needsDataTable: boolean;
@@ -72,8 +76,39 @@ function analyzeQueryIntent(query: string): {
     keywords?: string[];
     title?: string;
   };
+  detectedMode: string;
 } {
+  if (!query || typeof query !== 'string') {
+    console.error('❌ Invalid query provided to analyzeQueryIntent:', query);
+    return {
+      needsVisualization: false,
+      needsCompanyCards: false,
+      needsDataTable: false,
+      needsEmployeeSearch: false,
+      companyMentions: [],
+      detectedMode: mode || 'smart'
+    };
+  }
+
   const lowerQuery = query.toLowerCase();
+  
+  // Mode-based intent override
+  if (mode && mode !== 'smart') {
+    const modeBasedIntent = {
+      needsVisualization: mode === 'analytics',
+      needsCompanyCards: mode === 'company',
+      needsDataTable: mode === 'company' || mode === 'analytics',
+      needsEmployeeSearch: mode === 'employee',
+      companyMentions: [],
+      detectedMode: mode
+    };
+    
+    if (mode === 'employee') {
+      modeBasedIntent.employeeFilters = extractEmployeeFilters(lowerQuery);
+    }
+    
+    return modeBasedIntent;
+  }
   
   // Employee search detection
   const employeeKeywords = ['employee', 'employees', 'people', 'person', 'professional', 'professionals', 'manager', 'managers', 'director', 'specialist', 'hr', 'human resources', 'staff', 'team member'];
@@ -104,55 +139,7 @@ function analyzeQueryIntent(query: string): {
   let employeeFilters: { department?: string; keywords?: string[]; title?: string } | undefined;
   
   if (needsEmployeeSearch) {
-    employeeFilters = {};
-    
-    // Department detection
-    const departmentKeywords = {
-      'HR': ['hr', 'human resources', 'people', 'talent'],
-      'Technology': ['tech', 'technology', 'developer', 'engineer', 'it'],
-      'Sales': ['sales', 'business development', 'account'],
-      'Marketing': ['marketing', 'brand', 'content'],
-      'Finance': ['finance', 'accounting', 'financial'],
-      'Operations': ['operations', 'ops', 'logistics']
-    };
-    
-    for (const [dept, keywords] of Object.entries(departmentKeywords)) {
-      if (keywords.some(keyword => lowerQuery.includes(keyword))) {
-        employeeFilters.department = dept;
-        break;
-      }
-    }
-    
-    // Title detection
-    if (lowerQuery.includes('manager')) employeeFilters.title = 'manager';
-    if (lowerQuery.includes('director')) employeeFilters.title = 'director';
-    if (lowerQuery.includes('specialist')) employeeFilters.title = 'specialist';
-    
-    // Keywords extraction for interests/expertise
-    const interestKeywords = [];
-    if (lowerQuery.includes('wellness') || lowerQuery.includes('wellbeing') || lowerQuery.includes('health')) {
-      interestKeywords.push('wellness', 'wellbeing', 'health');
-      if (lowerQuery.includes('employee')) interestKeywords.push('employee wellness');
-    }
-    if (lowerQuery.includes('culture')) {
-      interestKeywords.push('culture', 'employee culture', 'workplace culture');
-    }
-    if (lowerQuery.includes('automation')) {
-      interestKeywords.push('automation', 'process automation', 'digital transformation');
-    }
-    if (lowerQuery.includes('engagement')) {
-      interestKeywords.push('engagement', 'employee engagement');
-    }
-    if (lowerQuery.includes('diversity')) {
-      interestKeywords.push('diversity', 'inclusion', 'dei');
-    }
-    if (lowerQuery.includes('training') || lowerQuery.includes('development')) {
-      interestKeywords.push('training', 'development', 'learning');
-    }
-    
-    if (interestKeywords.length > 0) {
-      employeeFilters.keywords = interestKeywords;
-    }
+    employeeFilters = extractEmployeeFilters(lowerQuery);
   }
   
   // Industry detection - only for company searches
@@ -229,6 +216,14 @@ function analyzeQueryIntent(query: string): {
     }
   });
   
+  // Determine detected mode
+  let detectedMode = mode || 'smart';
+  if (!mode || mode === 'smart') {
+    if (needsEmployeeSearch) detectedMode = 'employee';
+    else if (needsVisualization) detectedMode = 'analytics';
+    else if (needsCompanyCards || needsDataTable) detectedMode = 'company';
+  }
+  
   console.log('Query intent:', {
     needsVisualization,
     needsCompanyCards,
@@ -240,7 +235,8 @@ function analyzeQueryIntent(query: string): {
     automationFilter,
     employeeCountFilter,
     systemFilters,
-    employeeFilters
+    employeeFilters,
+    detectedMode
   });
   
   return {
@@ -254,8 +250,64 @@ function analyzeQueryIntent(query: string): {
     automationFilter,
     employeeCountFilter,
     systemFilters,
-    employeeFilters
+    employeeFilters,
+    detectedMode
   };
+}
+
+// Helper function to extract employee filters
+function extractEmployeeFilters(lowerQuery: string) {
+  const employeeFilters: { department?: string; keywords?: string[]; title?: string } = {};
+  
+  // Department detection
+  const departmentKeywords = {
+    'HR': ['hr', 'human resources', 'people', 'talent'],
+    'Technology': ['tech', 'technology', 'developer', 'engineer', 'it'],
+    'Sales': ['sales', 'business development', 'account'],
+    'Marketing': ['marketing', 'brand', 'content'],
+    'Finance': ['finance', 'accounting', 'financial'],
+    'Operations': ['operations', 'ops', 'logistics']
+  };
+  
+  for (const [dept, keywords] of Object.entries(departmentKeywords)) {
+    if (keywords.some(keyword => lowerQuery.includes(keyword))) {
+      employeeFilters.department = dept;
+      break;
+    }
+  }
+  
+  // Title detection
+  if (lowerQuery.includes('manager')) employeeFilters.title = 'manager';
+  if (lowerQuery.includes('director')) employeeFilters.title = 'director';
+  if (lowerQuery.includes('specialist')) employeeFilters.title = 'specialist';
+  
+  // Keywords extraction for interests/expertise
+  const interestKeywords = [];
+  if (lowerQuery.includes('wellness') || lowerQuery.includes('wellbeing') || lowerQuery.includes('health')) {
+    interestKeywords.push('wellness', 'wellbeing', 'health');
+    if (lowerQuery.includes('employee')) interestKeywords.push('employee wellness');
+  }
+  if (lowerQuery.includes('culture')) {
+    interestKeywords.push('culture', 'employee culture', 'workplace culture');
+  }
+  if (lowerQuery.includes('automation')) {
+    interestKeywords.push('automation', 'process automation', 'digital transformation');
+  }
+  if (lowerQuery.includes('engagement')) {
+    interestKeywords.push('engagement', 'employee engagement');
+  }
+  if (lowerQuery.includes('diversity')) {
+    interestKeywords.push('diversity', 'inclusion', 'dei');
+  }
+  if (lowerQuery.includes('training') || lowerQuery.includes('development')) {
+    interestKeywords.push('training', 'development', 'learning');
+  }
+  
+  if (interestKeywords.length > 0) {
+    employeeFilters.keywords = interestKeywords;
+  }
+  
+  return employeeFilters;
 }
 
 // Enhanced employee search with semantic vectors
@@ -655,14 +707,14 @@ function generateSuggestedActions(intent: ReturnType<typeof analyzeQueryIntent>)
 }
 
 // Enhanced data query execution with intelligent filtering
-async function executeEnhancedDataQuery(query: string): Promise<{ toolResults: ToolResult[], response: EnhancedChatResponse }> {
+async function executeEnhancedDataQuery(query: string, mode?: string, limit = 20): Promise<{ toolResults: ToolResult[], response: EnhancedChatResponse }> {
   const startTime = Date.now();
-  const intent = analyzeQueryIntent(query);
+  const intent = analyzeQueryIntent(query, mode);
   const toolResults: ToolResult[] = [];
   const sections: ContentSection[] = [];
   
   try {
-    console.log('Processing query:', query);
+    console.log('Processing query:', query, 'with mode:', mode);
     
     let message = '';
     
@@ -671,7 +723,7 @@ async function executeEnhancedDataQuery(query: string): Promise<{ toolResults: T
       console.log('⏱️ Starting employee search...');
       const employeeStartTime = Date.now();
       
-      const employees = await searchEmployeesWithFilters(intent);
+      const employees = await searchEmployeesWithFilters(intent, limit);
       
       const employeeSearchTime = Date.now() - employeeStartTime;
       console.log(`⏱️ Employee search completed in ${employeeSearchTime}ms, found ${employees.length} results`);
@@ -707,7 +759,7 @@ async function executeEnhancedDataQuery(query: string): Promise<{ toolResults: T
       }
     } else {
       // Handle company searches (existing logic)
-      const companies = await fetchCompaniesWithFilters(intent, intent.needsDataTable ? 50 : 20);
+      const companies = await fetchCompaniesWithFilters(intent, intent.needsDataTable ? 50 : limit);
       
       toolResults.push({
         tool: 'intelligent_company_search',
@@ -801,7 +853,17 @@ async function executeEnhancedDataQuery(query: string): Promise<{ toolResults: T
       content_type: sections.length > 0 ? 'mixed' : 'text',
       sections,
       tool_results: toolResults,
-      suggested_actions: suggestedActions
+      suggested_actions: suggestedActions,
+      intent: {
+        detected_mode: intent.detectedMode,
+        filters_applied: {
+          industry: intent.industryFilter,
+          automation: intent.automationFilter,
+          employee_count: intent.employeeCountFilter,
+          systems: intent.systemFilters,
+          employee_filters: intent.employeeFilters
+        }
+      }
     };
     
     return { toolResults, response };
@@ -921,25 +983,51 @@ serve(async (req) => {
   try {
     console.log('🚀 Enhanced chat interface request received');
     
-    const { messages, stream, user_id }: ChatRequest = await req.json();
+    const requestBody: ChatRequest = await req.json();
+    console.log('📝 Request body:', { 
+      hasMessages: !!requestBody.messages, 
+      hasQuery: !!requestBody.query,
+      mode: requestBody.mode,
+      limit: requestBody.limit
+    });
     
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      throw new Error('Messages array is required');
+    let query: string;
+    let mode: string | undefined = requestBody.mode;
+    let limit: number = requestBody.limit || 20;
+    
+    // Handle both message-based and direct query formats
+    if (requestBody.query) {
+      // Direct structured query
+      query = requestBody.query;
+      console.log('📝 Processing direct query:', query);
+    } else if (requestBody.messages && Array.isArray(requestBody.messages) && requestBody.messages.length > 0) {
+      // Message-based chat
+      const latestMessage = requestBody.messages[requestBody.messages.length - 1];
+      if (latestMessage.role !== 'user') {
+        throw new Error('Latest message must be from user');
+      }
+      query = latestMessage.content;
+      console.log('📝 Processing message-based query:', query);
+    } else {
+      throw new Error('Either messages array or query string is required');
     }
     
-    // Get the latest user message
-    const latestMessage = messages[messages.length - 1];
-    if (latestMessage.role !== 'user') {
-      throw new Error('Latest message must be from user');
+    if (!query || typeof query !== 'string' || !query.trim()) {
+      throw new Error('Query cannot be empty');
     }
-    
-    console.log('📝 Processing user query:', latestMessage.content);
     
     // Execute enhanced data processing with intelligent filtering
-    const { toolResults, response: enhancedResponse } = await executeEnhancedDataQuery(latestMessage.content);
+    const { toolResults, response: enhancedResponse } = await executeEnhancedDataQuery(query.trim(), mode, limit);
     
-    // Generate AI response with Claude and enhanced context
-    const aiResponse = await generateEnhancedAIResponse(messages, enhancedResponse);
+    // Generate AI response with Claude if available
+    let aiResponse = enhancedResponse.message;
+    if (claudeApiKey && requestBody.messages) {
+      try {
+        aiResponse = await generateEnhancedAIResponse(requestBody.messages, enhancedResponse);
+      } catch (error) {
+        console.warn('⚠️ Claude API failed, using fallback response:', error.message);
+      }
+    }
     
     // Create final response structure
     const finalResponse = {
@@ -948,7 +1036,8 @@ serve(async (req) => {
       content_type: enhancedResponse.content_type,
       sections: enhancedResponse.sections,
       tool_results: toolResults.filter(r => r.success && r.data),
-      suggested_actions: enhancedResponse.suggested_actions
+      suggested_actions: enhancedResponse.suggested_actions,
+      intent: enhancedResponse.intent
     };
     
     console.log('🎯 Final response structure:');
@@ -957,6 +1046,7 @@ serve(async (req) => {
     console.log('- Sections count:', finalResponse.sections?.length || 0);
     console.log('- Tool results count:', finalResponse.tool_results?.length || 0);
     console.log('- Suggested actions count:', finalResponse.suggested_actions?.length || 0);
+    console.log('- Intent:', finalResponse.intent);
     
     if (finalResponse.sections && finalResponse.sections.length > 0) {
       console.log('📋 Sections breakdown:');
@@ -968,8 +1058,8 @@ serve(async (req) => {
     // Log the query for analytics
     try {
       await supabase.from('chat_query_log').insert({
-        user_id: user_id || 'anonymous',
-        query: latestMessage.content,
+        user_id: requestBody.user_id || 'anonymous',
+        query: query,
         response: aiResponse,
         tool_calls: toolResults.map(r => ({ tool: r.tool, success: r.success })),
         results: toolResults,

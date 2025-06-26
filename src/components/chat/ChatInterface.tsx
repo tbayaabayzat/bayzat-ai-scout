@@ -65,7 +65,8 @@ export function ChatInterface() {
     setInput(query)
   }
 
-  const handleSubmit = (message: string) => {
+  const handleSubmit = (message: string, mode?: string) => {
+    console.log('🎯 ChatInterface handleSubmit:', { message, mode })
     sendMessage(message)
   }
 
@@ -94,6 +95,7 @@ export function ChatInterface() {
             isLoading={isLoading}
             value={input}
             onValueChange={setInput}
+            showModeSelector={false} // Keep simple for now, can be enabled later
           />
         </Card>
       </div>
