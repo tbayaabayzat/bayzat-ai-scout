@@ -190,15 +190,13 @@ export function StructuredSearchInterface() {
               
               {section.type === 'data-table' && (
                 <ChatDataTable 
-                  data={section.data} 
-                  metadata={section.metadata} 
+                  data={section.data}
                 />
               )}
               
               {section.type === 'chart' && (
                 <ChatChart 
-                  data={section.data} 
-                  metadata={section.metadata} 
+                  data={section.data}
                 />
               )}
             </div>
