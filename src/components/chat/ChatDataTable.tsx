@@ -52,30 +52,42 @@ export function ChatDataTable({ data, onExport, onCompanyClick }: ChatDataTableP
     if (isCompanyTable && onCompanyClick && row.company_name) {
       console.log('ChatDataTable - Row clicked:', row)
       
-      // Helper function to safely extract value from various formats and convert to appropriate types
+      // Simplified helper functions that return proper primitive values or undefined
       const safeExtractString = (value: any): string | undefined => {
         if (value === null || value === undefined) return undefined
-        if (typeof value === 'object' && value._type === 'undefined') return undefined
-        if (typeof value === 'object' && value.value !== undefined) return String(value.value)
+        if (typeof value === 'string') return value
+        if (typeof value === 'object') {
+          if (value._type === 'undefined') return undefined
+          if (value.value !== undefined) return String(value.value)
+        }
         return String(value)
       }
 
       const safeExtractNumber = (value: any): number | undefined => {
         if (value === null || value === undefined) return undefined
-        if (typeof value === 'object' && value._type === 'undefined') return undefined
-        if (typeof value === 'object' && value.value !== undefined) return Number(value.value)
+        if (typeof value === 'number') return value
+        if (typeof value === 'object') {
+          if (value._type === 'undefined') return undefined
+          if (value.value !== undefined) {
+            const num = Number(value.value)
+            return isNaN(num) ? undefined : num
+          }
+        }
         const num = Number(value)
         return isNaN(num) ? undefined : num
       }
 
       const safeExtractBoolean = (value: any): boolean | undefined => {
         if (value === null || value === undefined) return undefined
-        if (typeof value === 'object' && value._type === 'undefined') return undefined
-        if (typeof value === 'object' && value.value !== undefined) return Boolean(value.value)
+        if (typeof value === 'boolean') return value
+        if (typeof value === 'object') {
+          if (value._type === 'undefined') return undefined
+          if (value.value !== undefined) return Boolean(value.value)
+        }
         return Boolean(value)
       }
 
-      // Transform row data to CompanyCardData format with proper data extraction and type conversion
+      // Transform row data to CompanyCardData format with clean data extraction
       const companyData: CompanyCardData = {
         id: safeExtractString(row.id) || safeExtractString(row.company_id) || String(Math.random()),
         company_name: safeExtractString(row.company_name) || '',
