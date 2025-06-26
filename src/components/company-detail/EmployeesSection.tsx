@@ -19,22 +19,19 @@ export function EmployeesSection({ company, onEmployeeClick }: EmployeesSectionP
   // Debug the company object to see what ID fields are available
   console.log('EmployeesSection - Company object:', company)
   console.log('Available company fields:', Object.keys(company || {}))
-  console.log('company.id:', company?.id)
-  console.log('company.company_id:', company?.company_id)
-  console.log('company.company_name:', company?.company_name)
   
-  // Try to get the correct company identifier - use company_name as fallback for lookup
-  let companyId = company?.company_id || company?.id
+  // Prioritize company name for lookup since it's more reliable
+  let companyIdentifier = company?.company_name
   
-  // If no numeric ID is available, try using company name for lookup
-  if (!companyId || companyId === '' || companyId === 'undefined') {
-    companyId = company?.company_name
-    console.log('EmployeesSection - Using company name for lookup:', companyId)
+  // Only fallback to IDs if company name is not available
+  if (!companyIdentifier) {
+    companyIdentifier = company?.company_id || company?.id
   }
   
-  console.log('Using company ID for employee lookup:', companyId)
+  console.log('EmployeesSection - Using company identifier for lookup:', companyIdentifier)
+  console.log('EmployeesSection - Identifier type:', typeof companyIdentifier)
   
-  const { employees, isLoading, error } = useCompanyEmployees(companyId)
+  const { employees, isLoading, error } = useCompanyEmployees(companyIdentifier)
 
   // Calculate department counts
   const departmentCounts = useMemo(() => {
@@ -133,7 +130,7 @@ export function EmployeesSection({ company, onEmployeeClick }: EmployeesSectionP
         <div className="text-center py-12 text-muted-foreground">
           <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <p>Unable to load employee data</p>
-          <p className="text-xs mt-2">Company ID: {companyId}</p>
+          <p className="text-xs mt-2">Company Identifier: {companyIdentifier}</p>
         </div>
       </div>
     )
@@ -155,7 +152,7 @@ export function EmployeesSection({ company, onEmployeeClick }: EmployeesSectionP
           <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <h3 className="text-lg font-medium mb-2">No People Data Available</h3>
           <p className="text-sm">No current people found for this company.</p>
-          <p className="text-xs mt-2">Searched with Company ID: {companyId}</p>
+          <p className="text-xs mt-2">Searched with: {companyIdentifier}</p>
         </div>
       ) : (
         <>
