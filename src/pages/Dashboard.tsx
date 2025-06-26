@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Building2, Users, TrendingUp, Search, MessageCircle, Target } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
-import { ChatInterface } from "@/components/chat/ChatInterface"
+import { DashboardChatInterface } from "@/components/chat/DashboardChatInterface"
 import { CompanyRequestForm } from "@/components/CompanyRequestForm"
 import { ProspectInsights } from "@/components/ProspectInsights"
 import { Button } from "@/components/ui/button"
@@ -124,7 +124,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="h-[calc(100%-80px)] p-0">
               <div className="h-full px-6 pb-6">
-                <ChatInterface />
+                <DashboardChatInterface />
               </div>
             </CardContent>
           </Card>
