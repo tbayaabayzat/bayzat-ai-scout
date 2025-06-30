@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Building2, Users, TrendingUp, Search, MessageCircle, Target } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
@@ -111,9 +110,9 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3 items-stretch">
         <div className="lg:col-span-2">
-          <Card className="h-[600px]">
+          <Card className="h-full flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2">
                 <div className="p-2 bg-primary/10 rounded-lg">
@@ -122,8 +121,8 @@ export default function Dashboard() {
                 AI Prospect Intelligence
               </CardTitle>
             </CardHeader>
-            <CardContent className="h-[calc(100%-80px)] p-0">
-              <div className="h-full px-6 pb-6">
+            <CardContent className="flex-1 flex flex-col p-0">
+              <div className="flex-1 px-6 pb-6">
                 <DashboardChatInterface />
               </div>
             </CardContent>
