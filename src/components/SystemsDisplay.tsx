@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge"
 import {
   HoverCard,
@@ -7,7 +6,7 @@ import {
 } from "@/components/ui/hover-card"
 import { MoreHorizontal } from "lucide-react"
 import { EvidenceIndicator } from "./company-detail/EvidenceIndicator"
-import { extractSystemEvidence } from "@/utils/evidenceUtils"
+import { extractSystemEvidence, processEvidence } from "@/utils/evidenceUtils"
 
 interface SystemsDisplayProps {
   systems: any
