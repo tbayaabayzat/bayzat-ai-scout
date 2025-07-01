@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertTriangle, Building2 } from "lucide-react"
 import { DepartmentProcessCard } from "./DepartmentProcessCard"
 import { SubProcessesGrid } from "./SubProcessesGrid"
+import { EvidenceIndicator } from "./EvidenceIndicator"
 import { useRowExpansion } from "@/hooks/useRowExpansion"
 import { sortDepartments } from "@/utils/departmentUtils"
+import { extractProcessEvidence, processEvidence } from "@/utils/evidenceUtils"
 
 interface ProcessesSectionProps {
   aiAnalysis: any
@@ -23,7 +25,7 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
       .map(([department, data]: [string, any]) => ({
         department,
         activities: data?.activities || [],
-        evidence: data?.evidence || [],
+        evidence: extractProcessEvidence(processesData, department),
         score: 0 // placeholder for sorting
       }))
   )
@@ -49,7 +51,7 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
                 key={dept.department}
                 department={dept.department}
                 activities={dept.activities}
-                evidence={[]} // Temporarily disabled
+                evidence={dept.evidence}
                 isOpen={isItemExpanded(index)}
                 onToggle={() => toggleRow(index)}
               />
@@ -78,21 +80,20 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
             <div className="space-y-4">
               {manualWorkIndicators.map((indicator: any, index: number) => {
                 const indicatorText = typeof indicator === 'string' ? indicator : (indicator?.indicator || 'Manual work indicator')
+                const evidence = indicator?.evidence ? processEvidence(indicator.evidence) : []
 
                 return (
                   <div key={index} className="group">
                     <div className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
                       <div className="w-2 h-2 rounded-full bg-orange-500 mt-2 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground mb-1">{indicatorText}</p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm font-medium text-foreground">{indicatorText}</p>
+                          <EvidenceIndicator evidence={evidence} size="sm" />
+                        </div>
                         {indicator?.description && typeof indicator.description === 'string' && (
                           <p className="text-xs text-muted-foreground">{indicator.description}</p>
                         )}
-                      </div>
-                      
-                      {/* Evidence temporarily disabled */}
-                      <div className="flex-shrink-0">
-                        <div className="h-6 w-6 rounded bg-muted opacity-50" />
                       </div>
                     </div>
                   </div>

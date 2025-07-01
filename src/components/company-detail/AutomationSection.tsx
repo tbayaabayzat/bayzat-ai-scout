@@ -2,7 +2,9 @@
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { SystemsInventory } from "./SystemsInventory"
+import { EvidenceIndicator } from "./EvidenceIndicator"
 import { formatDepartmentName, sortDepartments } from "@/utils/departmentUtils"
+import { extractAutomationEvidence } from "@/utils/evidenceUtils"
 
 interface AutomationSectionProps {
   aiAnalysis: any
@@ -48,7 +50,8 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
         .filter(([key]) => !['overall', 'evidence', 'automation_rationale'].includes(key))
         .map(([department, score]: [string, any]) => ({
           department: formatDepartmentName(department),
-          score: typeof score === 'number' ? score : 0
+          score: typeof score === 'number' ? score : 0,
+          evidence: extractAutomationEvidence(aiAnalysis, department)
         }))
     ) : []
 
@@ -57,6 +60,9 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
   // Get automation rationale
   const automationRationale = automationLevel?.automation_rationale
   console.log('AutomationSection - rationale:', automationRationale)
+
+  // Get overall automation evidence
+  const overallEvidence = extractAutomationEvidence(aiAnalysis)
 
   return (
     <div className="space-y-8">
@@ -70,6 +76,7 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <h4 className="text-lg font-semibold">Overall Automation Score</h4>
+                <EvidenceIndicator evidence={overallEvidence} size="sm" />
               </div>
               <Badge className={`${getAutomationScoreColor(overallScore)} text-white px-3 py-1`}>
                 {getAutomationLabel(overallScore)} ({overallScore}/5)
@@ -89,11 +96,12 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
             <div className="space-y-4">
               <h4 className="text-lg font-semibold">Department Breakdown</h4>
               <div className="space-y-4">
-                {departmentScores.map(({ department, score }) => (
+                {departmentScores.map(({ department, score, evidence }) => (
                   <div key={department} className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">{department}</span>
+                        <EvidenceIndicator evidence={evidence} size="sm" />
                       </div>
                       <Badge 
                         variant="outline" 

@@ -1,6 +1,9 @@
+
 import { Badge } from "@/components/ui/badge"
 import { QuickActionsBar } from "./QuickActionsBar"
 import { CompanyInfoGrid } from "./CompanyInfoGrid"
+import { EvidenceIndicator } from "./EvidenceIndicator"
+import { extractNotableFactsEvidence, processEvidence } from "@/utils/evidenceUtils"
 
 interface CompanyOverviewProps {
   company: any
@@ -57,17 +60,16 @@ export function CompanyOverview({ company, aiAnalysis }: CompanyOverviewProps) {
                 
                 // Ensure we're working with the right data structure
                 const factText = typeof fact === 'string' ? fact : (fact?.fact || 'Notable fact')
+                const factEvidence = fact?.evidence ? processEvidence(fact.evidence) : []
                 
                 return (
                   <li key={index} className="flex items-start gap-2">
                     <span className="text-muted-foreground mt-1">•</span>
                     <div className="flex-1">
-                      <span className="text-sm">{factText}</span>
-                      {fact?.evidence && (
-                        <Badge variant="outline" className="ml-2 text-xs">
-                          Evidence
-                        </Badge>
-                      )}
+                      <div className="flex items-start gap-2">
+                        <span className="text-sm flex-1">{factText}</span>
+                        <EvidenceIndicator evidence={factEvidence} size="sm" />
+                      </div>
                     </div>
                   </li>
                 )
