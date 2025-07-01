@@ -1,4 +1,3 @@
-
 export interface ProcessedEvidence {
   employee?: string
   role?: string
@@ -37,7 +36,15 @@ export const processEvidence = (evidence: any[]): ProcessedEvidence[] => {
     
     console.log('processEvidence - Processed item:', processedItem)
     return processedItem
-  }).filter(item => item.description || item.employee || item.task || item.quote)
+  }).filter(item => {
+    // Check if any of the key properties exist and have values
+    const hasDescription = item.description && item.description.trim().length > 0
+    const hasEmployee = 'employee' in item && item.employee && item.employee.trim().length > 0
+    const hasTask = 'task' in item && item.task && item.task.trim().length > 0
+    const hasQuote = 'quote' in item && item.quote && item.quote.trim().length > 0
+    
+    return hasDescription || hasEmployee || hasTask || hasQuote
+  })
   
   console.log('processEvidence - Final processed evidence:', processed)
   return processed
