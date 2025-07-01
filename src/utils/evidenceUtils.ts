@@ -10,69 +10,137 @@ export interface ProcessedEvidence {
 }
 
 export const processEvidence = (evidence: any[]): ProcessedEvidence[] => {
-  if (!Array.isArray(evidence)) return []
+  console.log('processEvidence - Input evidence:', evidence)
   
-  return evidence.map(item => {
+  if (!Array.isArray(evidence)) {
+    console.log('processEvidence - Not an array, returning empty')
+    return []
+  }
+  
+  const processed = evidence.map(item => {
+    console.log('processEvidence - Processing item:', item)
+    
     if (typeof item === 'string') {
       return { description: item }
     }
     
-    return {
-      employee: item.employee || item.name,
+    // Map database fields to component expected fields
+    const processedItem = {
+      employee: item.fullname || item.employee || item.name,
       role: item.role || item.title,
-      description: item.description || item.task || item.quote,
-      linkedin_url: item.linkedin_url,
+      description: item.evidence || item.description || item.task || item.quote,
+      linkedin_url: item.profile_url || item.linkedin_url,
       task: item.task,
       quote: item.quote,
       confidence: item.confidence
     }
+    
+    console.log('processEvidence - Processed item:', processedItem)
+    return processedItem
   }).filter(item => item.description || item.employee || item.task || item.quote)
+  
+  console.log('processEvidence - Final processed evidence:', processed)
+  return processed
 }
 
 export const extractSystemEvidence = (systems: any, systemKey: string): ProcessedEvidence[] => {
-  if (!systems || !systems[systemKey]) return []
-  return processEvidence(systems[systemKey].evidence || [])
+  console.log(`extractSystemEvidence - systems:`, systems, `systemKey:`, systemKey)
+  
+  if (!systems || !systems[systemKey]) {
+    console.log(`extractSystemEvidence - No data for ${systemKey}`)
+    return []
+  }
+  
+  const evidence = systems[systemKey].evidence || []
+  console.log(`extractSystemEvidence - Raw evidence for ${systemKey}:`, evidence)
+  
+  const processed = processEvidence(evidence)
+  console.log(`extractSystemEvidence - Processed evidence for ${systemKey}:`, processed)
+  
+  return processed
 }
 
 export const extractAutomationEvidence = (aiAnalysis: any, department?: string): ProcessedEvidence[] => {
-  if (!aiAnalysis?.automation_level) return []
+  console.log('extractAutomationEvidence - aiAnalysis:', aiAnalysis, 'department:', department)
+  
+  if (!aiAnalysis?.automation_level) {
+    console.log('extractAutomationEvidence - No automation_level data')
+    return []
+  }
   
   if (department) {
     // Look for department-specific evidence
     const deptData = aiAnalysis.automation_level[department]
+    console.log(`extractAutomationEvidence - Department ${department} data:`, deptData)
+    
     if (deptData && typeof deptData === 'object' && deptData.evidence) {
-      return processEvidence(deptData.evidence)
+      const processed = processEvidence(deptData.evidence)
+      console.log(`extractAutomationEvidence - Department ${department} processed:`, processed)
+      return processed
     }
   }
   
   // Fall back to general automation evidence
-  return processEvidence(aiAnalysis.automation_level.evidence || [])
+  const generalEvidence = aiAnalysis.automation_level.evidence || []
+  console.log('extractAutomationEvidence - General evidence:', generalEvidence)
+  
+  const processed = processEvidence(generalEvidence)
+  console.log('extractAutomationEvidence - General processed:', processed)
+  
+  return processed
 }
 
 export const extractProcessEvidence = (processData: any, department: string, activity?: string): ProcessedEvidence[] => {
-  if (!processData || !processData[department]) return []
+  console.log('extractProcessEvidence - processData:', processData, 'department:', department, 'activity:', activity)
   
-  const deptData = processData[department]
-  
-  if (activity && deptData.activities_evidence && deptData.activities_evidence[activity]) {
-    return processEvidence(deptData.activities_evidence[activity])
+  if (!processData || !processData[department]) {
+    console.log(`extractProcessEvidence - No data for department ${department}`)
+    return []
   }
   
-  return processEvidence(deptData.evidence || [])
+  const deptData = processData[department]
+  console.log(`extractProcessEvidence - Department ${department} data:`, deptData)
+  
+  if (activity && deptData.activities_evidence && deptData.activities_evidence[activity]) {
+    const activityEvidence = deptData.activities_evidence[activity]
+    console.log(`extractProcessEvidence - Activity ${activity} evidence:`, activityEvidence)
+    const processed = processEvidence(activityEvidence)
+    console.log(`extractProcessEvidence - Activity ${activity} processed:`, processed)
+    return processed
+  }
+  
+  const generalEvidence = deptData.evidence || []
+  console.log(`extractProcessEvidence - General department evidence:`, generalEvidence)
+  
+  const processed = processEvidence(generalEvidence)
+  console.log(`extractProcessEvidence - General department processed:`, processed)
+  
+  return processed
 }
 
 export const extractNotableFactsEvidence = (aiAnalysis: any): ProcessedEvidence[] => {
-  if (!aiAnalysis?.other_notable_facts) return []
+  console.log('extractNotableFactsEvidence - aiAnalysis:', aiAnalysis)
+  
+  if (!aiAnalysis?.other_notable_facts) {
+    console.log('extractNotableFactsEvidence - No other_notable_facts')
+    return []
+  }
   
   const allEvidence = []
   
   if (Array.isArray(aiAnalysis.other_notable_facts)) {
-    aiAnalysis.other_notable_facts.forEach((fact: any) => {
+    aiAnalysis.other_notable_facts.forEach((fact: any, index: number) => {
+      console.log(`extractNotableFactsEvidence - Fact ${index}:`, fact)
+      
       if (fact?.evidence) {
-        allEvidence.push(...processEvidence(fact.evidence))
+        console.log(`extractNotableFactsEvidence - Fact ${index} evidence:`, fact.evidence)
+        const processed = processEvidence(fact.evidence)
+        console.log(`extractNotableFactsEvidence - Fact ${index} processed:`, processed)
+        allEvidence.push(...processed)
       }
     })
   }
   
+  console.log('extractNotableFactsEvidence - All processed evidence:', allEvidence)
   return allEvidence
 }
