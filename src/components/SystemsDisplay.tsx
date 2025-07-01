@@ -6,15 +6,12 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
 import { MoreHorizontal } from "lucide-react"
-import { EvidenceIndicator } from "./company-detail/EvidenceIndicator"
-import { extractSystemEvidence } from "@/utils/evidenceUtils"
 
 interface SystemsDisplayProps {
   systems: any
-  aiAnalysis?: any
 }
 
-export function SystemsDisplay({ systems, aiAnalysis }: SystemsDisplayProps) {
+export function SystemsDisplay({ systems }: SystemsDisplayProps) {
   const prioritySystems = []
   const otherSystems = []
 
@@ -32,58 +29,45 @@ export function SystemsDisplay({ systems, aiAnalysis }: SystemsDisplayProps) {
     return systemName === 'None' ? `${categoryName}: None` : systemName
   }
 
-  // Get evidence for each system
-  const erpEvidence = extractSystemEvidence(aiAnalysis, 'ERP')
-  const hrisEvidence = extractSystemEvidence(aiAnalysis, 'HRIS')
-  const accountingEvidence = extractSystemEvidence(aiAnalysis, 'Accounting')
-
   prioritySystems.push({ 
     name: formatSystemDisplay('ERP', erpName), 
-    isNone: erpName === 'None',
-    evidence: erpEvidence
+    isNone: erpName === 'None' 
   })
   prioritySystems.push({ 
     name: formatSystemDisplay('HRIS', hrisName), 
-    isNone: hrisName === 'None',
-    evidence: hrisEvidence
+    isNone: hrisName === 'None' 
   })
   prioritySystems.push({ 
     name: formatSystemDisplay('Accounting', accountingName), 
-    isNone: accountingName === 'None',
-    evidence: accountingEvidence
+    isNone: accountingName === 'None' 
   })
 
   // Add other systems only if they have actual values (not "None")
   if (systems.Payroll?.name && systems.Payroll.name !== 'None') {
-    const payrollEvidence = extractSystemEvidence(aiAnalysis, 'Payroll')
-    otherSystems.push({ name: systems.Payroll.name, evidence: payrollEvidence })
+    otherSystems.push(systems.Payroll.name)
   }
   
   if (systems.AP_Automation?.name && systems.AP_Automation.name !== 'None') {
-    const apEvidence = extractSystemEvidence(aiAnalysis, 'AP_Automation')
-    otherSystems.push({ name: systems.AP_Automation.name, evidence: apEvidence })
+    otherSystems.push(systems.AP_Automation.name)
   }
   
   if (systems.Expense_Management?.name && systems.Expense_Management.name !== 'None') {
-    const expenseEvidence = extractSystemEvidence(aiAnalysis, 'Expense_Management')
-    otherSystems.push({ name: systems.Expense_Management.name, evidence: expenseEvidence })
+    otherSystems.push(systems.Expense_Management.name)
   }
   
   if (systems.Document_Management?.name && systems.Document_Management.name !== 'None') {
-    const docEvidence = extractSystemEvidence(aiAnalysis, 'Document_Management')
-    otherSystems.push({ name: systems.Document_Management.name, evidence: docEvidence })
+    otherSystems.push(systems.Document_Management.name)
   }
   
   if (systems.Time_Attendance_Hardware?.name && systems.Time_Attendance_Hardware.name !== 'None') {
-    const timeEvidence = extractSystemEvidence(aiAnalysis, 'Time_Attendance_Hardware')
-    otherSystems.push({ name: systems.Time_Attendance_Hardware.name, evidence: timeEvidence })
+    otherSystems.push(systems.Time_Attendance_Hardware.name)
   }
 
   // Add other software
   if (systems.Other_Software && Array.isArray(systems.Other_Software)) {
     systems.Other_Software.forEach((software: any) => {
       if (software.name) {
-        otherSystems.push({ name: software.name, evidence: [] })
+        otherSystems.push(software.name)
       }
     })
   }
@@ -93,17 +77,13 @@ export function SystemsDisplay({ systems, aiAnalysis }: SystemsDisplayProps) {
   return (
     <div className="flex flex-wrap gap-1 items-center">
       {prioritySystems.map((system, index) => (
-        <div key={index} className="flex items-center gap-1">
-          <Badge 
-            variant={system.isNone ? "outline" : "secondary"} 
-            className={`text-xs ${system.isNone ? 'text-muted-foreground' : ''}`}
-          >
-            {system.name}
-          </Badge>
-          {system.evidence && system.evidence.length > 0 && (
-            <EvidenceIndicator evidence={system.evidence} size="sm" />
-          )}
-        </div>
+        <Badge 
+          key={index} 
+          variant={system.isNone ? "outline" : "secondary"} 
+          className={`text-xs ${system.isNone ? 'text-muted-foreground' : ''}`}
+        >
+          {system.name}
+        </Badge>
       ))}
       
       {hasMoreSystems && (
@@ -119,14 +99,9 @@ export function SystemsDisplay({ systems, aiAnalysis }: SystemsDisplayProps) {
               <h5 className="font-medium text-sm mb-2">Other Systems</h5>
               <div className="flex flex-wrap gap-1">
                 {otherSystems.map((system, index) => (
-                  <div key={index} className="flex items-center gap-1">
-                    <Badge variant="outline" className="text-xs">
-                      {system.name}
-                    </Badge>
-                    {system.evidence && system.evidence.length > 0 && (
-                      <EvidenceIndicator evidence={system.evidence} size="sm" />
-                    )}
-                  </div>
+                  <Badge key={index} variant="outline" className="text-xs">
+                    {system}
+                  </Badge>
                 ))}
               </div>
             </div>

@@ -3,10 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertTriangle, Building2 } from "lucide-react"
 import { DepartmentProcessCard } from "./DepartmentProcessCard"
 import { SubProcessesGrid } from "./SubProcessesGrid"
-import { EvidenceIndicator } from "./EvidenceIndicator"
 import { useRowExpansion } from "@/hooks/useRowExpansion"
 import { sortDepartments } from "@/utils/departmentUtils"
-import { extractProcessEvidence, extractManualWorkEvidence } from "@/utils/evidenceUtils"
 
 interface ProcessesSectionProps {
   aiAnalysis: any
@@ -25,7 +23,7 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
       .map(([department, data]: [string, any]) => ({
         department,
         activities: data?.activities || [],
-        evidence: extractProcessEvidence(aiAnalysis, department),
+        evidence: data?.evidence || [],
         score: 0 // placeholder for sorting
       }))
   )
@@ -34,9 +32,6 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
   const { isItemExpanded, toggleRow } = useRowExpansion(departments, 2)
 
   const subProcesses = processesData?.sub_processes
-
-  // Extract manual work evidence
-  const manualWorkEvidence = extractManualWorkEvidence(aiAnalysis)
 
   return (
     <div className="space-y-8">
@@ -54,7 +49,7 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
                 key={dept.department}
                 department={dept.department}
                 activities={dept.activities}
-                evidence={dept.evidence}
+                evidence={[]} // Temporarily disabled
                 isOpen={isItemExpanded(index)}
                 onToggle={() => toggleRow(index)}
               />
@@ -77,9 +72,6 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
             <CardTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-orange-500" />
               Notable Manual Work Indicators
-              {manualWorkEvidence.length > 0 && (
-                <EvidenceIndicator evidence={manualWorkEvidence} label="Evidence" />
-              )}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -96,6 +88,11 @@ export function ProcessesSection({ aiAnalysis }: ProcessesSectionProps) {
                         {indicator?.description && typeof indicator.description === 'string' && (
                           <p className="text-xs text-muted-foreground">{indicator.description}</p>
                         )}
+                      </div>
+                      
+                      {/* Evidence temporarily disabled */}
+                      <div className="flex-shrink-0">
+                        <div className="h-6 w-6 rounded bg-muted opacity-50" />
                       </div>
                     </div>
                   </div>

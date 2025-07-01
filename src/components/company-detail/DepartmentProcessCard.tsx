@@ -55,7 +55,7 @@ export function DepartmentProcessCard({
               </div>
               <div className="flex items-center gap-2">
                 {evidence && evidence.length > 0 && (
-                  <EvidenceIndicator evidence={evidence} label="Evidence" size="sm" />
+                  <EvidenceIndicator evidence={evidence} label="Evidence" />
                 )}
                 <ChevronDown className={`h-4 w-4 transition-transform text-muted-foreground ${isOpen ? 'rotate-180' : ''}`} />
               </div>
