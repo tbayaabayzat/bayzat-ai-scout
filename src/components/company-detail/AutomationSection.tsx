@@ -2,7 +2,9 @@
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { SystemsInventory } from "./SystemsInventory"
+import { EvidenceIndicator } from "./EvidenceIndicator"
 import { formatDepartmentName, sortDepartments } from "@/utils/departmentUtils"
+import { extractAutomationEvidence } from "@/utils/evidenceUtils"
 
 interface AutomationSectionProps {
   aiAnalysis: any
@@ -41,6 +43,9 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
   const overallScore = automationLevel?.overall || 0
   console.log('AutomationSection - overall score:', overallScore)
 
+  // Extract automation evidence
+  const automationEvidence = extractAutomationEvidence(aiAnalysis)
+
   // Filter out non-department fields from automation_level and format/sort departments
   const departmentScores = automationLevel ? 
     sortDepartments(
@@ -70,6 +75,9 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <h4 className="text-lg font-semibold">Overall Automation Score</h4>
+                {automationEvidence.length > 0 && (
+                  <EvidenceIndicator evidence={automationEvidence} label="Evidence" />
+                )}
               </div>
               <Badge className={`${getAutomationScoreColor(overallScore)} text-white px-3 py-1`}>
                 {getAutomationLabel(overallScore)} ({overallScore}/5)
@@ -117,7 +125,12 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
           {/* Analysis Rationale */}
           {automationRationale && typeof automationRationale === 'string' && (
             <div className="space-y-3">
-              <h4 className="text-lg font-semibold">Analysis Rationale</h4>
+              <div className="flex items-center gap-2">
+                <h4 className="text-lg font-semibold">Analysis Rationale</h4>
+                {automationEvidence.length > 0 && (
+                  <EvidenceIndicator evidence={automationEvidence} label="Sources" size="sm" />
+                )}
+              </div>
               <div className="p-4 bg-muted/30 rounded-lg border">
                 <p className="text-sm text-foreground leading-relaxed">
                   {automationRationale}
@@ -138,7 +151,7 @@ export function AutomationSection({ aiAnalysis }: AutomationSectionProps) {
       {/* Systems Inventory Section */}
       <div className="space-y-4 border-t pt-8">
         <h3 className="text-xl font-semibold">Systems Inventory</h3>
-        <SystemsInventory systems={aiAnalysis?.systems} />
+        <SystemsInventory systems={aiAnalysis?.systems} aiAnalysis={aiAnalysis} />
       </div>
     </div>
   )

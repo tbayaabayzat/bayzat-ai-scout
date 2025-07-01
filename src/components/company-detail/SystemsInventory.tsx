@@ -2,12 +2,15 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Server, Users, Calculator, CreditCard, FileText, Clock, Package, Receipt } from "lucide-react"
+import { EvidenceIndicator } from "./EvidenceIndicator"
+import { extractSystemEvidence } from "@/utils/evidenceUtils"
 
 interface SystemsInventoryProps {
   systems: any
+  aiAnalysis?: any
 }
 
-export function SystemsInventory({ systems }: SystemsInventoryProps) {
+export function SystemsInventory({ systems, aiAnalysis }: SystemsInventoryProps) {
   console.log('SystemsInventory - Full systems data:', JSON.stringify(systems, null, 2))
 
   if (!systems) {
@@ -53,8 +56,9 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
           const system = systems[systemType]
           const SystemIcon = getSystemIcon(systemType)
           const hasSystem = system?.name && system.name !== 'None'
+          const evidence = extractSystemEvidence(aiAnalysis, systemType)
           
-          console.log(`SystemsInventory - ${systemType}:`, system, 'hasSystem:', hasSystem)
+          console.log(`SystemsInventory - ${systemType}:`, system, 'hasSystem:', hasSystem, 'evidence:', evidence)
           
           return (
             <Card key={systemType} className={`${hasSystem ? 'border-primary/20' : 'border-muted'}`}>
@@ -66,12 +70,17 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="space-y-2">
-                  <Badge 
-                    variant={hasSystem ? "default" : "outline"}
-                    className="text-xs"
-                  >
-                    {system?.name || 'None'}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge 
+                      variant={hasSystem ? "default" : "outline"}
+                      className="text-xs"
+                    >
+                      {system?.name || 'None'}
+                    </Badge>
+                    {evidence.length > 0 && (
+                      <EvidenceIndicator evidence={evidence} size="sm" />
+                    )}
+                  </div>
                   {system?.evidence && Array.isArray(system.evidence) && system.evidence.length > 0 && (
                     <div className="text-xs text-muted-foreground">
                       Evidence from {system.evidence.length} source{system.evidence.length > 1 ? 's' : ''}
@@ -92,6 +101,7 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
             {otherSystemTypes.map((systemType) => {
               const system = systems[systemType]
               const SystemIcon = getSystemIcon(systemType)
+              const evidence = extractSystemEvidence(aiAnalysis, systemType)
               
               return (
                 <Card key={systemType} className="border-muted">
@@ -100,9 +110,14 @@ export function SystemsInventory({ systems }: SystemsInventoryProps) {
                       <SystemIcon className="h-4 w-4 text-muted-foreground" />
                       <div className="flex-1">
                         <div className="text-sm font-medium">{getSystemLabel(systemType)}</div>
-                        <Badge variant="outline" className="text-xs mt-1">
-                          {system.name}
-                        </Badge>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            {system.name}
+                          </Badge>
+                          {evidence.length > 0 && (
+                            <EvidenceIndicator evidence={evidence} size="sm" />
+                          )}
+                        </div>
                       </div>
                     </div>
                   </CardContent>
