@@ -7,8 +7,161 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instanciate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
+      bayzat_content: {
+        Row: {
+          content_type: string
+          created_at: string | null
+          doc_id: string
+          doc_type: string
+          document_id: string
+          extracted_data: Json
+          extraction_metadata: Json | null
+          id: string
+          sections_found: string[] | null
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          content_type?: string
+          created_at?: string | null
+          doc_id: string
+          doc_type: string
+          document_id: string
+          extracted_data: Json
+          extraction_metadata?: Json | null
+          id?: string
+          sections_found?: string[] | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          content_type?: string
+          created_at?: string | null
+          doc_id?: string
+          doc_type?: string
+          document_id?: string
+          extracted_data?: Json
+          extraction_metadata?: Json | null
+          id?: string
+          sections_found?: string[] | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bayzat_content_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "bayzat_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bayzat_documents: {
+        Row: {
+          created_at: string | null
+          doc_id: string
+          doc_type: string
+          doc_url: string
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          processed_at: string | null
+          processing_status: string
+          tenant_id: string | null
+          title: string
+          updated_at: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string | null
+          doc_id: string
+          doc_type: string
+          doc_url: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          processed_at?: string | null
+          processing_status?: string
+          tenant_id?: string | null
+          title: string
+          updated_at?: string | null
+          version?: number
+        }
+        Update: {
+          created_at?: string | null
+          doc_id?: string
+          doc_type?: string
+          doc_url?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          processed_at?: string | null
+          processing_status?: string
+          tenant_id?: string | null
+          title?: string
+          updated_at?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
+      bayzat_embeddings: {
+        Row: {
+          chunk_index: number | null
+          chunk_metadata: Json | null
+          chunk_text: string
+          chunk_type: string
+          content_id: string
+          created_at: string | null
+          doc_id: string
+          embedding: string
+          id: string
+          module_key: string | null
+          tenant_id: string | null
+        }
+        Insert: {
+          chunk_index?: number | null
+          chunk_metadata?: Json | null
+          chunk_text: string
+          chunk_type: string
+          content_id: string
+          created_at?: string | null
+          doc_id: string
+          embedding: string
+          id?: string
+          module_key?: string | null
+          tenant_id?: string | null
+        }
+        Update: {
+          chunk_index?: number | null
+          chunk_metadata?: Json | null
+          chunk_text?: string
+          chunk_type?: string
+          content_id?: string
+          created_at?: string | null
+          doc_id?: string
+          embedding?: string
+          id?: string
+          module_key?: string | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bayzat_embeddings_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "bayzat_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_query_log: {
         Row: {
           created_at: string | null
@@ -156,6 +309,77 @@ export type Database = {
         }
         Relationships: []
       }
+      company_content_matches: {
+        Row: {
+          company_id: string
+          content_id: string
+          created_at: string | null
+          id: string
+          last_calculated_at: string | null
+          match_reasons: Json
+          match_score: number | null
+          match_type: string
+          relevance_metadata: Json | null
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id: string
+          content_id: string
+          created_at?: string | null
+          id?: string
+          last_calculated_at?: string | null
+          match_reasons?: Json
+          match_score?: number | null
+          match_type: string
+          relevance_metadata?: Json | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string
+          content_id?: string
+          created_at?: string | null
+          id?: string
+          last_calculated_at?: string | null
+          match_reasons?: Json
+          match_score?: number | null
+          match_type?: string
+          relevance_metadata?: Json | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_content_matches_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies2"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_content_matches_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_current_employees"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "company_content_matches_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_search_flat"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "company_content_matches_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "bayzat_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_vectors: {
         Row: {
           chunk_index: number | null
@@ -214,6 +438,54 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "company_search_flat"
             referencedColumns: ["company_id"]
+          },
+        ]
+      }
+      content_relationships: {
+        Row: {
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          relationship_strength: number | null
+          relationship_type: string
+          source_content_id: string
+          target_content_id: string
+          tenant_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          relationship_strength?: number | null
+          relationship_type: string
+          source_content_id: string
+          target_content_id: string
+          tenant_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          relationship_strength?: number | null
+          relationship_type?: string
+          source_content_id?: string
+          target_content_id?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_relationships_source_content_id_fkey"
+            columns: ["source_content_id"]
+            isOneToOne: false
+            referencedRelation: "bayzat_content"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_relationships_target_content_id_fkey"
+            columns: ["target_content_id"]
+            isOneToOne: false
+            referencedRelation: "bayzat_content"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1715,6 +1987,29 @@ export type Database = {
           },
         ]
       }
+      company_employment_view_128eacb9_1805_4540_ba7b_2e50f45fb129: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_employment_view_12a1fa66_2ca1_4eb4_acee_474fb947e90c: {
         Row: {
           company: string | null
@@ -2911,6 +3206,29 @@ export type Database = {
           },
         ]
       }
+      company_employment_view_30bde2b4_568f_434d_8a42_b64709f45f39: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_employment_view_30cb4e51_3fd7_4c8f_96c9_3be937590562: {
         Row: {
           company: string | null
@@ -3257,6 +3575,29 @@ export type Database = {
         ]
       }
       company_employment_view_37490788_3bf9_4732_93b1_33f7d0f6d057: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_employment_view_393d42b1_9f2e_4ad7_9da7_2626026c178e: {
         Row: {
           company: string | null
           company_id: string | null
@@ -4383,6 +4724,29 @@ export type Database = {
           },
         ]
       }
+      company_employment_view_5573f186_70a7_4057_b9bd_7dab0854f875: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_employment_view_55830b7a_8ecf_43ce_8594_aeb92d54231a: {
         Row: {
           company: string | null
@@ -5464,6 +5828,29 @@ export type Database = {
           },
         ]
       }
+      company_employment_view_6f11ca4a_a12b_4851_8ca2_bb6b2b260f85: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_employment_view_6f61cc3a_3624_4381_b4e2_b6eb54818b20: {
         Row: {
           company: string | null
@@ -6063,6 +6450,29 @@ export type Database = {
         ]
       }
       company_employment_view_84801334_8c45_4652_aa49_0b454e483351: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_employment_view_8553898c_5209_4d93_9e08_483f0c5d315d: {
         Row: {
           company: string | null
           company_id: string | null
@@ -7098,6 +7508,29 @@ export type Database = {
         ]
       }
       company_employment_view_a4a164c7_aa7c_495c_ab2d_f5c7520e9e2c: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_employment_view_a4ee889b_ce0c_407c_85ac_81f0ddcc5ce8: {
         Row: {
           company: string | null
           company_id: string | null
@@ -8891,6 +9324,29 @@ export type Database = {
           },
         ]
       }
+      company_employment_view_d402585c_034a_4c81_9e00_e2596ee2e262: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_employment_view_d4cbaadf_73ed_4ec0_aafe_ed41a6095f19: {
         Row: {
           company: string | null
@@ -8915,6 +9371,29 @@ export type Database = {
         ]
       }
       company_employment_view_d595c834_0680_4810_9142_d1c4bd84660a: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_employment_view_d6ff888a_005b_4157_87d5_1bb660078b47: {
         Row: {
           company: string | null
           company_id: string | null
@@ -9903,6 +10382,29 @@ export type Database = {
           },
         ]
       }
+      company_employment_view_f33ed125_483b_43b9_8073_58f5bb543dd5: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_employment_view_f5684aa9_0f6d_48a7_85b0_7fc46f3b32a0: {
         Row: {
           company: string | null
@@ -10087,6 +10589,29 @@ export type Database = {
           },
         ]
       }
+      company_employment_view_fcaf4dbb_76b5_4ec6_a9c6_7a38e8349e51: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_employment_view_fcd5705a_ed3d_4ad4_bdcc_4ab0147a81b3: {
         Row: {
           company: string | null
@@ -10111,6 +10636,29 @@ export type Database = {
         ]
       }
       company_employment_view_fd4ecb21_392c_44a0_83a5_46d120389196: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          end_year: number | null
+          fullname: string | null
+          location: string | null
+          profile_url: string | null
+          queue_record_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_stints_queue_record_id_fkey"
+            columns: ["queue_record_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_profiles_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_employment_view_fd7a0d39_2a6e_464f_ab58_88deaafbf685: {
         Row: {
           company: string | null
           company_id: string | null
@@ -10889,21 +11437,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -10921,14 +11473,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -10944,14 +11498,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -10967,14 +11523,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -10982,14 +11540,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never

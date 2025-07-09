@@ -1,5 +1,5 @@
 
-import { useState } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel, SortingState, ColumnFiltersState, VisibilityState } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table"
 import { CompanyDetailSheet } from "@/components/company-detail/CompanyDetailSheet"
@@ -15,25 +15,41 @@ interface CompaniesTableProps {
   isLoading: boolean
   error: any
   emptyStateMessage?: string
+  semanticFilterActive?: boolean
 }
 
-export function CompaniesTable({ companies, isLoading, error, emptyStateMessage }: CompaniesTableProps) {
+export function CompaniesTable({ companies, isLoading, error, emptyStateMessage, semanticFilterActive }: CompaniesTableProps) {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
+  const [tableKey, setTableKey] = useState(0)
+
+  console.log('CompaniesTable - Semantic filter active:', semanticFilterActive)
+  console.log('CompaniesTable - Companies count:', companies?.length)
 
   const handleCompanyClick = (company: Company) => {
+    console.log('CompaniesTable - Company clicked:', company.company_name)
     setSelectedCompany(company)
     setSheetOpen(true)
   }
 
-  const columns = createCompaniesTableColumns(handleCompanyClick)
+  // Memoize columns to prevent unnecessary recreation
+  const columns = useMemo(() => createCompaniesTableColumns(handleCompanyClick), [])
 
   // Handle undefined companies data
   const safeCompanies = companies || []
+
+  // Reset table state when semantic filter changes
+  useEffect(() => {
+    console.log('CompaniesTable - Filter state changed, resetting table state')
+    setSorting([])
+    setColumnFilters([])
+    setRowSelection({})
+    setTableKey(prev => prev + 1) // Force table re-initialization
+  }, [semanticFilterActive, safeCompanies.length])
 
   const table = useReactTable({
     data: safeCompanies,
@@ -77,6 +93,7 @@ export function CompaniesTable({ companies, isLoading, error, emptyStateMessage 
     <>
       <div>
         <DataTable 
+          key={tableKey}
           table={table}
           currentPageRows={currentPageRows}
           totalRows={totalRows}

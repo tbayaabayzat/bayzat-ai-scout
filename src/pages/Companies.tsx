@@ -71,6 +71,7 @@ export default function Companies() {
           ? `Your AI search for "${activeSemanticQuery}" didn't find any matching companies.`
           : undefined
         }
+        semanticFilterActive={semanticCompanyIds.length > 0}
       />
     </div>
   )
