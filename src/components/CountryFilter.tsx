@@ -75,7 +75,13 @@ export function CountryFilter({
             className="flex items-center justify-between p-2 rounded-md border bg-card/50 hover:bg-muted/50 transition-colors"
           >
             <div className="flex items-center gap-2">
-              <span className="text-sm">{country.flag}</span>
+              <span className="text-sm font-emoji select-none" style={{ 
+                fontFamily: 'Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, serif',
+                fontSize: '16px',
+                lineHeight: '1'
+              }}>
+                {country.flag}
+              </span>
               <span className="text-sm">{country.name}</span>
             </div>
             <Checkbox
