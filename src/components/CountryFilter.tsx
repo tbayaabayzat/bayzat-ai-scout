@@ -20,13 +20,40 @@ export function CountryFilter({
   
   const handleCountryToggle = (countryCode: string) => {
     const isSelected = selectedCountries.includes(countryCode)
-    const newSelectedCountries = isSelected
-      ? selectedCountries.filter(code => code !== countryCode)
-      : [...selectedCountries, countryCode]
     
-    onCountryFilterChange({
-      selectedCountries: newSelectedCountries.length > 0 ? newSelectedCountries : undefined
-    })
+    if (countryCode === 'OTHER') {
+      // Handle "Other" selection - remove SA and AE if "Other" is being selected
+      if (isSelected) {
+        // Deselecting "Other"
+        const newSelectedCountries = selectedCountries.filter(code => code !== 'OTHER')
+        onCountryFilterChange({
+          selectedCountries: newSelectedCountries.length > 0 ? newSelectedCountries : undefined
+        })
+      } else {
+        // Selecting "Other" - remove SA and AE from selection
+        const withoutSpecific = selectedCountries.filter(code => !['SA', 'AE'].includes(code))
+        const newSelectedCountries = [...withoutSpecific, 'OTHER']
+        onCountryFilterChange({
+          selectedCountries: newSelectedCountries
+        })
+      }
+    } else {
+      // Handle SA or AE selection - remove "Other" if specific country is being selected
+      if (isSelected) {
+        // Deselecting SA or AE
+        const newSelectedCountries = selectedCountries.filter(code => code !== countryCode)
+        onCountryFilterChange({
+          selectedCountries: newSelectedCountries.length > 0 ? newSelectedCountries : undefined
+        })
+      } else {
+        // Selecting SA or AE - remove "Other" from selection
+        const withoutOther = selectedCountries.filter(code => code !== 'OTHER')
+        const newSelectedCountries = [...withoutOther, countryCode]
+        onCountryFilterChange({
+          selectedCountries: newSelectedCountries
+        })
+      }
+    }
   }
 
   return (

@@ -68,12 +68,23 @@ export function useCompanyQuery({
 
         // Apply country filter
         if (countryFilter.selectedCountries && countryFilter.selectedCountries.length > 0) {
-          // Use JSONB operator to filter by country code in headquarter field
-          const countryConditions = countryFilter.selectedCountries.map(country => 
-            `headquarter->>'country'.eq.${country}`
-          ).join(',')
-          query = query.or(countryConditions)
-          console.log(`Applied country filter: ${countryFilter.selectedCountries.join(',')}`)
+          const hasOther = countryFilter.selectedCountries.includes('OTHER')
+          const specificCountries = countryFilter.selectedCountries.filter(c => c !== 'OTHER')
+          
+          if (hasOther && specificCountries.length > 0) {
+            // If both specific countries and "Other" are selected, include all
+            // This means: (SA OR AE OR NOT (SA OR AE)) which is everything
+            // So we don't apply any country filter
+            console.log('All countries selected (specific + other), no country filter applied')
+          } else if (hasOther) {
+            // Only "Other" selected - exclude SA and AE
+            query = query.not('headquarter->>country', 'in', '("SA","AE")')
+            console.log('Applied "Other" country filter: excluding SA and AE')
+          } else if (specificCountries.length > 0) {
+            // Only specific countries selected
+            query = query.in('headquarter->>country', specificCountries)
+            console.log(`Applied specific country filter: ${specificCountries.join(',')}`)
+          }
         }
 
         console.log('Executing main query...')

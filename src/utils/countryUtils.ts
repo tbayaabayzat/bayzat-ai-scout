@@ -166,7 +166,11 @@ export const COUNTRY_MAPPING: Record<string, CountryOption> = {
 }
 
 export function getCountryOptions(): CountryOption[] {
-  return Object.values(COUNTRY_MAPPING).sort((a, b) => a.name.localeCompare(b.name))
+  return [
+    { code: 'SA', name: 'Saudi Arabia', flag: '🇸🇦' },
+    { code: 'AE', name: 'United Arab Emirates', flag: '🇦🇪' },
+    { code: 'OTHER', name: 'Other', flag: '🌍' }
+  ]
 }
 
 export function getCountryByCode(code: string): CountryOption | undefined {
