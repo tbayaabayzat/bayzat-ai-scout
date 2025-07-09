@@ -9,7 +9,8 @@ export function useCompaniesData() {
     searchTerm: filters.searchTerm,
     systemsFilter: filters.systemsFilter,
     employeeCountFilter: filters.employeeCountFilter,
-    automationFilter: filters.automationFilter
+    automationFilter: filters.automationFilter,
+    countryFilter: filters.countryFilter
   })
 
   // Debug logging

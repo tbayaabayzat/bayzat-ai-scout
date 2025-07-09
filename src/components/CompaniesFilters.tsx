@@ -2,7 +2,7 @@
 import { SemanticSearchBar } from "@/components/SemanticSearchBar"
 import { AIFilterBadge } from "@/components/semantic-search/AIFilterBadge"
 import { AdvancedFilters } from "@/components/AdvancedFilters"
-import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/types/company"
+import { SystemsFilter, EmployeeCountFilter, AutomationFilter, CountryFilter } from "@/types/company"
 import { useState } from "react"
 
 interface CompaniesFiltersProps {
@@ -16,6 +16,8 @@ interface CompaniesFiltersProps {
   onEmployeeCountFilterChange: (filter: EmployeeCountFilter) => void
   automationFilter: AutomationFilter
   onAutomationFilterChange: (filter: AutomationFilter) => void
+  countryFilter: CountryFilter
+  onCountryFilterChange: (filter: CountryFilter) => void
 }
 
 export function CompaniesFilters({
@@ -28,7 +30,9 @@ export function CompaniesFilters({
   employeeCountFilter,
   onEmployeeCountFilterChange,
   automationFilter,
-  onAutomationFilterChange
+  onAutomationFilterChange,
+  countryFilter,
+  onCountryFilterChange
 }: CompaniesFiltersProps) {
   const [clearTrigger, setClearTrigger] = useState(0)
 
@@ -77,6 +81,8 @@ export function CompaniesFilters({
         onEmployeeCountFilterChange={onEmployeeCountFilterChange}
         automationFilter={automationFilter}
         onAutomationFilterChange={onAutomationFilterChange}
+        countryFilter={countryFilter}
+        onCountryFilterChange={onCountryFilterChange}
       />
     </div>
   )

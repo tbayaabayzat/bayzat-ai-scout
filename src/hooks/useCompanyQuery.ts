@@ -1,7 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
-import { Company, SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/types/company"
+import { Company, SystemsFilter, EmployeeCountFilter, AutomationFilter, CountryFilter } from "@/types/company"
 import { transformCompanyData } from "@/utils/companyDataUtils"
 
 interface UseCompanyQueryParams {
@@ -9,22 +9,25 @@ interface UseCompanyQueryParams {
   systemsFilter: SystemsFilter
   employeeCountFilter: EmployeeCountFilter
   automationFilter: AutomationFilter
+  countryFilter: CountryFilter
 }
 
 export function useCompanyQuery({
   searchTerm,
   systemsFilter,
   employeeCountFilter,
-  automationFilter
+  automationFilter,
+  countryFilter
 }: UseCompanyQueryParams) {
   return useQuery({
-    queryKey: ['companies', searchTerm, systemsFilter, employeeCountFilter, automationFilter],
+    queryKey: ['companies', searchTerm, systemsFilter, employeeCountFilter, automationFilter, countryFilter],
     queryFn: async () => {
       console.log('=== Starting companies fetch ===')
       console.log('Search term:', searchTerm)
       console.log('Systems filter:', systemsFilter)
       console.log('Employee count filter:', employeeCountFilter)
       console.log('Automation filter:', automationFilter)
+      console.log('Country filter:', countryFilter)
       
       try {
         // Query directly from companies2 table - include logo_url and company_id
@@ -61,6 +64,16 @@ export function useCompanyQuery({
         if (employeeCountFilter.max !== undefined) {
           query = query.lte('employee_count', employeeCountFilter.max)
           console.log(`Applied employee count max filter: ${employeeCountFilter.max}`)
+        }
+
+        // Apply country filter
+        if (countryFilter.selectedCountries && countryFilter.selectedCountries.length > 0) {
+          // Use JSONB operator to filter by country code in headquarter field
+          const countryConditions = countryFilter.selectedCountries.map(country => 
+            `headquarter->>'country'.eq.${country}`
+          ).join(',')
+          query = query.or(countryConditions)
+          console.log(`Applied country filter: ${countryFilter.selectedCountries.join(',')}`)
         }
 
         console.log('Executing main query...')

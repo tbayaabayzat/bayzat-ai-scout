@@ -40,3 +40,7 @@ export type AutomationFilter = {
   selectedScores?: number[]
   department?: 'overall' | 'hr' | 'finance'
 }
+
+export type CountryFilter = {
+  selectedCountries?: string[] // Array of country codes like ['AE', 'SA', 'US']
+}

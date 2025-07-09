@@ -19,7 +19,9 @@ export default function Companies() {
     employeeCountFilter,
     setEmployeeCountFilter,
     automationFilter,
-    setAutomationFilter
+    setAutomationFilter,
+    countryFilter,
+    setCountryFilter
   } = useCompaniesData()
 
   // Memoize filtered companies to maintain stable references
@@ -69,6 +71,8 @@ export default function Companies() {
         onEmployeeCountFilterChange={setEmployeeCountFilter}
         automationFilter={automationFilter}
         onAutomationFilterChange={setAutomationFilter}
+        countryFilter={countryFilter}
+        onCountryFilterChange={setCountryFilter}
       />
 
       <CompaniesTable

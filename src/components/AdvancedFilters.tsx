@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { ChevronDown, Database, Users, Filter, X } from "lucide-react"
-import { SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/types/company"
+import { SystemsFilter, EmployeeCountFilter, AutomationFilter, CountryFilter } from "@/types/company"
 import { AutomationScoreFilter } from "@/components/AutomationScoreFilter"
+import { CountryFilter as CountryFilterComponent } from "@/components/CountryFilter"
 
 interface AdvancedFiltersProps {
   systemsFilter: SystemsFilter
@@ -16,6 +17,8 @@ interface AdvancedFiltersProps {
   onEmployeeCountFilterChange: (filter: EmployeeCountFilter) => void
   automationFilter: AutomationFilter
   onAutomationFilterChange: (filter: AutomationFilter) => void
+  countryFilter: CountryFilter
+  onCountryFilterChange: (filter: CountryFilter) => void
   onClearAllFilters?: () => void
 }
 
@@ -26,6 +29,8 @@ export function AdvancedFilters({
   onEmployeeCountFilterChange,
   automationFilter,
   onAutomationFilterChange,
+  countryFilter,
+  onCountryFilterChange,
   onClearAllFilters
 }: AdvancedFiltersProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -49,6 +54,9 @@ export function AdvancedFilters({
     // Count automation filters
     if (automationFilter.selectedScores && automationFilter.selectedScores.length > 0) count++
     
+    // Count country filters
+    if (countryFilter.selectedCountries && countryFilter.selectedCountries.length > 0) count++
+    
     return count
   }
 
@@ -56,6 +64,7 @@ export function AdvancedFilters({
     onSystemsFilterChange({})
     onEmployeeCountFilterChange({})
     onAutomationFilterChange({})
+    onCountryFilterChange({})
     if (onClearAllFilters) {
       onClearAllFilters()
     }
@@ -119,7 +128,7 @@ export function AdvancedFilters({
 
         {/* Filter Content (Full Width Below) */}
         <CollapsibleContent className="space-y-6 pt-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
             {/* Systems Filter */}
             <div className="space-y-3">
@@ -193,6 +202,12 @@ export function AdvancedFilters({
             <AutomationScoreFilter
               automationFilter={automationFilter}
               onAutomationFilterChange={onAutomationFilterChange}
+            />
+
+            {/* Country Filter */}
+            <CountryFilterComponent
+              countryFilter={countryFilter}
+              onCountryFilterChange={onCountryFilterChange}
             />
           </div>
         </CollapsibleContent>
