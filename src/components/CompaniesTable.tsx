@@ -31,7 +31,12 @@ export function CompaniesTable({ companies, isLoading, error, emptyStateMessage,
   console.log('CompaniesTable - Companies count:', companies?.length)
 
   const handleCompanyClick = (company: Company) => {
-    console.log('CompaniesTable - Company clicked:', company.company_name)
+    console.log('CompaniesTable - Company clicked:', {
+      companyName: company.company_name,
+      companyId: company.id,
+      semanticFilterActive,
+      tableKey
+    })
     setSelectedCompany(company)
     setSheetOpen(true)
   }
@@ -39,21 +44,27 @@ export function CompaniesTable({ companies, isLoading, error, emptyStateMessage,
   // Memoize columns to prevent unnecessary recreation
   const columns = useMemo(() => createCompaniesTableColumns(handleCompanyClick), [])
 
-  // Handle undefined companies data
-  const safeCompanies = companies || []
+  // Handle undefined companies data with memoization for stability
+  const safeCompanies = useMemo(() => companies || [], [companies])
 
   // Reset table state when semantic filter changes
   useEffect(() => {
-    console.log('CompaniesTable - Filter state changed, resetting table state')
+    console.log('CompaniesTable - Filter state changed, resetting table state:', {
+      semanticFilterActive,
+      companiesLength: safeCompanies.length,
+      previousTableKey: tableKey
+    })
     setSorting([])
     setColumnFilters([])
     setRowSelection({})
+    setColumnVisibility({})
     setTableKey(prev => prev + 1) // Force table re-initialization
-  }, [semanticFilterActive, safeCompanies.length])
+  }, [semanticFilterActive])
 
   const table = useReactTable({
     data: safeCompanies,
     columns,
+    getRowId: (row) => row.id, // Use stable row ID instead of array index
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),

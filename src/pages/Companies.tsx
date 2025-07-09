@@ -1,5 +1,5 @@
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useCompaniesData } from "@/hooks/useCompaniesData"
 import { CompaniesHeader } from "@/components/CompaniesHeader"
 import { CompaniesFilters } from "@/components/CompaniesFilters"
@@ -22,10 +22,18 @@ export default function Companies() {
     setAutomationFilter
   } = useCompaniesData()
 
-  // Filter companies based on semantic search results - with safety check
-  const filteredCompanies = semanticCompanyIds.length > 0 
-    ? (companies || []).filter(company => semanticCompanyIds.includes(company.id))
-    : (companies || [])
+  // Memoize filtered companies to maintain stable references
+  const filteredCompanies = useMemo(() => {
+    console.log('Companies.tsx - Recalculating filtered companies:', {
+      totalCompanies: companies?.length,
+      semanticIds: semanticCompanyIds.length,
+      hasSemanticFilter: semanticCompanyIds.length > 0
+    })
+    
+    return semanticCompanyIds.length > 0 
+      ? (companies || []).filter(company => semanticCompanyIds.includes(company.id))
+      : (companies || [])
+  }, [companies, semanticCompanyIds])
 
   const handleSemanticFilter = (companyIds: string[], query?: string) => {
     setSemanticCompanyIds(companyIds)
