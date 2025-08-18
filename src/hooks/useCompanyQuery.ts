@@ -1,7 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
-import { Company, SystemsFilter, EmployeeCountFilter, AutomationFilter, CountryFilter } from "@/types/company"
+import { Company, SystemsFilter, EmployeeCountFilter, AutomationFilter, CountryFilter, RelationshipFilter } from "@/types/company"
 import { transformCompanyData } from "@/utils/companyDataUtils"
 
 interface UseCompanyQueryParams {
@@ -10,6 +10,7 @@ interface UseCompanyQueryParams {
   employeeCountFilter: EmployeeCountFilter
   automationFilter: AutomationFilter
   countryFilter: CountryFilter
+  relationshipFilter: RelationshipFilter
 }
 
 export function useCompanyQuery({
@@ -17,10 +18,11 @@ export function useCompanyQuery({
   systemsFilter,
   employeeCountFilter,
   automationFilter,
-  countryFilter
+  countryFilter,
+  relationshipFilter
 }: UseCompanyQueryParams) {
   return useQuery({
-    queryKey: ['companies', searchTerm, systemsFilter, employeeCountFilter, automationFilter, countryFilter],
+    queryKey: ['companies', searchTerm, systemsFilter, employeeCountFilter, automationFilter, countryFilter, relationshipFilter],
     queryFn: async () => {
       console.log('=== Starting companies fetch ===')
       console.log('Search term:', searchTerm)
@@ -28,6 +30,7 @@ export function useCompanyQuery({
       console.log('Employee count filter:', employeeCountFilter)
       console.log('Automation filter:', automationFilter)
       console.log('Country filter:', countryFilter)
+      console.log('Relationship filter:', relationshipFilter)
       
       try {
         // Query directly from companies2 table - include logo_url and company_id
@@ -85,6 +88,12 @@ export function useCompanyQuery({
             query = query.in('headquarter->>country', specificCountries)
             console.log(`Applied specific country filter: ${specificCountries.join(',')}`)
           }
+        }
+
+        // Apply relationship filter
+        if (relationshipFilter.selectedRelationships && relationshipFilter.selectedRelationships.length > 0) {
+          query = query.in('bayzat_relationship', relationshipFilter.selectedRelationships)
+          console.log(`Applied relationship filter: ${relationshipFilter.selectedRelationships.join(',')}`)
         }
 
         console.log('Executing main query...')

@@ -10,7 +10,8 @@ export function useCompaniesData() {
     systemsFilter: filters.systemsFilter,
     employeeCountFilter: filters.employeeCountFilter,
     automationFilter: filters.automationFilter,
-    countryFilter: filters.countryFilter
+    countryFilter: filters.countryFilter,
+    relationshipFilter: filters.relationshipFilter
   })
 
   // Debug logging
@@ -29,4 +30,4 @@ export function useCompaniesData() {
 }
 
 // Re-export types for backward compatibility
-export type { Company, SystemsFilter, EmployeeCountFilter, AutomationFilter } from "@/types/company"
+export type { Company, SystemsFilter, EmployeeCountFilter, AutomationFilter, RelationshipFilter } from "@/types/company"

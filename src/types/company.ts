@@ -44,3 +44,9 @@ export type AutomationFilter = {
 export type CountryFilter = {
   selectedCountries?: string[] // Array of country codes like ['AE', 'SA', 'US']
 }
+
+export type RelationshipValue = 'customer' | 'partner' | 'prospect'
+
+export type RelationshipFilter = {
+  selectedRelationships?: RelationshipValue[]
+}

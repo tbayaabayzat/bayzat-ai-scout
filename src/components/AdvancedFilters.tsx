@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { ChevronDown, Database, Users, Filter, X } from "lucide-react"
-import { SystemsFilter, EmployeeCountFilter, AutomationFilter, CountryFilter } from "@/types/company"
+import { SystemsFilter, EmployeeCountFilter, AutomationFilter, CountryFilter, RelationshipFilter } from "@/types/company"
 import { AutomationScoreFilter } from "@/components/AutomationScoreFilter"
 import { CountryFilter as CountryFilterComponent } from "@/components/CountryFilter"
+import { RelationshipFilter as RelationshipFilterComponent } from "@/components/RelationshipFilter"
 
 interface AdvancedFiltersProps {
   systemsFilter: SystemsFilter
@@ -19,6 +20,8 @@ interface AdvancedFiltersProps {
   onAutomationFilterChange: (filter: AutomationFilter) => void
   countryFilter: CountryFilter
   onCountryFilterChange: (filter: CountryFilter) => void
+  relationshipFilter: RelationshipFilter
+  onRelationshipFilterChange: (filter: RelationshipFilter) => void
   onClearAllFilters?: () => void
 }
 
@@ -31,6 +34,8 @@ export function AdvancedFilters({
   onAutomationFilterChange,
   countryFilter,
   onCountryFilterChange,
+  relationshipFilter,
+  onRelationshipFilterChange,
   onClearAllFilters
 }: AdvancedFiltersProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -57,6 +62,9 @@ export function AdvancedFilters({
     // Count country filters
     if (countryFilter.selectedCountries && countryFilter.selectedCountries.length > 0) count++
     
+    // Count relationship filters
+    if (relationshipFilter.selectedRelationships && relationshipFilter.selectedRelationships.length > 0) count++
+    
     return count
   }
 
@@ -65,6 +73,7 @@ export function AdvancedFilters({
     onEmployeeCountFilterChange({})
     onAutomationFilterChange({})
     onCountryFilterChange({})
+    onRelationshipFilterChange({})
     if (onClearAllFilters) {
       onClearAllFilters()
     }
@@ -128,7 +137,7 @@ export function AdvancedFilters({
 
         {/* Filter Content (Full Width Below) */}
         <CollapsibleContent className="space-y-6 pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             
             {/* Systems Filter */}
             <div className="space-y-3">
@@ -208,6 +217,12 @@ export function AdvancedFilters({
             <CountryFilterComponent
               countryFilter={countryFilter}
               onCountryFilterChange={onCountryFilterChange}
+            />
+
+            {/* Relationship Filter */}
+            <RelationshipFilterComponent
+              relationshipFilter={relationshipFilter}
+              onRelationshipFilterChange={onRelationshipFilterChange}
             />
           </div>
         </CollapsibleContent>

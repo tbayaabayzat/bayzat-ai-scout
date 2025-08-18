@@ -1,6 +1,6 @@
 
 import { useState } from "react"
-import { SystemsFilter, EmployeeCountFilter, AutomationFilter, CountryFilter } from "@/types/company"
+import { SystemsFilter, EmployeeCountFilter, AutomationFilter, CountryFilter, RelationshipFilter } from "@/types/company"
 
 export function useCompanyFilters() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -8,6 +8,7 @@ export function useCompanyFilters() {
   const [employeeCountFilter, setEmployeeCountFilter] = useState<EmployeeCountFilter>({})
   const [automationFilter, setAutomationFilter] = useState<AutomationFilter>({})
   const [countryFilter, setCountryFilter] = useState<CountryFilter>({})
+  const [relationshipFilter, setRelationshipFilter] = useState<RelationshipFilter>({})
 
   return {
     searchTerm,
@@ -19,6 +20,8 @@ export function useCompanyFilters() {
     automationFilter,
     setAutomationFilter,
     countryFilter,
-    setCountryFilter
+    setCountryFilter,
+    relationshipFilter,
+    setRelationshipFilter
   }
 }
