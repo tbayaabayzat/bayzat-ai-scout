@@ -137,7 +137,7 @@ export function AdvancedFilters({
 
         {/* Filter Content (Full Width Below) */}
         <CollapsibleContent className="space-y-6 pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
             {/* Systems Filter */}
             <div className="space-y-3">
@@ -175,33 +175,42 @@ export function AdvancedFilters({
               </div>
             </div>
 
-            {/* Employee Count Filter */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <Label className="text-sm font-medium">Employee Count</Label>
-              </div>
+            {/* Relationship & Employee Count Column */}
+            <div className="space-y-6">
+              {/* Relationship Filter */}
+              <RelationshipFilterComponent
+                relationshipFilter={relationshipFilter}
+                onRelationshipFilterChange={onRelationshipFilterChange}
+              />
+
+              {/* Employee Count Filter */}
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Min</Label>
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      value={employeeCountFilter.min ?? ''}
-                      onChange={(e) => handleEmployeeCountChange('min', e.target.value)}
-                      className="h-8"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Max</Label>
-                    <Input
-                      type="number"
-                      placeholder="10,000"
-                      value={employeeCountFilter.max ?? ''}
-                      onChange={(e) => handleEmployeeCountChange('max', e.target.value)}
-                      className="h-8"
-                    />
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <Label className="text-sm font-medium">Employee Count</Label>
+                </div>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Min</Label>
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        value={employeeCountFilter.min ?? ''}
+                        onChange={(e) => handleEmployeeCountChange('min', e.target.value)}
+                        className="h-8"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Max</Label>
+                      <Input
+                        type="number"
+                        placeholder="10,000"
+                        value={employeeCountFilter.max ?? ''}
+                        onChange={(e) => handleEmployeeCountChange('max', e.target.value)}
+                        className="h-8"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -217,12 +226,6 @@ export function AdvancedFilters({
             <CountryFilterComponent
               countryFilter={countryFilter}
               onCountryFilterChange={onCountryFilterChange}
-            />
-
-            {/* Relationship Filter */}
-            <RelationshipFilterComponent
-              relationshipFilter={relationshipFilter}
-              onRelationshipFilterChange={onRelationshipFilterChange}
             />
           </div>
         </CollapsibleContent>
