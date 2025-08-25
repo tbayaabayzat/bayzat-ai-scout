@@ -8,7 +8,7 @@ import { Building2, Users, Handshake } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { RequestFormData } from "./types"
-import { validateLinkedInUrl } from "./utils"
+import { validateLinkedInUrl, sanitizeLinkedInCompanyUrl } from "./utils"
 
 interface RequestFormProps {
   onRequestSubmitted: () => void
@@ -26,10 +26,23 @@ export function RequestForm({ onRequestSubmitted }: RequestFormProps) {
     e.preventDefault()
     if (!formData.linkedinUrl.trim()) return
 
-    if (!validateLinkedInUrl(formData.linkedinUrl)) {
+    // Sanitize the URL first
+    const sanitizedUrl = sanitizeLinkedInCompanyUrl(formData.linkedinUrl)
+    
+    // If URL was cleaned, update the input and notify user
+    if (sanitizedUrl !== formData.linkedinUrl.trim() && sanitizedUrl) {
+      setFormData(prev => ({ ...prev, linkedinUrl: sanitizedUrl }))
+      toast({
+        title: "URL cleaned",
+        description: "We removed tracking parameters from your URL"
+      })
+    }
+
+    // Validate the sanitized URL
+    if (!sanitizedUrl || !validateLinkedInUrl(sanitizedUrl)) {
       toast({
         title: "Invalid URL",
-        description: "Please provide a valid LinkedIn company profile URL",
+        description: "Please provide a valid LinkedIn company profile URL (format: https://www.linkedin.com/company/<company>)",
         variant: "destructive"
       })
       return
@@ -42,7 +55,7 @@ export function RequestForm({ onRequestSubmitted }: RequestFormProps) {
         .from('linkedin_queue')
         .insert([
           {
-            linkedin_url: formData.linkedinUrl.trim(),
+            linkedin_url: sanitizedUrl,
             status: 'pending',
             bayzat_relationship: formData.bayzatRelationship
           }
@@ -71,6 +84,20 @@ export function RequestForm({ onRequestSubmitted }: RequestFormProps) {
     }
   }
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const pastedText = e.clipboardData.getData('text')
+    const sanitizedUrl = sanitizeLinkedInCompanyUrl(pastedText)
+    
+    if (sanitizedUrl && sanitizedUrl !== pastedText.trim()) {
+      e.preventDefault()
+      setFormData(prev => ({ ...prev, linkedinUrl: sanitizedUrl }))
+      toast({
+        title: "URL cleaned",
+        description: "We removed tracking parameters from your URL"
+      })
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
@@ -80,6 +107,7 @@ export function RequestForm({ onRequestSubmitted }: RequestFormProps) {
           placeholder="https://linkedin.com/company/example-company"
           value={formData.linkedinUrl}
           onChange={(e) => setFormData(prev => ({ ...prev, linkedinUrl: e.target.value }))}
+          onPaste={handlePaste}
           disabled={isSubmitting}
         />
       </div>

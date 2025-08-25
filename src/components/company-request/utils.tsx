@@ -50,6 +50,70 @@ export const getRelationshipColor = (relationship: string): "default" | "seconda
   }
 }
 
+export const sanitizeLinkedInCompanyUrl = (input: string): string => {
+  if (!input.trim()) return ""
+  
+  let url = input.trim()
+  
+  // Add protocol if missing
+  if (!/^https?:\/\//.test(url)) {
+    url = `https://${url}`
+  }
+  
+  try {
+    const urlObj = new URL(url)
+    
+    // Check if it's a LinkedIn domain
+    if (!urlObj.hostname.includes('linkedin.com')) {
+      return ""
+    }
+    
+    // Extract path and check if it's a company URL
+    const pathMatch = urlObj.pathname.match(/^\/company\/([^\/]+)\/?$/)
+    if (!pathMatch) {
+      return ""
+    }
+    
+    let slug = pathMatch[1]
+    
+    // Decode URL encoding once
+    slug = decodeURIComponent(slug)
+    
+    // Remove everything from first special character onwards
+    const specialChars = /[?#&=;%]/
+    const specialCharIndex = slug.search(specialChars)
+    if (specialCharIndex !== -1) {
+      slug = slug.substring(0, specialCharIndex)
+    }
+    
+    // Clean slug - only allow alphanumeric, hyphens, underscores, and periods
+    slug = slug.replace(/[^A-Za-z0-9\-_.]/g, '')
+    
+    // Return empty if slug is empty after cleaning
+    if (!slug) return ""
+    
+    // Return normalized URL
+    return `https://www.linkedin.com/company/${slug}`
+  } catch {
+    return ""
+  }
+}
+
 export const validateLinkedInUrl = (url: string): boolean => {
-  return url.includes('linkedin.com/company/')
+  if (!url.trim()) return false
+  
+  try {
+    const urlObj = new URL(url)
+    
+    // Must be LinkedIn domain
+    if (!urlObj.hostname.includes('linkedin.com')) {
+      return false
+    }
+    
+    // Must be company URL with valid slug
+    const pathMatch = urlObj.pathname.match(/^\/company\/([A-Za-z0-9\-_.]+)\/?$/)
+    return !!pathMatch
+  } catch {
+    return false
+  }
 }
