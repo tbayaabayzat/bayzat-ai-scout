@@ -22,7 +22,15 @@ export function useCompanyQuery({
   relationshipFilter
 }: UseCompanyQueryParams) {
   return useQuery({
-    queryKey: ['companies', searchTerm, systemsFilter, employeeCountFilter, automationFilter, countryFilter, relationshipFilter],
+    queryKey: [
+      'companies', 
+      searchTerm, 
+      systemsFilter, 
+      employeeCountFilter, 
+      automationFilter, 
+      countryFilter?.selectedCountries, // Use specific property for better cache key
+      relationshipFilter
+    ],
     queryFn: async () => {
       console.log('=== Starting companies fetch ===')
       console.log('Search term:', searchTerm)
@@ -70,7 +78,8 @@ export function useCompanyQuery({
         }
 
         // Apply country filter - if no countries selected, show all companies
-        if (countryFilter.selectedCountries && countryFilter.selectedCountries.length > 0) {
+        console.log('Country filter state:', { countryFilter, selectedCountries: countryFilter?.selectedCountries })
+        if (countryFilter?.selectedCountries && countryFilter.selectedCountries.length > 0) {
           const hasOther = countryFilter.selectedCountries.includes('OTHER')
           const specificCountries = countryFilter.selectedCountries.filter(c => c !== 'OTHER')
           

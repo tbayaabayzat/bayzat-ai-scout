@@ -7,7 +7,7 @@ export function useCompanyFilters() {
   const [systemsFilter, setSystemsFilter] = useState<SystemsFilter>({})
   const [employeeCountFilter, setEmployeeCountFilter] = useState<EmployeeCountFilter>({})
   const [automationFilter, setAutomationFilter] = useState<AutomationFilter>({})
-  const [countryFilter, setCountryFilter] = useState<CountryFilter>({})
+  const [countryFilter, setCountryFilter] = useState<CountryFilter>({ selectedCountries: undefined })
   const [relationshipFilter, setRelationshipFilter] = useState<RelationshipFilter>({})
 
   return {
