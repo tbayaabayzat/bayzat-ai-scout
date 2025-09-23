@@ -46,6 +46,7 @@ export function useCompanyQuery({
       
       try {
         // Query directly from companies2 table - include logo_url and company_id
+        // Fix: Add explicit limit and ordering to ensure all companies (including Aquanow) are fetched
         let query = supabase
           .from('companies2')
           .select(`
@@ -64,6 +65,8 @@ export function useCompanyQuery({
             description,
             founded_year
           `)
+          .order('company_name', { ascending: true })
+          .limit(2000) // Increase limit to include all companies (current total: ~1662)
 
         // Apply search filter
         if (searchTerm && searchTerm.trim()) {
