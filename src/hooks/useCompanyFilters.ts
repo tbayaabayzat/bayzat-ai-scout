@@ -10,6 +10,11 @@ export function useCompanyFilters() {
   const [countryFilter, setCountryFilter] = useState<CountryFilter>({ selectedCountries: undefined })
   const [relationshipFilter, setRelationshipFilter] = useState<RelationshipFilter>({})
 
+  // AQUANOW DEBUG: Log initial relationship filter state
+  console.log('🔍 useCompanyFilters initialized - relationshipFilter:', relationshipFilter)
+  console.log('🔍 relationshipFilter.selectedRelationships:', relationshipFilter.selectedRelationships)
+  console.log('🔍 This should be undefined/empty to show ALL relationships by default')
+
   return {
     searchTerm,
     setSearchTerm,

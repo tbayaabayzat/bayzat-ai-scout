@@ -33,13 +33,16 @@ export function useCompanyQuery({
       'v2' // Force cache bust
     ],
     queryFn: async () => {
-      console.log('=== Starting companies fetch ===')
-      console.log('Search term:', searchTerm)
-      console.log('Systems filter:', systemsFilter)
-      console.log('Employee count filter:', employeeCountFilter)
-      console.log('Automation filter:', automationFilter)
-      console.log('Country filter:', countryFilter)
-      console.log('Relationship filter:', relationshipFilter)
+      console.log('=== COMPREHENSIVE COMPANIES FETCH DEBUG ===')
+      console.log('🔍 AQUANOW INVESTIGATION: All input parameters:')
+      console.log('1. Search term:', searchTerm, '(type:', typeof searchTerm, ')')
+      console.log('2. Systems filter:', systemsFilter)
+      console.log('3. Employee count filter:', employeeCountFilter)
+      console.log('4. Automation filter:', automationFilter)
+      console.log('5. Country filter:', countryFilter)
+      console.log('6. Relationship filter:', relationshipFilter)
+      console.log('📋 This query should include ALL relationships unless specifically filtered')
+      console.log('🎯 Aquanow is a CUSTOMER - it should appear unless relationship filter excludes customers')
       
       try {
         // Query directly from companies2 table - include logo_url and company_id
@@ -103,10 +106,22 @@ export function useCompanyQuery({
           console.log('No country filter applied - showing all companies')
         }
 
-        // Apply relationship filter
-        if (relationshipFilter.selectedRelationships && relationshipFilter.selectedRelationships.length > 0) {
+        // Apply relationship filter - CRITICAL: Only filter if relationships are explicitly selected
+        console.log('=== RELATIONSHIP FILTER DEBUG ===')
+        console.log('relationshipFilter object:', relationshipFilter)
+        console.log('relationshipFilter?.selectedRelationships:', relationshipFilter?.selectedRelationships)
+        console.log('selectedRelationships length:', relationshipFilter?.selectedRelationships?.length)
+        console.log('Is selectedRelationships array?', Array.isArray(relationshipFilter?.selectedRelationships))
+        
+        if (relationshipFilter?.selectedRelationships && relationshipFilter.selectedRelationships.length > 0) {
           query = query.in('bayzat_relationship', relationshipFilter.selectedRelationships)
-          console.log(`Applied relationship filter: ${relationshipFilter.selectedRelationships.join(',')}`)
+          console.log('✅ APPLIED relationship filter - ONLY showing:', relationshipFilter.selectedRelationships)
+          console.log('⚠️  This will EXCLUDE companies with other relationships!')
+          console.log('⚠️  For example, if filtering for "prospect", customers like Aquanow will be HIDDEN')
+        } else {
+          console.log('✅ NO relationship filter applied - showing ALL relationships')
+          console.log('✅ This means ALL customers, partners, and prospects should be visible')
+          console.log('✅ Aquanow (customer) should be included in results')
         }
 
         console.log('Executing main query...')
@@ -157,8 +172,27 @@ export function useCompanyQuery({
           console.log(`Applied automation filter: ${automationField} scores=${automationFilter.selectedScores.join(',')}`)
         }
         
+        console.log('🎯 FINAL RESULTS DEBUG - AQUANOW SPECIFIC:')
         console.log('Filtered data length:', transformedData.length)
         console.log('Sample transformed company:', transformedData[0])
+        
+        // Specific Aquanow search in final results
+        const finalAquanow = transformedData.find(c => c.company_name?.toLowerCase().includes('aquanow'))
+        console.log('🔍 Aquanow in FINAL results:', finalAquanow ? {
+          name: finalAquanow.company_name,
+          relationship: finalAquanow.bayzat_relationship,
+          country: finalAquanow.headquarter?.country,
+          id: finalAquanow.id
+        } : '❌ NOT FOUND IN FINAL RESULTS')
+        
+        // Show relationship distribution in final results
+        const finalRelationshipStats = transformedData.reduce((acc, c) => {
+          const rel = c.bayzat_relationship || 'unknown'
+          acc[rel] = (acc[rel] || 0) + 1
+          return acc
+        }, {} as Record<string, number>)
+        console.log('📊 Final relationship distribution:', finalRelationshipStats)
+        
         return transformedData
       } catch (err) {
         console.error('Fetch error:', err)
