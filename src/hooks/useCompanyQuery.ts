@@ -29,7 +29,8 @@ export function useCompanyQuery({
       employeeCountFilter, 
       automationFilter, 
       countryFilter?.selectedCountries, // Use specific property for better cache key
-      relationshipFilter
+      relationshipFilter,
+      'v2' // Force cache bust
     ],
     queryFn: async () => {
       console.log('=== Starting companies fetch ===')
