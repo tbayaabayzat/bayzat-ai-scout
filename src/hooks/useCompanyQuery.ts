@@ -69,7 +69,7 @@ export function useCompanyQuery({
           console.log(`Applied employee count max filter: ${employeeCountFilter.max}`)
         }
 
-        // Apply country filter
+        // Apply country filter - if no countries selected, show all companies
         if (countryFilter.selectedCountries && countryFilter.selectedCountries.length > 0) {
           const hasOther = countryFilter.selectedCountries.includes('OTHER')
           const specificCountries = countryFilter.selectedCountries.filter(c => c !== 'OTHER')
@@ -88,6 +88,9 @@ export function useCompanyQuery({
             query = query.in('headquarter->>country', specificCountries)
             console.log(`Applied specific country filter: ${specificCountries.join(',')}`)
           }
+        } else {
+          // No countries selected - show all companies by default
+          console.log('No country filter applied - showing all companies')
         }
 
         // Apply relationship filter
