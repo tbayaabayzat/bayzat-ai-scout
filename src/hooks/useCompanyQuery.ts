@@ -90,9 +90,9 @@ export function useCompanyQuery({
             // So we don't apply any country filter
             console.log('All countries selected (specific + other), no country filter applied')
           } else if (hasOther) {
-            // Only "Other" selected - exclude SA and AE
-            query = query.not('headquarter->>country', 'in', '("SA","AE")')
-            console.log('Applied "Other" country filter: excluding SA and AE')
+            // Only "Other" selected - exclude SA and AE (case-insensitive)
+            query = query.not('headquarter->>country', 'in', '("SA","AE","sa","ae")')
+            console.log('Applied "Other" country filter: excluding SA, AE, sa, ae')
           } else if (specificCountries.length > 0) {
             // Only specific countries selected
             query = query.in('headquarter->>country', specificCountries)
