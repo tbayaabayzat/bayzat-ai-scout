@@ -30,18 +30,15 @@ export function RequestedByFilter({
   const fetchRequesters = async () => {
     setLoading(true)
     try {
-      // Use type assertion to bypass type checking issue with auto-generated types
-      const result = await supabase
-        .from('linkedin_queue' as any)
-        .select('requester')
-        .not('requester', 'is', null)
-        .neq('requester', '')
+      // Use the RPC function to fetch requesters (bypasses RLS)
+      const { data, error } = await supabase
+        .rpc('get_linkedin_requesters' as any) as any
       
-      if (result.error) throw result.error
+      if (error) throw error
 
       // Get unique requesters and filter out batch import tags
       const uniqueRequesters: string[] = [...new Set(
-        ((result.data as any[]) || []).map((item: any) => item.requester as string)
+        ((data || []) as any[]).map((item: any) => item.requester as string)
       )]
         .filter((requester): requester is string => 
           Boolean(requester) && 
@@ -51,6 +48,7 @@ export function RequestedByFilter({
         )
         .sort()
 
+      console.log(`✅ Loaded ${uniqueRequesters.length} requesters from get_linkedin_requesters()`)
       setRequesters(uniqueRequesters)
     } catch (error) {
       console.error('Failed to fetch requesters:', error)
