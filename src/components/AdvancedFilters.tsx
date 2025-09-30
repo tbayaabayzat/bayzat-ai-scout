@@ -151,20 +151,28 @@ export function AdvancedFilters({
         <CollapsibleContent className="space-y-6 pt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
-            {/* Requested By + Relationship Filter - Most Important */}
+            {/* Column 1: Requested By */}
             <div className="space-y-6">
               <RequestedByFilterComponent
                 requestedByFilter={requestedByFilter}
                 onRequestedByFilterChange={onRequestedByFilterChange}
               />
-              
+            </div>
+
+            {/* Column 2: Bayzat Relationship + Country */}
+            <div className="space-y-6">
               <RelationshipFilterComponent
                 relationshipFilter={relationshipFilter}
                 onRelationshipFilterChange={onRelationshipFilterChange}
               />
+              
+              <CountryFilterComponent
+                countryFilter={countryFilter}
+                onCountryFilterChange={onCountryFilterChange}
+              />
             </div>
 
-            {/* Systems + Country Filter */}
+            {/* Column 3: Systems + Employee Count */}
             <div className="space-y-6">
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
@@ -201,39 +209,33 @@ export function AdvancedFilters({
                 </div>
               </div>
               
-              <CountryFilterComponent
-                countryFilter={countryFilter}
-                onCountryFilterChange={onCountryFilterChange}
-              />
-            </div>
-
-            {/* Column 3: Employee Count */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <Label className="text-sm font-medium">Employee Count</Label>
-              </div>
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Min</Label>
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      value={employeeCountFilter.min ?? ''}
-                      onChange={(e) => handleEmployeeCountChange('min', e.target.value)}
-                      className="h-8"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Max</Label>
-                    <Input
-                      type="number"
-                      placeholder="10,000"
-                      value={employeeCountFilter.max ?? ''}
-                      onChange={(e) => handleEmployeeCountChange('max', e.target.value)}
-                      className="h-8"
-                    />
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <Label className="text-sm font-medium">Employee Count</Label>
+                </div>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Min</Label>
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        value={employeeCountFilter.min ?? ''}
+                        onChange={(e) => handleEmployeeCountChange('min', e.target.value)}
+                        className="h-8"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Max</Label>
+                      <Input
+                        type="number"
+                        placeholder="10,000"
+                        value={employeeCountFilter.max ?? ''}
+                        onChange={(e) => handleEmployeeCountChange('max', e.target.value)}
+                        className="h-8"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
