@@ -146,8 +146,14 @@ export function AdvancedFilters({
 
         {/* Filter Content (Full Width Below) */}
         <CollapsibleContent className="space-y-6 pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
+            {/* Requested By Filter - Most Important */}
+            <RequestedByFilterComponent
+              requestedByFilter={requestedByFilter}
+              onRequestedByFilterChange={onRequestedByFilterChange}
+            />
+
             {/* Systems Filter */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
@@ -184,15 +190,13 @@ export function AdvancedFilters({
               </div>
             </div>
 
-            {/* Relationship & Employee Count Column */}
+            {/* Column 3: Relationship + Employee Count */}
             <div className="space-y-6">
-              {/* Relationship Filter */}
               <RelationshipFilterComponent
                 relationshipFilter={relationshipFilter}
                 onRelationshipFilterChange={onRelationshipFilterChange}
               />
-
-              {/* Employee Count Filter */}
+              
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-muted-foreground" />
@@ -225,23 +229,18 @@ export function AdvancedFilters({
               </div>
             </div>
 
-            {/* Automation Score Filter */}
-            <AutomationScoreFilter
-              automationFilter={automationFilter}
-              onAutomationFilterChange={onAutomationFilterChange}
-            />
-
-            {/* Country Filter */}
-            <CountryFilterComponent
-              countryFilter={countryFilter}
-              onCountryFilterChange={onCountryFilterChange}
-            />
-
-            {/* Requested By Filter */}
-            <RequestedByFilterComponent
-              requestedByFilter={requestedByFilter}
-              onRequestedByFilterChange={onRequestedByFilterChange}
-            />
+            {/* Column 4: Automation + Country */}
+            <div className="space-y-6">
+              <AutomationScoreFilter
+                automationFilter={automationFilter}
+                onAutomationFilterChange={onAutomationFilterChange}
+              />
+              
+              <CountryFilterComponent
+                countryFilter={countryFilter}
+                onCountryFilterChange={onCountryFilterChange}
+              />
+            </div>
           </div>
         </CollapsibleContent>
       </div>

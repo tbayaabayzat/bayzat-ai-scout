@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { User, ChevronDown, X } from "lucide-react"
 import { RequestedByFilter as RequestedByFilterType } from "@/types/company"
 import { supabase } from "@/integrations/supabase/client"
@@ -20,6 +21,7 @@ export function RequestedByFilter({
   const [isOpen, setIsOpen] = useState(false)
   const [requesters, setRequesters] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
     fetchRequesters()
@@ -69,6 +71,18 @@ export function RequestedByFilter({
     onRequestedByFilterChange({ selectedRequesters: undefined })
   }
 
+  const selectAll = () => {
+    onRequestedByFilterChange({ selectedRequesters: [...filteredRequesters] })
+  }
+
+  const clearAll = () => {
+    onRequestedByFilterChange({ selectedRequesters: undefined })
+  }
+
+  const filteredRequesters = requesters.filter(requester =>
+    requester.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
   const selectedCount = requestedByFilter.selectedRequesters?.length || 0
 
   return (
@@ -106,34 +120,69 @@ export function RequestedByFilter({
             <ChevronDown className="h-4 w-4 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-80 p-0">
-          <div className="p-4 space-y-2 max-h-64 overflow-y-auto">
-            {loading ? (
-              <div className="text-center text-sm text-muted-foreground py-4">
-                Loading requesters...
+        <PopoverContent className="w-96 p-0">
+          <div className="p-4 space-y-4">
+            {/* Search Input */}
+            <div className="relative">
+              <Input
+                placeholder="Search requesters..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-8 text-sm"
+              />
+            </div>
+            
+            {/* Action Buttons */}
+            {filteredRequesters.length > 0 && (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={selectAll}
+                  className="h-6 px-2 text-xs flex-1"
+                >
+                  Select All
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearAll}
+                  className="h-6 px-2 text-xs flex-1"
+                >
+                  Clear All
+                </Button>
               </div>
-            ) : requesters.length === 0 ? (
-              <div className="text-center text-sm text-muted-foreground py-4">
-                No requesters found
-              </div>
-            ) : (
-              requesters.map((requester) => (
-                <div key={requester} className="flex items-center space-x-2 p-2 hover:bg-muted/50 rounded-md">
-                  <Checkbox
-                    id={requester}
-                    checked={requestedByFilter.selectedRequesters?.includes(requester) || false}
-                    onCheckedChange={(checked) => handleRequesterToggle(requester, checked as boolean)}
-                  />
-                  <Label
-                    htmlFor={requester}
-                    className="text-sm cursor-pointer flex-1 truncate"
-                    title={requester}
-                  >
-                    {requester}
-                  </Label>
-                </div>
-              ))
             )}
+            
+            {/* Requesters List */}
+            <div className="space-y-1 max-h-80 overflow-y-auto">
+              {loading ? (
+                <div className="text-center text-sm text-muted-foreground py-4">
+                  Loading requesters...
+                </div>
+              ) : filteredRequesters.length === 0 ? (
+                <div className="text-center text-sm text-muted-foreground py-4">
+                  {searchTerm ? 'No requesters match your search' : 'No requesters found'}
+                </div>
+              ) : (
+                filteredRequesters.map((requester) => (
+                  <div key={requester} className="flex items-center space-x-2 p-2 hover:bg-muted/50 rounded-md">
+                    <Checkbox
+                      id={requester}
+                      checked={requestedByFilter.selectedRequesters?.includes(requester) || false}
+                      onCheckedChange={(checked) => handleRequesterToggle(requester, checked as boolean)}
+                    />
+                    <Label
+                      htmlFor={requester}
+                      className="text-sm cursor-pointer flex-1 truncate"
+                      title={requester}
+                    >
+                      {requester}
+                    </Label>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </PopoverContent>
       </Popover>
