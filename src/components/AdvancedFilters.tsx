@@ -154,40 +154,47 @@ export function AdvancedFilters({
               onRequestedByFilterChange={onRequestedByFilterChange}
             />
 
-            {/* Systems Filter */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Database className="h-4 w-4 text-muted-foreground" />
-                <Label className="text-sm font-medium">Systems</Label>
-              </div>
-              <div className="space-y-2">
-                {systemsConfig.map(({ key, label, icon: Icon }) => (
-                  <div key={key} className="flex items-center justify-between p-2 rounded-md border bg-card/50">
-                    <div className="flex items-center gap-2">
-                      <Icon className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-sm">{label}</span>
+            {/* Systems + Country Filter */}
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Database className="h-4 w-4 text-muted-foreground" />
+                  <Label className="text-sm font-medium">Systems</Label>
+                </div>
+                <div className="space-y-2">
+                  {systemsConfig.map(({ key, label, icon: Icon }) => (
+                    <div key={key} className="flex items-center justify-between p-2 rounded-md border bg-card/50">
+                      <div className="flex items-center gap-2">
+                        <Icon className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-sm">{label}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          size="sm"
+                          variant={systemsFilter[key as keyof SystemsFilter] === true ? "default" : "outline"}
+                          className="h-6 px-2 text-xs"
+                          onClick={() => handleSystemToggle(key, systemsFilter[key as keyof SystemsFilter] === true ? null : true)}
+                        >
+                          Has
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={systemsFilter[key as keyof SystemsFilter] === false ? "default" : "outline"}
+                          className="h-6 px-2 text-xs"
+                          onClick={() => handleSystemToggle(key, systemsFilter[key as keyof SystemsFilter] === false ? null : false)}
+                        >
+                          Missing
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        size="sm"
-                        variant={systemsFilter[key as keyof SystemsFilter] === true ? "default" : "outline"}
-                        className="h-6 px-2 text-xs"
-                        onClick={() => handleSystemToggle(key, systemsFilter[key as keyof SystemsFilter] === true ? null : true)}
-                      >
-                        Has
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={systemsFilter[key as keyof SystemsFilter] === false ? "default" : "outline"}
-                        className="h-6 px-2 text-xs"
-                        onClick={() => handleSystemToggle(key, systemsFilter[key as keyof SystemsFilter] === false ? null : false)}
-                      >
-                        Missing
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
+              
+              <CountryFilterComponent
+                countryFilter={countryFilter}
+                onCountryFilterChange={onCountryFilterChange}
+              />
             </div>
 
             {/* Column 3: Relationship + Employee Count */}
@@ -229,18 +236,11 @@ export function AdvancedFilters({
               </div>
             </div>
 
-            {/* Column 4: Automation + Country */}
-            <div className="space-y-6">
-              <AutomationScoreFilter
-                automationFilter={automationFilter}
-                onAutomationFilterChange={onAutomationFilterChange}
-              />
-              
-              <CountryFilterComponent
-                countryFilter={countryFilter}
-                onCountryFilterChange={onCountryFilterChange}
-              />
-            </div>
+            {/* Column 4: Automation */}
+            <AutomationScoreFilter
+              automationFilter={automationFilter}
+              onAutomationFilterChange={onAutomationFilterChange}
+            />
           </div>
         </CollapsibleContent>
       </div>
