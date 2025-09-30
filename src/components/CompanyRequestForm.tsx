@@ -56,7 +56,6 @@ export function CompanyRequestForm() {
           <RequestForm onRequestSubmitted={handleRequestSubmitted} />
           <RequestsTable 
             requests={requests} 
-            onCompanySelected={handleCompanySelected}
           />
         </CardContent>
       </Card>

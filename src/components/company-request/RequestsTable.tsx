@@ -1,8 +1,5 @@
-import { useState } from "react"
 import { format } from "date-fns"
-import { Building2, ExternalLink } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import { supabase } from "@/integrations/supabase/client"
+import { Building2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,7 +14,6 @@ import { RequestItem } from "./types"
 
 interface RequestsTableProps {
   requests: RequestItem[]
-  onCompanySelected: (company: any) => void
 }
 
 const getStatusBadgeVariant = (status: string) => {
@@ -56,78 +52,7 @@ const extractCompanyNameFromUrl = (url: string): string => {
   }
 }
 
-export function RequestsTable({ requests, onCompanySelected }: RequestsTableProps) {
-  const [isLoadingCompany, setIsLoadingCompany] = useState(false)
-  const [loadingRequestId, setLoadingRequestId] = useState<number | null>(null)
-  const { toast } = useToast()
-
-  const handleViewCompany = async (request: RequestItem) => {
-    if (request.status !== 'completed') return
-
-    setIsLoadingCompany(true)
-    setLoadingRequestId(request.id)
-    
-    try {
-      console.log('🔍 Looking up company for URL:', request.linkedin_url)
-      
-      // First try direct URL match
-      let { data: companies, error } = await supabase
-        .from('companies2')
-        .select('*')
-        .eq('url', request.linkedin_url)
-        .limit(1)
-
-      if (error) {
-        console.error('❌ Error fetching company by URL:', error)
-        throw error
-      }
-
-      // If no exact match, try fuzzy matching
-      if (!companies || companies.length === 0) {
-        console.log('🔍 No exact URL match, trying fuzzy search...')
-        
-        const urlParts = request.linkedin_url.split('/')
-        const companySlug = urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2]
-        
-        if (companySlug) {
-          const { data: fuzzyCompanies, error: fuzzyError } = await supabase
-            .from('companies2')
-            .select('*')
-            .or(`company_name.ilike.%${companySlug}%,universal_name.ilike.%${companySlug}%`)
-            .limit(5)
-
-          if (fuzzyError) {
-            console.error('❌ Error in fuzzy search:', fuzzyError)
-          } else if (fuzzyCompanies && fuzzyCompanies.length > 0) {
-            console.log('✅ Found fuzzy matches:', fuzzyCompanies.map(c => c.company_name))
-            companies = fuzzyCompanies
-          }
-        }
-      }
-
-      if (companies && companies.length > 0) {
-        console.log('✅ Found company:', companies[0].company_name)
-        onCompanySelected(companies[0])
-      } else {
-        console.log('❌ No company found for URL:', request.linkedin_url)
-        toast({
-          title: "Company not found",
-          description: "The analysis may still be processing or the company may not be in our database yet.",
-          variant: "destructive"
-        })
-      }
-    } catch (error) {
-      console.error('❌ Error looking up company:', error)
-      toast({
-        title: "Error loading company",
-        description: "Failed to load company details. Please try again.",
-        variant: "destructive"
-      })
-    } finally {
-      setIsLoadingCompany(false)
-      setLoadingRequestId(null)
-    }
-  }
+export function RequestsTable({ requests }: RequestsTableProps) {
 
   if (!requests || requests.length === 0) {
     return (
@@ -157,7 +82,6 @@ export function RequestsTable({ requests, onCompanySelected }: RequestsTableProp
               <TableHead>Relationship</TableHead>
               <TableHead>Request Date</TableHead>
               <TableHead>Requested By</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -185,41 +109,11 @@ export function RequestsTable({ requests, onCompanySelected }: RequestsTableProp
                 <TableCell className="text-muted-foreground">
                   {request.requester || 'Unknown'}
                 </TableCell>
-                <TableCell className="text-right">
-                  {request.status === 'completed' ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleViewCompany(request)}
-                      disabled={loadingRequestId === request.id}
-                      className="h-8 px-2"
-                    >
-                      {loadingRequestId === request.id ? (
-                        "Loading..."
-                      ) : (
-                        <>
-                          <ExternalLink className="h-3 w-3 mr-1" />
-                          View
-                        </>
-                      )}
-                    </Button>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">
-                      {request.status === 'pending' ? 'Processing...' : 'Failed'}
-                    </span>
-                  )}
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
-      
-      {requests.some(r => r.status === 'completed') && (
-        <p className="text-xs text-muted-foreground">
-          💡 Click "View" on completed requests to see detailed company analysis
-        </p>
-      )}
     </div>
   )
 }
