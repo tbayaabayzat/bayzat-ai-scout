@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { Bot, Cpu, Database, FileSpreadsheet, Workflow } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Bot, Cpu, Database, FileSpreadsheet, Workflow, HelpCircle } from "lucide-react"
 import { AutomationFilter } from "@/types/company"
 
 interface AutomationScoreFilterProps {
@@ -70,11 +71,39 @@ export function AutomationScoreFilter({
   ]
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Bot className="h-4 w-4 text-muted-foreground" />
-        <Label className="text-sm font-medium">Automation Score</Label>
-      </div>
+    <TooltipProvider>
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Bot className="h-4 w-4 text-muted-foreground" />
+          <Label className="text-sm font-medium">Automation Score</Label>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent side="right" className="w-80 p-4">
+              <div className="space-y-3">
+                <div className="font-semibold text-sm">Automation Score Legend</div>
+                {automationLevels.map((level) => {
+                  const IconComponent = level.icon
+                  return (
+                    <div key={level.score} className="flex items-start gap-3">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <IconComponent className="h-4 w-4 flex-shrink-0" />
+                        <Badge variant="outline" className={`${level.color} flex-shrink-0`}>
+                          {level.score}
+                        </Badge>
+                        <div className="min-w-0">
+                          <div className="font-medium text-sm">{level.label}</div>
+                          <div className="text-xs text-muted-foreground">{level.description}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </div>
       
       {/* Overall Automation */}
       <div className="space-y-2">
@@ -135,6 +164,7 @@ export function AutomationScoreFilter({
           </SelectContent>
         </Select>
       </div>
-    </div>
+      </div>
+    </TooltipProvider>
   )
 }
