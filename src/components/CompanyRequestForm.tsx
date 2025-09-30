@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { CompanyDetailSheet } from "./company-detail/CompanyDetailSheet"
 import { RequestForm } from "./company-request/RequestForm"
-import { RecentRequests } from "./company-request/RecentRequests"
+import { RequestsTable } from "./company-request/RequestsTable"
 import { RequestItem } from "./company-request/types"
 
 export function CompanyRequestForm() {
@@ -20,15 +20,16 @@ export function CompanyRequestForm() {
         .from('linkedin_queue')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(5)
+        .limit(10)
       
       if (error) throw error
       
       // Type assertion to ensure compatibility with RequestItem interface
-      return (data || []).map(item => ({
+      return (data || []).map((item: any) => ({
         ...item,
         status: item.status as 'pending' | 'completed' | 'failed',
-        bayzat_relationship: item.bayzat_relationship as 'prospect' | 'customer' | 'partner'
+        bayzat_relationship: item.bayzat_relationship as 'prospect' | 'customer' | 'partner',
+        requester: item.requester || null
       })) as RequestItem[]
     }
   })
@@ -51,9 +52,9 @@ export function CompanyRequestForm() {
             Request Company Analysis
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <RequestForm onRequestSubmitted={handleRequestSubmitted} />
-          <RecentRequests 
+          <RequestsTable 
             requests={requests} 
             onCompanySelected={handleCompanySelected}
           />

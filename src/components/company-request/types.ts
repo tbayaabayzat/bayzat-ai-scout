@@ -5,6 +5,7 @@ export interface RequestItem {
   status: 'pending' | 'completed' | 'failed'
   bayzat_relationship: 'prospect' | 'customer' | 'partner'
   created_at: string
+  requester?: string
 }
 
 export interface RequestFormData {

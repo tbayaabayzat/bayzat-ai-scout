@@ -110,29 +110,26 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3 items-stretch">
-        <div className="lg:col-span-2">
-          <Card className="h-full flex flex-col">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <MessageCircle className="h-5 w-5 text-primary" />
-                </div>
-                AI Prospect Intelligence
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col p-0">
-              <div className="flex-1 px-6 pb-6">
-                <DashboardChatInterface />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="space-y-6">
+        <CompanyRequestForm />
         
-        <div className="space-y-6">
-          <CompanyRequestForm />
-          <ProspectInsights />
-        </div>
+        <Card className="h-full flex flex-col">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <MessageCircle className="h-5 w-5 text-primary" />
+              </div>
+              AI Prospect Intelligence
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col p-0">
+            <div className="flex-1 px-6 pb-6">
+              <DashboardChatInterface />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <ProspectInsights />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">

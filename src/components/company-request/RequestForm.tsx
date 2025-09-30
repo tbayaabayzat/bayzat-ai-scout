@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Building2, Users, Handshake } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
+import { useAuth } from "@/hooks/useAuth"
 import { RequestFormData } from "./types"
 import { validateLinkedInUrl, sanitizeLinkedInCompanyUrl } from "./utils"
 
@@ -21,6 +22,7 @@ export function RequestForm({ onRequestSubmitted }: RequestFormProps) {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
+  const { user } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,7 +59,8 @@ export function RequestForm({ onRequestSubmitted }: RequestFormProps) {
           {
             linkedin_url: sanitizedUrl,
             status: 'pending',
-            bayzat_relationship: formData.bayzatRelationship
+            bayzat_relationship: formData.bayzatRelationship,
+            requester: user?.email || null
           }
         ])
 
