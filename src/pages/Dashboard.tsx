@@ -1,15 +1,11 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Building2, Users, TrendingUp, Search, MessageCircle, Target } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Building2, Users, MessageCircle, Target } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { DashboardChatInterface } from "@/components/chat/DashboardChatInterface"
 import { CompanyRequestForm } from "@/components/CompanyRequestForm"
-import { ProspectInsights } from "@/components/ProspectInsights"
-import { Button } from "@/components/ui/button"
-import { useNavigate } from "react-router-dom"
 
 export default function Dashboard() {
-  const navigate = useNavigate()
 
   const { data: totalCompanies } = useQuery({
     queryKey: ['total-companies'],
@@ -126,61 +122,6 @@ export default function Dashboard() {
             <div className="flex-1 px-6 pb-6">
               <DashboardChatInterface />
             </div>
-          </CardContent>
-        </Card>
-        
-        <ProspectInsights />
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/companies')}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              Explore Companies
-            </CardTitle>
-            <CardDescription>
-              Search and analyze companies with AI-powered insights
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="outline" className="w-full">
-              Browse Company Database
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/employees')}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Decision Makers
-            </CardTitle>
-            <CardDescription>
-              Find and connect with key stakeholders at target companies
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="outline" className="w-full">
-              Explore Profiles
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/research')}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5" />
-              Market Research
-            </CardTitle>
-            <CardDescription>
-              Deep-dive analysis and competitive intelligence tools
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="outline" className="w-full">
-              Start Research
-            </Button>
           </CardContent>
         </Card>
       </div>
