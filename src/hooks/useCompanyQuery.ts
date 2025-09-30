@@ -142,21 +142,23 @@ export function useCompanyQuery({
         console.log('Number of records:', data?.length || 0)
         console.log('Sample company data structure:', data?.[0])
         
-        // Helper function to extract LinkedIn company identifier
+        // Helper function to extract LinkedIn company identifier (slug or numeric ID)
         const extractLinkedInCompanyId = (url: string): string | null => {
           if (!url) return null
           try {
             // Extract company identifier from LinkedIn URLs, ignoring subdomain differences
             // Handles: https://www.linkedin.com/company/abc, https://ae.linkedin.com/company/abc
+            // Also handles: https://www.linkedin.com/company/123456 (numeric IDs)
             const match = url.match(/linkedin\.com\/company\/([^\/\?#]+)/i)
-            return match ? match[1].toLowerCase() : null
+            return match ? match[1].toLowerCase().replace(/\/$/, '') : null
           } catch {
             return null
           }
         }
 
         // Get requested_by information for companies if needed
-        let requestedByData: Record<string, string[]> = {}
+        // Key by BOTH slug and numeric ID for better matching
+        let requestedByData: Record<string | number, string[]> = {}
         
         try {
           // Use type assertion to bypass type checking issue with auto-generated types
@@ -169,21 +171,33 @@ export function useCompanyQuery({
           if (!result.error && result.data) {
             const linkedinData = result.data as any[]
             
-            // Group requesters by company LinkedIn identifier
+            // Group requesters by company LinkedIn identifier (both slug and numeric ID)
             linkedinData.forEach((item: any) => {
               if (item.linkedin_url && item.requester) {
                 const linkedinUrl = item.linkedin_url as string
                 const requester = item.requester as string
                 
-                // Extract the company identifier (e.g., "aquanow" from "https://ca.linkedin.com/company/aquanow")
+                // Extract the company identifier (e.g., "aquanow" or "2300429")
                 const companyId = extractLinkedInCompanyId(linkedinUrl)
                 if (!companyId) return
                 
+                // Store by the extracted identifier (slug or numeric as string)
                 if (!requestedByData[companyId]) {
                   requestedByData[companyId] = []
                 }
                 if (!requestedByData[companyId].includes(requester)) {
                   requestedByData[companyId].push(requester)
+                }
+                
+                // If it's numeric, also store by the number itself for company_id matching
+                const numericId = parseInt(companyId, 10)
+                if (!isNaN(numericId)) {
+                  if (!requestedByData[numericId]) {
+                    requestedByData[numericId] = []
+                  }
+                  if (!requestedByData[numericId].includes(requester)) {
+                    requestedByData[numericId].push(requester)
+                  }
                 }
               }
             })
@@ -262,11 +276,16 @@ export function useCompanyQuery({
         if (requestedByFilter?.selectedRequesters && requestedByFilter.selectedRequesters.length > 0) {
           const initialCount = transformedData.length
           transformedData = transformedData.filter(company => {
-            // Extract company identifiers from both URL fields
-            const possibleIds = [
+            // Extract company identifiers from URL fields (slugs)
+            const possibleIds: Array<string | number> = [
               extractLinkedInCompanyId(company.url || ''),
               extractLinkedInCompanyId(company.website_url || '')
             ].filter(Boolean) as string[]
+            
+            // ALSO add the numeric company_id if available
+            if (company.company_id) {
+              possibleIds.push(company.company_id)
+            }
             
             // Check if any company identifier matches our requestedByData
             let companyRequesters: string[] = []
