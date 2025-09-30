@@ -68,12 +68,6 @@ export default function Dashboard() {
       description: "Bayzat clients",
       icon: Users,
     },
-    {
-      title: "Decision Makers",
-      value: employeeCount?.toLocaleString() || "Loading...",
-      description: "Key contacts profiled",
-      icon: MessageCircle,
-    },
   ]
 
   return (
@@ -87,7 +81,7 @@ export default function Dashboard() {
         </div>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3">
         {stats.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
