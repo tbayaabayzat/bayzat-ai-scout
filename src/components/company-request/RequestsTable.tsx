@@ -151,7 +151,7 @@ export function RequestsTable({ requests }: RequestsTableProps) {
               <SortableHeader field="company">Company</SortableHeader>
               <SortableHeader field="status">Status</SortableHeader>
               <SortableHeader field="relationship">Relationship</SortableHeader>
-              <SortableHeader field="created_at">Request Date</SortableHeader>
+              <SortableHeader field="created_at">Requested On</SortableHeader>
               <SortableHeader field="requester">Requested By</SortableHeader>
             </TableRow>
           </TableHeader>
@@ -175,7 +175,7 @@ export function RequestsTable({ requests }: RequestsTableProps) {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {format(new Date(request.created_at), 'MMM d, yyyy')}
+                  {format(new Date(request.created_at), 'MMM d, yyyy h:mm a')}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {request.requester || 'Unknown'}
