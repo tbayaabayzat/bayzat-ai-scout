@@ -146,26 +146,32 @@ export function useCompanyQuery({
         let requestedByData: Record<string, string[]> = {}
         
         try {
-          const { data: linkedinData, error: linkedinError } = await supabase
-            .from('linkedin_profiles_queue')
-            .select('profile_url, requested_by')
-            .not('requested_by', 'is', null)
-            .neq('requested_by', '')
+          // Use type assertion to bypass type checking issue with auto-generated types
+          const result = await supabase
+            .from('linkedin_queue' as any)
+            .select('linkedin_url, requester')
+            .not('requester', 'is', null)
+            .neq('requester', '')
 
-          if (!linkedinError && linkedinData) {
-            // Group requesters by company URL (note: we need to map profile_url to company URL somehow)
-            linkedinData.forEach(item => {
-              if (item.profile_url && item.requested_by) {
-                // For now, we'll store by profile_url and try to match later
-                // This is a simplified approach since we don't have direct company URL mapping
-                if (!requestedByData[item.profile_url]) {
-                  requestedByData[item.profile_url] = []
+          if (!result.error && result.data) {
+            // Group requesters by company LinkedIn URL
+            (result.data as any[]).forEach((item: any) => {
+              if (item.linkedin_url && item.requester) {
+                const linkedinUrl = item.linkedin_url as string
+                const requester = item.requester as string
+                
+                // Normalize LinkedIn URL for matching (remove trailing slashes, convert to lowercase)
+                const normalizedUrl = linkedinUrl.toLowerCase().replace(/\/$/, '')
+                
+                if (!requestedByData[normalizedUrl]) {
+                  requestedByData[normalizedUrl] = []
                 }
-                if (!requestedByData[item.profile_url].includes(item.requested_by)) {
-                  requestedByData[item.profile_url].push(item.requested_by)
+                if (!requestedByData[normalizedUrl].includes(requester)) {
+                  requestedByData[normalizedUrl].push(requester)
                 }
               }
             })
+            console.log('Fetched requested_by data for', Object.keys(requestedByData).length, 'LinkedIn URLs')
           }
         } catch (err) {
           console.error('Failed to fetch requested_by data:', err)
@@ -225,10 +231,19 @@ export function useCompanyQuery({
         if (requestedByFilter?.selectedRequesters && requestedByFilter.selectedRequesters.length > 0) {
           const initialCount = transformedData.length
           transformedData = transformedData.filter(company => {
-            const companyRequesters = requestedByData[company.url || ''] || []
-            return requestedByFilter.selectedRequesters!.some(requester => 
+            // Normalize company URL for matching
+            const companyUrl = (company.url || '').toLowerCase().replace(/\/$/, '')
+            const companyRequesters = requestedByData[companyUrl] || []
+            
+            const hasMatch = requestedByFilter.selectedRequesters!.some(requester => 
               companyRequesters.includes(requester)
             )
+            
+            if (hasMatch) {
+              console.log(`✅ Company "${company.company_name}" matches requester filter:`, companyRequesters)
+            }
+            
+            return hasMatch
           })
           console.log(`✅ APPLIED requested by filter - filtered from ${initialCount} to ${transformedData.length} companies`)
           console.log('Selected requesters:', requestedByFilter.selectedRequesters)
