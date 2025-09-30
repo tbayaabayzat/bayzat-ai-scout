@@ -1,5 +1,5 @@
 
-import { Building2, Users, Search, Home, MessageSquare } from "lucide-react"
+import { Building2, Users, Home, MessageSquare } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge"
 import { UserMenu } from "@/components/UserMenu"
 import { BayzatLogo } from "@/components/BayzatLogo"
 import { useNavigate, useLocation } from "react-router-dom"
-import { AIInsights } from "@/components/AIInsights"
+
 
 const menuItems = [
   {
@@ -35,12 +35,6 @@ const menuItems = [
     title: "People",
     url: "/employees",
     icon: Users,
-    comingSoon: true,
-  },
-  {
-    title: "Research",
-    url: "/research",
-    icon: Search,
     comingSoon: true,
   },
   {
@@ -96,10 +90,6 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        
-        <div className="px-2 mt-6">
-          <AIInsights />
-        </div>
       </SidebarContent>
       <SidebarFooter className="p-4 space-y-3">
         <UserMenu />
