@@ -24,22 +24,44 @@ export function RequestedByFilter({
   const [searchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
+    console.log('🎬 [RequestedByFilter] Component mounted, fetching requesters')
     fetchRequesters()
   }, [])
 
+  useEffect(() => {
+    console.log('🔄 [RequestedByFilter] requesters state changed:', {
+      count: requesters.length,
+      sample: requesters.slice(0, 5)
+    })
+  }, [requesters])
+
   const fetchRequesters = async () => {
     setLoading(true)
+    console.log('🔍 [RequestedByFilter] fetchRequesters() called')
     try {
       // Use the RPC function to fetch requesters (bypasses RLS)
       const { data, error } = await supabase
         .rpc('get_linkedin_requesters' as any) as any
       
+      console.log('📊 [RequestedByFilter] RPC response:', { 
+        hasData: !!data, 
+        dataLength: data?.length || 0,
+        hasError: !!error,
+        error 
+      })
+      
       if (error) throw error
 
+      // Log raw data sample
+      console.log('📋 [RequestedByFilter] Raw data sample (first 5):', data?.slice(0, 5))
+      console.log('📋 [RequestedByFilter] Looking for adnan:', data?.filter((item: any) => item.requester?.includes('adnan')))
+      console.log('📋 [RequestedByFilter] Looking for sean:', data?.filter((item: any) => item.requester?.toLowerCase().includes('sean')))
+
       // Get unique requesters and filter out batch import tags
-      const uniqueRequesters: string[] = [...new Set(
-        ((data || []) as any[]).map((item: any) => item.requester as string)
-      )]
+      const allRequesters = ((data || []) as any[]).map((item: any) => item.requester as string)
+      console.log('🔢 [RequestedByFilter] Total requesters before uniqueness:', allRequesters.length)
+      
+      const uniqueRequesters: string[] = [...new Set(allRequesters)]
         .filter((requester): requester is string => 
           Boolean(requester) && 
           typeof requester === 'string' &&
@@ -48,10 +70,19 @@ export function RequestedByFilter({
         )
         .sort()
 
-      console.log(`✅ Loaded ${uniqueRequesters.length} requesters from get_linkedin_requesters()`)
+      console.log('✅ [RequestedByFilter] Final unique requesters:', {
+        count: uniqueRequesters.length,
+        list: uniqueRequesters.slice(0, 10),
+        hasAdnan: uniqueRequesters.some(r => r.includes('adnan')),
+        hasSean: uniqueRequesters.some(r => r.toLowerCase().includes('sean')),
+        adnanValues: uniqueRequesters.filter(r => r.includes('adnan')),
+        seanValues: uniqueRequesters.filter(r => r.toLowerCase().includes('sean'))
+      })
+      
       setRequesters(uniqueRequesters)
+      console.log('💾 [RequestedByFilter] setRequesters() called with', uniqueRequesters.length, 'items')
     } catch (error) {
-      console.error('Failed to fetch requesters:', error)
+      console.error('❌ [RequestedByFilter] Failed to fetch requesters:', error)
     } finally {
       setLoading(false)
     }
@@ -83,6 +114,13 @@ export function RequestedByFilter({
   const filteredRequesters = requesters.filter(requester =>
     requester.toLowerCase().includes(searchTerm.toLowerCase())
   )
+  
+  console.log('🔎 [RequestedByFilter] Filtering:', {
+    totalRequesters: requesters.length,
+    searchTerm,
+    filteredCount: filteredRequesters.length,
+    filteredSample: filteredRequesters.slice(0, 5)
+  })
 
   const selectedCount = requestedByFilter.selectedRequesters?.length || 0
 
