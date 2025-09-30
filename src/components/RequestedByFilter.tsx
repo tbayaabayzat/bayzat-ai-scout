@@ -37,13 +37,13 @@ export function RequestedByFilter({
 
   const fetchRequesters = async () => {
     setLoading(true)
-    console.log('🔍 [RequestedByFilter] fetchRequesters() called')
+    console.log('🔍 [RequestedByFilter] fetchRequesters() START')
     try {
       // Use the RPC function to fetch requesters (bypasses RLS)
       const { data, error } = await supabase
         .rpc('get_linkedin_requesters' as any) as any
       
-      console.log('📊 [RequestedByFilter] RPC response:', { 
+      console.log('📊 [RequestedByFilter] RPC COMPLETE:', { 
         hasData: !!data, 
         dataLength: data?.length || 0,
         hasError: !!error,
@@ -52,39 +52,45 @@ export function RequestedByFilter({
       
       if (error) throw error
 
-      // Log raw data sample
-      console.log('📋 [RequestedByFilter] Raw data sample (first 5):', data?.slice(0, 5))
-      console.log('📋 [RequestedByFilter] Looking for adnan:', data?.filter((item: any) => item.requester?.includes('adnan')))
-      console.log('📋 [RequestedByFilter] Looking for sean:', data?.filter((item: any) => item.requester?.toLowerCase().includes('sean')))
-
-      // Get unique requesters and filter out batch import tags
+      // Extract all requesters from raw data
       const allRequesters = ((data || []) as any[]).map((item: any) => item.requester as string)
-      console.log('🔢 [RequestedByFilter] Total requesters before uniqueness:', allRequesters.length)
+      console.log('📋 [RequestedByFilter] ALL RAW REQUESTERS (total: ' + allRequesters.length + '):', allRequesters)
       
+      // Check for specific requesters in raw data
+      const adnanInRaw = allRequesters.filter(r => r?.toLowerCase().includes('adnan'))
+      const seanInRaw = allRequesters.filter(r => r?.toLowerCase().includes('sean'))
+      console.log('🔍 ADNAN in raw data:', adnanInRaw)
+      console.log('🔍 SEAN in raw data:', seanInRaw)
+      
+      // Get unique requesters - NO FILTERING (temporarily disabled)
+      const beforeUnique = allRequesters.length
       const uniqueRequesters: string[] = [...new Set(allRequesters)]
         .filter((requester): requester is string => 
           Boolean(requester) && 
-          typeof requester === 'string' &&
-          !requester.includes('batch_import') && 
-          !requester.includes('_batch_')
+          typeof requester === 'string'
+          // TEMPORARILY DISABLED: All filtering removed to see raw data
+          // !requester.includes('batch_import') && 
+          // !requester.includes('_batch_')
         )
         .sort()
 
-      console.log('✅ [RequestedByFilter] Final unique requesters:', {
-        count: uniqueRequesters.length,
-        list: uniqueRequesters.slice(0, 10),
-        hasAdnan: uniqueRequesters.some(r => r.includes('adnan')),
+      console.log('✅ [RequestedByFilter] UNIQUE REQUESTERS (no filtering):', {
+        beforeUnique,
+        afterUnique: uniqueRequesters.length,
+        ALL_REQUESTERS: uniqueRequesters,
+        hasAdnan: uniqueRequesters.some(r => r.toLowerCase().includes('adnan')),
         hasSean: uniqueRequesters.some(r => r.toLowerCase().includes('sean')),
-        adnanValues: uniqueRequesters.filter(r => r.includes('adnan')),
+        adnanValues: uniqueRequesters.filter(r => r.toLowerCase().includes('adnan')),
         seanValues: uniqueRequesters.filter(r => r.toLowerCase().includes('sean'))
       })
       
       setRequesters(uniqueRequesters)
-      console.log('💾 [RequestedByFilter] setRequesters() called with', uniqueRequesters.length, 'items')
+      console.log('💾 [RequestedByFilter] STATE UPDATED with', uniqueRequesters.length, 'requesters')
     } catch (error) {
-      console.error('❌ [RequestedByFilter] Failed to fetch requesters:', error)
+      console.error('❌ [RequestedByFilter] ERROR:', error)
     } finally {
       setLoading(false)
+      console.log('🏁 [RequestedByFilter] fetchRequesters() COMPLETE')
     }
   }
 
