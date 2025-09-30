@@ -154,8 +154,10 @@ export function useCompanyQuery({
             .neq('requester', '')
 
           if (!result.error && result.data) {
+            const linkedinData = result.data as any[]
+            
             // Group requesters by company LinkedIn URL
-            (result.data as any[]).forEach((item: any) => {
+            linkedinData.forEach((item: any) => {
               if (item.linkedin_url && item.requester) {
                 const linkedinUrl = item.linkedin_url as string
                 const requester = item.requester as string
@@ -171,7 +173,17 @@ export function useCompanyQuery({
                 }
               }
             })
-            console.log('Fetched requested_by data for', Object.keys(requestedByData).length, 'LinkedIn URLs')
+            
+            // Debug: Show specific requester data
+            const selectedRequester = requestedByFilter?.selectedRequesters?.[0]
+            if (selectedRequester) {
+              const urlsForRequester = Object.entries(requestedByData)
+                .filter(([url, requesters]) => requesters.includes(selectedRequester))
+                .map(([url]) => url)
+              console.log(`Found ${urlsForRequester.length} URLs for requester "${selectedRequester}"`)
+              console.log('Sample URLs:', urlsForRequester.slice(0, 3))
+            }
+            console.log(`Fetched requested_by data for ${Object.keys(requestedByData).length} LinkedIn URLs`)
           }
         } catch (err) {
           console.error('Failed to fetch requested_by data:', err)
@@ -227,13 +239,25 @@ export function useCompanyQuery({
         console.log('=== REQUESTED BY FILTER DEBUG ===')
         console.log('requestedByFilter object:', requestedByFilter)
         console.log('requestedByFilter?.selectedRequesters:', requestedByFilter?.selectedRequesters)
+        console.log('Available requestedByData keys sample:', Object.keys(requestedByData).slice(0, 5))
         
         if (requestedByFilter?.selectedRequesters && requestedByFilter.selectedRequesters.length > 0) {
           const initialCount = transformedData.length
           transformedData = transformedData.filter(company => {
-            // Normalize company URL for matching
-            const companyUrl = (company.url || '').toLowerCase().replace(/\/$/, '')
-            const companyRequesters = requestedByData[companyUrl] || []
+            // Try multiple URL fields for matching - url, website_url, and try to construct LinkedIn URL
+            const possibleUrls = [
+              company.url,
+              company.website_url
+            ].filter(Boolean).map(url => url!.toLowerCase().replace(/\/$/, ''))
+            
+            // Check if any of the possible URLs match our requestedByData
+            let companyRequesters: string[] = []
+            for (const url of possibleUrls) {
+              if (requestedByData[url]) {
+                companyRequesters = requestedByData[url]
+                break
+              }
+            }
             
             const hasMatch = requestedByFilter.selectedRequesters!.some(requester => 
               companyRequesters.includes(requester)
@@ -241,6 +265,9 @@ export function useCompanyQuery({
             
             if (hasMatch) {
               console.log(`✅ Company "${company.company_name}" matches requester filter:`, companyRequesters)
+            } else {
+              // Debug log for companies that don't match
+              console.log(`❌ Company "${company.company_name}" - URLs checked:`, possibleUrls, 'No match found in requestedByData')
             }
             
             return hasMatch
