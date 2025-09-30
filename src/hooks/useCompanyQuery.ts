@@ -192,18 +192,29 @@ export function useCompanyQuery({
           console.log(`Applied Payroll filter: ${systemsFilter.payroll}`)
         }
 
-        // Apply automation score filter on the transformed data
-        if (automationFilter.selectedScores && automationFilter.selectedScores.length > 0) {
-          const automationField = automationFilter.department === 'hr' ? 'automation_hr' :
-                                  automationFilter.department === 'finance' ? 'automation_finance' :
-                                  'automation_overall'
-          
+        // Apply automation score filters on the transformed data
+        if (automationFilter.overall !== undefined) {
           transformedData = transformedData.filter(company => {
-            const score = company[automationField as keyof Company] as number || 0
-            return automationFilter.selectedScores!.includes(score)
+            const score = company.automation_overall || 0
+            return score === automationFilter.overall
           })
-          
-          console.log(`Applied automation filter: ${automationField} scores=${automationFilter.selectedScores.join(',')}`)
+          console.log(`Applied overall automation filter: ${automationFilter.overall}`)
+        }
+        
+        if (automationFilter.hr !== undefined) {
+          transformedData = transformedData.filter(company => {
+            const score = company.automation_hr || 0
+            return score === automationFilter.hr
+          })
+          console.log(`Applied HR automation filter: ${automationFilter.hr}`)
+        }
+        
+        if (automationFilter.finance !== undefined) {
+          transformedData = transformedData.filter(company => {
+            const score = company.automation_finance || 0
+            return score === automationFilter.finance
+          })
+          console.log(`Applied finance automation filter: ${automationFilter.finance}`)
         }
 
         // Apply requested by filter after data transformation

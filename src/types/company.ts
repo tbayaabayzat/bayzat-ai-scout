@@ -38,8 +38,9 @@ export type EmployeeCountFilter = {
 }
 
 export type AutomationFilter = {
-  selectedScores?: number[]
-  department?: 'overall' | 'hr' | 'finance'
+  overall?: number
+  hr?: number
+  finance?: number
 }
 
 export type CountryFilter = {

@@ -53,88 +53,87 @@ export function AutomationScoreFilter({
   automationFilter,
   onAutomationFilterChange
 }: AutomationScoreFilterProps) {
-  const handleScoreToggle = (score: number) => {
-    const currentScores = automationFilter.selectedScores || []
-    const isSelected = currentScores.includes(score)
-    
-    const newScores = isSelected
-      ? currentScores.filter(s => s !== score)
-      : [...currentScores, score]
-    
+  const handleDepartmentChange = (department: 'overall' | 'hr' | 'finance', value: string) => {
+    const scoreValue = value === 'any' ? undefined : parseInt(value)
     onAutomationFilterChange({
       ...automationFilter,
-      selectedScores: newScores.length > 0 ? newScores : undefined
+      [department]: scoreValue
     })
   }
 
-  const handleDepartmentChange = (department: string) => {
-    onAutomationFilterChange({
-      ...automationFilter,
-      department: department as 'overall' | 'hr' | 'finance'
-    })
-  }
-
-  const selectedScores = automationFilter.selectedScores || []
+  const getScoreOptions = () => [
+    { value: 'any', label: 'Any' },
+    ...automationLevels.map(level => ({
+      value: level.score.toString(),
+      label: `${level.score} - ${level.label}`
+    }))
+  ]
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Bot className="h-4 w-4 text-muted-foreground" />
         <Label className="text-sm font-medium">Automation Score</Label>
-        {selectedScores.length > 0 && (
-          <Badge variant="secondary" className="text-xs">
-            {selectedScores.length} selected
-          </Badge>
-        )}
       </div>
       
-      <div>
-        <Label className="text-xs text-muted-foreground mb-2 block">Department</Label>
+      {/* Overall Automation */}
+      <div className="space-y-2">
+        <Label className="text-xs text-muted-foreground">Overall Automation</Label>
         <Select
-          value={automationFilter.department || 'overall'}
-          onValueChange={handleDepartmentChange}
+          value={automationFilter.overall?.toString() || 'any'}
+          onValueChange={(value) => handleDepartmentChange('overall', value)}
         >
           <SelectTrigger className="h-8">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="overall">Overall</SelectItem>
-            <SelectItem value="hr">HR</SelectItem>
-            <SelectItem value="finance">Finance</SelectItem>
+            {getScoreOptions().map(option => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
 
-      <div>
-        <Label className="text-xs text-muted-foreground mb-2 block">
-          Automation Levels (select multiple)
-        </Label>
-        <div className="space-y-2">
-          {automationLevels.map(({ score, label, description, icon: Icon, color }) => (
-            <Button
-              key={score}
-              variant={selectedScores.includes(score) ? "default" : "outline"}
-              size="sm"
-              className={`w-full justify-start p-3 h-auto ${
-                selectedScores.includes(score) ? '' : 'hover:bg-muted/50'
-              }`}
-              onClick={() => handleScoreToggle(score)}
-            >
-              <div className="flex items-start gap-3 w-full">
-                <div className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${color}`}>
-                  {score}
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="font-medium text-sm">{label}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5 leading-tight">
-                    {description}
-                  </div>
-                </div>
-                <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              </div>
-            </Button>
-          ))}
-        </div>
+      {/* HR Automation */}
+      <div className="space-y-2">
+        <Label className="text-xs text-muted-foreground">HR Automation</Label>
+        <Select
+          value={automationFilter.hr?.toString() || 'any'}
+          onValueChange={(value) => handleDepartmentChange('hr', value)}
+        >
+          <SelectTrigger className="h-8">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {getScoreOptions().map(option => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Finance Automation */}
+      <div className="space-y-2">
+        <Label className="text-xs text-muted-foreground">Finance Automation</Label>
+        <Select
+          value={automationFilter.finance?.toString() || 'any'}
+          onValueChange={(value) => handleDepartmentChange('finance', value)}
+        >
+          <SelectTrigger className="h-8">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {getScoreOptions().map(option => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   )

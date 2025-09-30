@@ -62,7 +62,10 @@ export function AdvancedFilters({
     if (employeeCountFilter.min !== undefined || employeeCountFilter.max !== undefined) count++
     
     // Count automation filters
-    if (automationFilter.selectedScores && automationFilter.selectedScores.length > 0) count++
+    const automationActiveCount = (automationFilter.overall !== undefined ? 1 : 0) + 
+                                 (automationFilter.hr !== undefined ? 1 : 0) + 
+                                 (automationFilter.finance !== undefined ? 1 : 0)
+    if (automationActiveCount > 0) count++
     
     // Count country filters
     if (countryFilter.selectedCountries && countryFilter.selectedCountries.length > 0) count++
