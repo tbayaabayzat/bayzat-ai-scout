@@ -1,6 +1,6 @@
 
 import { useState } from "react"
-import { SystemsFilter, EmployeeCountFilter, AutomationFilter, CountryFilter, RelationshipFilter } from "@/types/company"
+import { SystemsFilter, EmployeeCountFilter, AutomationFilter, CountryFilter, RelationshipFilter, RequestedByFilter } from "@/types/company"
 
 export function useCompanyFilters() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -9,6 +9,7 @@ export function useCompanyFilters() {
   const [automationFilter, setAutomationFilter] = useState<AutomationFilter>({})
   const [countryFilter, setCountryFilter] = useState<CountryFilter>({ selectedCountries: undefined })
   const [relationshipFilter, setRelationshipFilter] = useState<RelationshipFilter>({})
+  const [requestedByFilter, setRequestedByFilter] = useState<RequestedByFilter>({})
 
   // AQUANOW DEBUG: Log initial relationship filter state
   console.log('🔍 useCompanyFilters initialized - relationshipFilter:', relationshipFilter)
@@ -27,6 +28,8 @@ export function useCompanyFilters() {
     countryFilter,
     setCountryFilter,
     relationshipFilter,
-    setRelationshipFilter
+    setRelationshipFilter,
+    requestedByFilter,
+    setRequestedByFilter
   }
 }

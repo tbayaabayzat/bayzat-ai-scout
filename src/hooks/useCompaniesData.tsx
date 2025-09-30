@@ -12,7 +12,8 @@ export function useCompaniesData() {
     employeeCountFilter: filters.employeeCountFilter,
     automationFilter: filters.automationFilter,
     countryFilter: filters.countryFilter,
-    relationshipFilter: filters.relationshipFilter
+    relationshipFilter: filters.relationshipFilter,
+    requestedByFilter: filters.requestedByFilter
   })
 
   // COMPREHENSIVE DEBUG LOGGING FOR AQUANOW INVESTIGATION
@@ -115,4 +116,4 @@ export function useCompaniesData() {
 }
 
 // Re-export types for backward compatibility
-export type { Company, SystemsFilter, EmployeeCountFilter, AutomationFilter, RelationshipFilter } from "@/types/company"
+export type { Company, SystemsFilter, EmployeeCountFilter, AutomationFilter, RelationshipFilter, RequestedByFilter } from "@/types/company"

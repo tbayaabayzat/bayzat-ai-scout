@@ -23,7 +23,9 @@ export default function Companies() {
     countryFilter,
     setCountryFilter,
     relationshipFilter,
-    setRelationshipFilter
+    setRelationshipFilter,
+    requestedByFilter,
+    setRequestedByFilter
   } = useCompaniesData()
 
   // Memoize filtered companies to maintain stable references
@@ -77,6 +79,8 @@ export default function Companies() {
         onCountryFilterChange={setCountryFilter}
         relationshipFilter={relationshipFilter}
         onRelationshipFilterChange={setRelationshipFilter}
+        requestedByFilter={requestedByFilter}
+        onRequestedByFilterChange={setRequestedByFilter}
       />
 
       <CompaniesTable

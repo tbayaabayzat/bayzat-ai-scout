@@ -14,6 +14,7 @@ export type Company = {
   ai_analysis?: any
   description?: string
   founded_year?: number
+  requested_by?: string
   // Fields from ai_analysis extraction
   has_erp?: boolean
   has_hris?: boolean
@@ -49,4 +50,8 @@ export type RelationshipValue = 'customer' | 'partner' | 'prospect'
 
 export type RelationshipFilter = {
   selectedRelationships?: RelationshipValue[]
+}
+
+export type RequestedByFilter = {
+  selectedRequesters?: string[]
 }

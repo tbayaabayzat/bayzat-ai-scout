@@ -1,7 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
-import { Company, SystemsFilter, EmployeeCountFilter, AutomationFilter, CountryFilter, RelationshipFilter } from "@/types/company"
+import { Company, SystemsFilter, EmployeeCountFilter, AutomationFilter, CountryFilter, RelationshipFilter, RequestedByFilter } from "@/types/company"
 import { transformCompanyData } from "@/utils/companyDataUtils"
 
 interface UseCompanyQueryParams {
@@ -11,6 +11,7 @@ interface UseCompanyQueryParams {
   automationFilter: AutomationFilter
   countryFilter: CountryFilter
   relationshipFilter: RelationshipFilter
+  requestedByFilter: RequestedByFilter
 }
 
 export function useCompanyQuery({
@@ -19,7 +20,8 @@ export function useCompanyQuery({
   employeeCountFilter,
   automationFilter,
   countryFilter,
-  relationshipFilter
+  relationshipFilter,
+  requestedByFilter
 }: UseCompanyQueryParams) {
   return useQuery({
     queryKey: [
@@ -30,6 +32,7 @@ export function useCompanyQuery({
       automationFilter, 
       countryFilter?.selectedCountries, // Use specific property for better cache key
       relationshipFilter,
+      requestedByFilter,
       'v2' // Force cache bust
     ],
     queryFn: async () => {
@@ -45,8 +48,7 @@ export function useCompanyQuery({
       console.log('🎯 Aquanow is a CUSTOMER - it should appear unless relationship filter excludes customers')
       
       try {
-        // Query directly from companies2 table - include logo_url and company_id
-        // Fix: Add explicit limit and ordering to ensure all companies (including Aquanow) are fetched
+        // Query companies - we'll handle requested_by filtering after data transformation
         let query = supabase
           .from('companies2')
           .select(`
@@ -122,7 +124,7 @@ export function useCompanyQuery({
           console.log('⚠️  This will EXCLUDE companies with other relationships!')
           console.log('⚠️  For example, if filtering for "prospect", customers like Aquanow will be HIDDEN')
         } else {
-          console.log('✅ NO relationship filter applied - showing ALL relationships')
+        console.log('✅ NO relationship filter applied - showing ALL relationships')
           console.log('✅ This means ALL customers, partners, and prospects should be visible')
           console.log('✅ Aquanow (customer) should be included in results')
         }
@@ -140,8 +142,37 @@ export function useCompanyQuery({
         console.log('Number of records:', data?.length || 0)
         console.log('Sample company data structure:', data?.[0])
         
+        // Get requested_by information for companies if needed
+        let requestedByData: Record<string, string[]> = {}
+        
+        try {
+          const { data: linkedinData, error: linkedinError } = await supabase
+            .from('linkedin_profiles_queue')
+            .select('profile_url, requested_by')
+            .not('requested_by', 'is', null)
+            .neq('requested_by', '')
+
+          if (!linkedinError && linkedinData) {
+            // Group requesters by company URL (note: we need to map profile_url to company URL somehow)
+            linkedinData.forEach(item => {
+              if (item.profile_url && item.requested_by) {
+                // For now, we'll store by profile_url and try to match later
+                // This is a simplified approach since we don't have direct company URL mapping
+                if (!requestedByData[item.profile_url]) {
+                  requestedByData[item.profile_url] = []
+                }
+                if (!requestedByData[item.profile_url].includes(item.requested_by)) {
+                  requestedByData[item.profile_url].push(item.requested_by)
+                }
+              }
+            })
+          }
+        } catch (err) {
+          console.error('Failed to fetch requested_by data:', err)
+        }
+
         // Transform the data and extract systems/automation info from ai_analysis
-        let transformedData: Company[] = transformCompanyData(data)
+        let transformedData: Company[] = transformCompanyData(data, requestedByData)
 
         // Apply systems filters on the transformed data
         if (systemsFilter.erp !== null && systemsFilter.erp !== undefined) {
@@ -173,6 +204,25 @@ export function useCompanyQuery({
           })
           
           console.log(`Applied automation filter: ${automationField} scores=${automationFilter.selectedScores.join(',')}`)
+        }
+
+        // Apply requested by filter after data transformation
+        console.log('=== REQUESTED BY FILTER DEBUG ===')
+        console.log('requestedByFilter object:', requestedByFilter)
+        console.log('requestedByFilter?.selectedRequesters:', requestedByFilter?.selectedRequesters)
+        
+        if (requestedByFilter?.selectedRequesters && requestedByFilter.selectedRequesters.length > 0) {
+          const initialCount = transformedData.length
+          transformedData = transformedData.filter(company => {
+            const companyRequesters = requestedByData[company.url || ''] || []
+            return requestedByFilter.selectedRequesters!.some(requester => 
+              companyRequesters.includes(requester)
+            )
+          })
+          console.log(`✅ APPLIED requested by filter - filtered from ${initialCount} to ${transformedData.length} companies`)
+          console.log('Selected requesters:', requestedByFilter.selectedRequesters)
+        } else {
+          console.log('✅ NO requested by filter applied - showing all companies')
         }
         
         console.log('🎯 FINAL RESULTS DEBUG - AQUANOW SPECIFIC:')

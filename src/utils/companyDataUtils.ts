@@ -12,11 +12,15 @@ export const extractAutomationScore = (aiAnalysis: any, department: string): num
   return aiAnalysis.automation_level[department] || 0
 }
 
-export const transformCompanyData = (data: any[]): Company[] => {
+export const transformCompanyData = (data: any[], requestedByData?: Record<string, string[]>): Company[] => {
   return (data || []).map(item => {
     console.log('Transforming company:', item.company_name, 'with fields:', Object.keys(item))
     console.log('Company ID field:', item.company_id)
     console.log('Logo URL field:', item.logo_url)
+    
+    // Get the first requester for this company (if any)
+    const companyRequesters = requestedByData?.[item.url] || []
+    const firstRequester = companyRequesters.length > 0 ? companyRequesters[0] : undefined
     
     const company: Company = {
       id: item.id,
@@ -33,6 +37,7 @@ export const transformCompanyData = (data: any[]): Company[] => {
       ai_analysis: item.ai_analysis,
       description: item.description,
       founded_year: item.founded_year,
+      requested_by: firstRequester,
       // Extract systems data from ai_analysis
       has_erp: extractSystemBoolean(item.ai_analysis, 'ERP'),
       has_hris: extractSystemBoolean(item.ai_analysis, 'HRIS'),
