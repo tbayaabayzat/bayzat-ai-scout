@@ -80,8 +80,8 @@ export function AutomationScoreFilter({
             <TooltipTrigger asChild>
               <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
             </TooltipTrigger>
-            <TooltipContent side="right" className="w-80 p-4">
-              <div className="space-y-3">
+            <TooltipContent side="top" className="max-w-xs p-3 z-50">
+              <div className="space-y-2">
                 <div className="font-semibold text-sm">Automation Score Legend</div>
                 {automationLevels.map((level) => {
                   const IconComponent = level.icon
