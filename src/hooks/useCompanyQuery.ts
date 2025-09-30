@@ -142,6 +142,19 @@ export function useCompanyQuery({
         console.log('Number of records:', data?.length || 0)
         console.log('Sample company data structure:', data?.[0])
         
+        // Helper function to extract LinkedIn company identifier
+        const extractLinkedInCompanyId = (url: string): string | null => {
+          if (!url) return null
+          try {
+            // Extract company identifier from LinkedIn URLs, ignoring subdomain differences
+            // Handles: https://www.linkedin.com/company/abc, https://ae.linkedin.com/company/abc
+            const match = url.match(/linkedin\.com\/company\/([^\/\?#]+)/i)
+            return match ? match[1].toLowerCase() : null
+          } catch {
+            return null
+          }
+        }
+
         // Get requested_by information for companies if needed
         let requestedByData: Record<string, string[]> = {}
         
@@ -156,34 +169,39 @@ export function useCompanyQuery({
           if (!result.error && result.data) {
             const linkedinData = result.data as any[]
             
-            // Group requesters by company LinkedIn URL
+            // Group requesters by company LinkedIn identifier
             linkedinData.forEach((item: any) => {
               if (item.linkedin_url && item.requester) {
                 const linkedinUrl = item.linkedin_url as string
                 const requester = item.requester as string
                 
-                // Normalize LinkedIn URL for matching (remove trailing slashes, convert to lowercase)
-                const normalizedUrl = linkedinUrl.toLowerCase().replace(/\/$/, '')
+                // Extract the company identifier (e.g., "aquanow" from "https://ca.linkedin.com/company/aquanow")
+                const companyId = extractLinkedInCompanyId(linkedinUrl)
+                if (!companyId) return
                 
-                if (!requestedByData[normalizedUrl]) {
-                  requestedByData[normalizedUrl] = []
+                if (!requestedByData[companyId]) {
+                  requestedByData[companyId] = []
                 }
-                if (!requestedByData[normalizedUrl].includes(requester)) {
-                  requestedByData[normalizedUrl].push(requester)
+                if (!requestedByData[companyId].includes(requester)) {
+                  requestedByData[companyId].push(requester)
                 }
               }
             })
             
             // Debug: Show specific requester data
+            const uniqueRequesters = [...new Set(Object.values(requestedByData).flat())]
+            console.log(`✅ Built requestedByData index with ${Object.keys(requestedByData).length} company IDs and ${uniqueRequesters.length} unique requesters`)
+            console.log('Sample company IDs:', Object.keys(requestedByData).slice(0, 5))
+            console.log('Sample requesters:', uniqueRequesters.slice(0, 5))
+            
             const selectedRequester = requestedByFilter?.selectedRequesters?.[0]
             if (selectedRequester) {
-              const urlsForRequester = Object.entries(requestedByData)
-                .filter(([url, requesters]) => requesters.includes(selectedRequester))
-                .map(([url]) => url)
-              console.log(`Found ${urlsForRequester.length} URLs for requester "${selectedRequester}"`)
-              console.log('Sample URLs:', urlsForRequester.slice(0, 3))
+              const companyIdsForRequester = Object.entries(requestedByData)
+                .filter(([id, requesters]) => requesters.includes(selectedRequester))
+                .map(([id]) => id)
+              console.log(`Found ${companyIdsForRequester.length} company IDs for requester "${selectedRequester}"`)
+              console.log('Sample company IDs:', companyIdsForRequester.slice(0, 3))
             }
-            console.log(`Fetched requested_by data for ${Object.keys(requestedByData).length} LinkedIn URLs`)
           }
         } catch (err) {
           console.error('Failed to fetch requested_by data:', err)
@@ -244,17 +262,17 @@ export function useCompanyQuery({
         if (requestedByFilter?.selectedRequesters && requestedByFilter.selectedRequesters.length > 0) {
           const initialCount = transformedData.length
           transformedData = transformedData.filter(company => {
-            // Try multiple URL fields for matching - url, website_url, and try to construct LinkedIn URL
-            const possibleUrls = [
-              company.url,
-              company.website_url
-            ].filter(Boolean).map(url => url!.toLowerCase().replace(/\/$/, ''))
+            // Extract company identifiers from both URL fields
+            const possibleIds = [
+              extractLinkedInCompanyId(company.url || ''),
+              extractLinkedInCompanyId(company.website_url || '')
+            ].filter(Boolean) as string[]
             
-            // Check if any of the possible URLs match our requestedByData
+            // Check if any company identifier matches our requestedByData
             let companyRequesters: string[] = []
-            for (const url of possibleUrls) {
-              if (requestedByData[url]) {
-                companyRequesters = requestedByData[url]
+            for (const companyId of possibleIds) {
+              if (requestedByData[companyId]) {
+                companyRequesters = requestedByData[companyId]
                 break
               }
             }
@@ -264,10 +282,7 @@ export function useCompanyQuery({
             )
             
             if (hasMatch) {
-              console.log(`✅ Company "${company.company_name}" matches requester filter:`, companyRequesters)
-            } else {
-              // Debug log for companies that don't match
-              console.log(`❌ Company "${company.company_name}" - URLs checked:`, possibleUrls, 'No match found in requestedByData')
+              console.log(`✅ Company "${company.company_name}" (IDs: ${possibleIds.join(', ')}) matches requester filter:`, companyRequesters)
             }
             
             return hasMatch
