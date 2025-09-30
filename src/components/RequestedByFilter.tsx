@@ -30,21 +30,24 @@ export function RequestedByFilter({
   const fetchRequesters = async () => {
     setLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('linkedin_profiles_queue')
-        .select('requested_by')
-        .not('requested_by', 'is', null)
-        .neq('requested_by', '')
-
-      if (error) throw error
+      // Use type assertion to bypass type checking issue with auto-generated types
+      const result = await supabase
+        .from('linkedin_queue' as any)
+        .select('requester')
+        .not('requester', 'is', null)
+        .neq('requester', '')
+      
+      if (result.error) throw result.error
 
       // Get unique requesters and filter out batch import tags
-      const uniqueRequesters = [...new Set(data.map(item => item.requested_by))]
-        .filter(requester => 
-          requester && 
+      const uniqueRequesters: string[] = [...new Set(
+        ((result.data as any[]) || []).map((item: any) => item.requester as string)
+      )]
+        .filter((requester): requester is string => 
+          Boolean(requester) && 
+          typeof requester === 'string' &&
           !requester.includes('batch_import') && 
-          !requester.includes('_batch_') &&
-          requester.includes('@') // Only show email addresses
+          !requester.includes('_batch_')
         )
         .sort()
 
