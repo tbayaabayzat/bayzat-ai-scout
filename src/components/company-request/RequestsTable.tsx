@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { format } from "date-fns"
-import { Building2, ChevronUp, ChevronDown } from "lucide-react"
+import { Building2, ChevronUp, ChevronDown, Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,9 +12,12 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { RequestItem } from "./types"
+import { supabase } from "@/integrations/supabase/client"
+import { toast } from "sonner"
 
 interface RequestsTableProps {
   requests: RequestItem[]
+  onCompanySelected?: (company: any) => void
 }
 
 const getStatusBadgeVariant = (status: string) => {
@@ -56,9 +59,10 @@ const extractCompanyNameFromUrl = (url: string): string => {
 type SortField = 'company' | 'status' | 'relationship' | 'created_at' | 'requester'
 type SortDirection = 'asc' | 'desc'
 
-export function RequestsTable({ requests }: RequestsTableProps) {
+export function RequestsTable({ requests, onCompanySelected }: RequestsTableProps) {
   const [sortField, setSortField] = useState<SortField>('created_at')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+  const [loadingCompanyId, setLoadingCompanyId] = useState<number | null>(null)
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -66,6 +70,58 @@ export function RequestsTable({ requests }: RequestsTableProps) {
     } else {
       setSortField(field)
       setSortDirection('asc')
+    }
+  }
+
+  const handleRequestClick = async (request: RequestItem) => {
+    if (request.status !== 'completed' || !onCompanySelected) return
+    
+    setLoadingCompanyId(request.id)
+    try {
+      // First try to find company by exact URL match
+      let { data: company, error } = await supabase
+        .from('companies2')
+        .select('*')
+        .eq('url', request.linkedin_url)
+        .maybeSingle()
+
+      if (error) throw error
+
+      // If no exact match, try fuzzy search by company name
+      if (!company) {
+        const companyName = extractCompanyNameFromUrl(request.linkedin_url)
+        const { data: fuzzyMatches, error: fuzzyError } = await supabase
+          .from('companies2')
+          .select('*')
+          .ilike('company_name', `%${companyName}%`)
+          .limit(1)
+          .maybeSingle()
+
+        if (fuzzyError) throw fuzzyError
+        company = fuzzyMatches
+      }
+
+      if (company) {
+        onCompanySelected(company)
+      } else {
+        toast.error('Company not found', {
+          description: 'The company data may still be processing.'
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching company:', error)
+      toast.error('Failed to load company', {
+        description: 'Please try again later.'
+      })
+    } finally {
+      setLoadingCompanyId(null)
+    }
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent, request: RequestItem) => {
+    if (request.status === 'completed' && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault()
+      handleRequestClick(request)
     }
   }
 
@@ -156,14 +212,29 @@ export function RequestsTable({ requests }: RequestsTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedRequests.map((request) => (
-              <TableRow key={request.id}>
-                <TableCell className="font-medium">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-muted-foreground" />
-                    <span>{extractCompanyNameFromUrl(request.linkedin_url)}</span>
-                  </div>
-                </TableCell>
+            {sortedRequests.map((request) => {
+              const isClickable = request.status === 'completed' && onCompanySelected
+              const isLoading = loadingCompanyId === request.id
+              
+              return (
+                <TableRow 
+                  key={request.id}
+                  className={isClickable ? 'cursor-pointer hover:bg-muted/50 transition-colors' : ''}
+                  onClick={() => isClickable && !isLoading && handleRequestClick(request)}
+                  onKeyDown={(e) => handleKeyDown(e, request)}
+                  tabIndex={isClickable ? 0 : undefined}
+                  role={isClickable ? 'button' : undefined}
+                >
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      {isLoading ? (
+                        <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
+                      ) : (
+                        <Building2 className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span>{extractCompanyNameFromUrl(request.linkedin_url)}</span>
+                    </div>
+                  </TableCell>
                 <TableCell>
                   <Badge variant={getStatusBadgeVariant(request.status)}>
                     {request.status}
@@ -177,11 +248,12 @@ export function RequestsTable({ requests }: RequestsTableProps) {
                 <TableCell className="text-muted-foreground">
                   {format(new Date(request.created_at), 'MMM d, yyyy h:mm a')}
                 </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {request.requester || 'Unknown'}
-                </TableCell>
-              </TableRow>
-            ))}
+                  <TableCell className="text-muted-foreground">
+                    {request.requester || 'Unknown'}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </div>

@@ -55,7 +55,8 @@ export function CompanyRequestForm() {
         <CardContent className="space-y-6">
           <RequestForm onRequestSubmitted={handleRequestSubmitted} />
           <RequestsTable 
-            requests={requests} 
+            requests={requests}
+            onCompanySelected={handleCompanySelected}
           />
         </CardContent>
       </Card>
