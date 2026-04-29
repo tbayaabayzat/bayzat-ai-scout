@@ -1,27 +1,21 @@
-## Goal
-Make the "Date Added" column on the Companies table the first column and ensure dates actually render.
+Root cause found: the Supabase query is returning `created_at`, but `transformCompanyData()` drops that field when converting raw `companies2` rows into the app's `Company` objects. The table is rendering `row.original.created_at`, so it receives `undefined` for every transformed row.
 
-## Source field
-The column reads `created_at` from the `companies2` table. Verified in the database: all 6,264 rows have a populated `created_at` timestamp (e.g., `2026-04-27 18:06:59+00`), and the column is already included in the `useCompanyQuery` select list.
+Plan:
 
-## Why it appears blank
-The current cell calls `row.getValue("created_at")`, but the column was placed at the end and the cell renders `null` when the value is falsy with no fallback. Combined with potential stale React Query cache, nothing visible is shown. We'll read from `row.original.created_at` directly, validate the parsed Date, and show a `—` placeholder if missing/invalid so the column is never silently empty.
+1. Preserve `created_at` during company transformation
+   - Update `src/utils/companyDataUtils.ts` so `transformCompanyData()` includes:
+     - `created_at: item.created_at`
+   - This will make the already-fetched `companies2.created_at` value available to the table.
 
-## Changes
+2. Keep the Date Added column as the first column
+   - Leave `src/components/companies-table/CompaniesTableColumns.tsx` with `created_at` first.
+   - Keep the current fallback (`—`) only for genuinely missing or invalid dates.
+   - Keep custom timestamp sorting.
 
-1. `src/components/companies-table/CompaniesTableColumns.tsx`
-   - Move the `created_at` column definition to the top of the returned array so it renders as the first column.
-   - Remove the duplicate definition from its current position (just before `systems`).
-   - Read the value from `row.original.created_at` (more reliable than `getValue` for accessor keys with custom rendering).
-   - Add a `—` fallback when value is missing or `new Date(value)` is invalid.
-   - Add `whitespace-nowrap` so the date doesn't wrap awkwardly in the narrow column.
-   - Replace the built-in `"datetime"` sortingFn with a custom comparator that converts to `getTime()` numbers, since values come from the API as ISO strings, not Date objects.
+3. Force the data cache to refresh cleanly
+   - Update the companies React Query cache key version in `src/hooks/useCompanyQuery.ts` from the current version to a new one, so users do not keep seeing transformed cached rows that were created before `created_at` was preserved.
 
-2. No DB migration needed — `created_at` already exists and is populated.
-
-3. No changes to `src/types/company.ts` or `src/hooks/useCompanyQuery.ts` (already include `created_at`).
-
-## Result
-- "Date Added" becomes the leftmost column on the Companies table.
-- Sorting by clicking the header sorts chronologically (ascending/descending).
-- Dates display as e.g. "Apr 27, 2026".
+Expected result:
+- The first column will display dates from `companies2.created_at`, e.g. `Sep 9, 2025`.
+- Sorting the Date Added column will use the actual timestamp.
+- Blank cells will only appear if a row truly has no valid `created_at` value.
