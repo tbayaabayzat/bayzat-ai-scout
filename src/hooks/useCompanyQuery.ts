@@ -65,7 +65,8 @@ export function useCompanyQuery({
             bayzat_relationship,
             ai_analysis,
             description,
-            founded_year
+            founded_year,
+            created_at
           `)
           .order('company_name', { ascending: true })
           .limit(2000) // Increase limit to include all companies (current total: ~1662)
