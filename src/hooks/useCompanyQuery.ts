@@ -66,7 +66,8 @@ export function useCompanyQuery({
             ai_analysis,
             description,
             founded_year,
-            created_at
+            created_at,
+            updated_at
           `)
           .order('company_name', { ascending: true })
           .limit(2000) // Increase limit to include all companies (current total: ~1662)
