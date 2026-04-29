@@ -130,6 +130,25 @@ export function createCompaniesTableColumns(handleCompanyClick: (company: Compan
       }
     },
     {
+      accessorKey: "created_at",
+      header: "Date Added",
+      enableSorting: true,
+      sortingFn: "datetime",
+      cell: ({ row }) => {
+        const value = row.getValue("created_at") as string | undefined
+        if (!value) return null
+        const date = new Date(value)
+        return (
+          <div
+            className="text-sm text-muted-foreground cursor-pointer hover:text-primary transition-colors"
+            onClick={() => handleCompanyClick(row.original)}
+          >
+            {date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+          </div>
+        )
+      }
+    },
+    {
       id: "systems",
       header: "Systems",
       cell: ({ row }) => {

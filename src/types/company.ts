@@ -14,6 +14,7 @@ export type Company = {
   ai_analysis?: any
   description?: string
   founded_year?: number
+  created_at?: string
   requested_by?: string
   // Fields from ai_analysis extraction
   has_erp?: boolean
