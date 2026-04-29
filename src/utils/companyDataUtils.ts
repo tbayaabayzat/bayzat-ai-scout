@@ -38,6 +38,7 @@ export const transformCompanyData = (data: any[], requestedByData?: Record<strin
       description: item.description,
       founded_year: item.founded_year,
       created_at: item.created_at,
+      updated_at: item.updated_at,
       requested_by: firstRequester,
       // Extract systems data from ai_analysis
       has_erp: extractSystemBoolean(item.ai_analysis, 'ERP'),
