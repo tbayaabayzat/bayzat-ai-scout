@@ -11,18 +11,18 @@ import { Company } from "@/types/company"
 export function createCompaniesTableColumns(handleCompanyClick: (company: Company) => void): ColumnDef<Company>[] {
   return [
     {
-      accessorKey: "created_at",
+      accessorKey: "updated_at",
       header: "Date Added",
       enableSorting: true,
       sortingFn: (rowA, rowB) => {
-        const a = rowA.original.created_at
-        const b = rowB.original.created_at
+        const a = rowA.original.updated_at
+        const b = rowB.original.updated_at
         const aTime = a ? new Date(a).getTime() : 0
         const bTime = b ? new Date(b).getTime() : 0
         return aTime - bTime
       },
       cell: ({ row }) => {
-        const value = row.original.created_at
+        const value = row.original.updated_at
         if (!value) return <span className="text-xs text-muted-foreground">—</span>
         const date = new Date(value)
         if (isNaN(date.getTime())) return <span className="text-xs text-muted-foreground">—</span>

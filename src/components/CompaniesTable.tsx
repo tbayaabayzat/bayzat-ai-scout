@@ -21,7 +21,7 @@ interface CompaniesTableProps {
 export function CompaniesTable({ companies, isLoading, error, emptyStateMessage, semanticFilterActive }: CompaniesTableProps) {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
-  const defaultSorting: SortingState = [{ id: "created_at", desc: true }]
+  const defaultSorting: SortingState = [{ id: "updated_at", desc: true }]
   const [sorting, setSorting] = React.useState<SortingState>(defaultSorting)
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
