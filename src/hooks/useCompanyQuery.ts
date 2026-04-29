@@ -33,7 +33,7 @@ export function useCompanyQuery({
       countryFilter?.selectedCountries, // Use specific property for better cache key
       relationshipFilter,
       requestedByFilter,
-      'v2' // Force cache bust
+      'v3-created-at' // Force cache bust
     ],
     queryFn: async () => {
       console.log('=== COMPREHENSIVE COMPANIES FETCH DEBUG ===')
