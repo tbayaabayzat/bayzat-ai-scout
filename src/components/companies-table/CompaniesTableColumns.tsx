@@ -11,6 +11,32 @@ import { Company } from "@/types/company"
 export function createCompaniesTableColumns(handleCompanyClick: (company: Company) => void): ColumnDef<Company>[] {
   return [
     {
+      accessorKey: "created_at",
+      header: "Date Added",
+      enableSorting: true,
+      sortingFn: (rowA, rowB) => {
+        const a = rowA.original.created_at
+        const b = rowB.original.created_at
+        const aTime = a ? new Date(a).getTime() : 0
+        const bTime = b ? new Date(b).getTime() : 0
+        return aTime - bTime
+      },
+      cell: ({ row }) => {
+        const value = row.original.created_at
+        if (!value) return <span className="text-xs text-muted-foreground">—</span>
+        const date = new Date(value)
+        if (isNaN(date.getTime())) return <span className="text-xs text-muted-foreground">—</span>
+        return (
+          <div
+            className="text-sm text-muted-foreground whitespace-nowrap cursor-pointer hover:text-primary transition-colors"
+            onClick={() => handleCompanyClick(row.original)}
+          >
+            {date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+          </div>
+        )
+      }
+    },
+    {
       accessorKey: "company_name",
       header: "Company",
       enableSorting: true,
@@ -127,25 +153,6 @@ export function createCompaniesTableColumns(handleCompanyClick: (company: Compan
         }
         
         return <AutomationScorePopover score={score} analysis={analysis} />
-      }
-    },
-    {
-      accessorKey: "created_at",
-      header: "Date Added",
-      enableSorting: true,
-      sortingFn: "datetime",
-      cell: ({ row }) => {
-        const value = row.getValue("created_at") as string | undefined
-        if (!value) return null
-        const date = new Date(value)
-        return (
-          <div
-            className="text-sm text-muted-foreground cursor-pointer hover:text-primary transition-colors"
-            onClick={() => handleCompanyClick(row.original)}
-          >
-            {date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
-          </div>
-        )
       }
     },
     {
